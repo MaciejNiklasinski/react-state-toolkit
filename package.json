@@ -19,6 +19,9 @@
     "build": "rollup -c",
     "test": "react-scripts test"
   },
+  "files": [
+    "/lib"
+  ],
   "peerDependencies": {
     "react": "^18.2.0"
   },
