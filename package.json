@@ -12,5 +12,8 @@
   "bugs": {
     "url": "https://github.com/MaciejNiklasinski/react-state-toolkit/issues"
   },
-  "homepage": "https://github.com/MaciejNiklasinski/react-state-toolkit#readme"
+  "homepage": "https://github.com/MaciejNiklasinski/react-state-toolkit#readme",
+  "peerDependencies": {
+    "react": "^18.2.0"
+  }
 }
