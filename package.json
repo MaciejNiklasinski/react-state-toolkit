@@ -2,7 +2,9 @@
   "name": "react-state-toolkit",
   "version": "0.0.1",
   "description": "React global store based exclusively on build-in React hooks, useState and useEffect.",
-  "main": "index.js",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MaciejNiklasinski/react-state-toolkit.git"
@@ -14,6 +16,7 @@
   },
   "homepage": "https://github.com/MaciejNiklasinski/react-state-toolkit#readme",
   "scripts": {
+    "build": "rollup -c",
     "test": "react-scripts test"
   },
   "peerDependencies": {
