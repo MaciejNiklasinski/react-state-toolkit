@@ -13,7 +13,17 @@
     "url": "https://github.com/MaciejNiklasinski/react-state-toolkit/issues"
   },
   "homepage": "https://github.com/MaciejNiklasinski/react-state-toolkit#readme",
+  "scripts": {
+    "test": "react-scripts test"
+  },
   "peerDependencies": {
     "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
   }
 }
