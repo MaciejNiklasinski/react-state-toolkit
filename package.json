@@ -1,0 +1,16 @@
+{
+  "name": "react-state-toolkit",
+  "version": "0.0.1",
+  "description": "React global store based exclusively on build-in React hooks, useState and useEffect.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaciejNiklasinski/react-state-toolkit.git"
+  },
+  "author": "Maciej Niklasinski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MaciejNiklasinski/react-state-toolkit/issues"
+  },
+  "homepage": "https://github.com/MaciejNiklasinski/react-state-toolkit#readme"
+}
