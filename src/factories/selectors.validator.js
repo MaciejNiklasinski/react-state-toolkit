@@ -18,7 +18,9 @@ export const getSelectorValidator = ({
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 }) => {
   const validateSelectorStore = ({ storeName, sliceName, selectorName }) => {
     if (!storeName || /[_.]/.test(storeName))

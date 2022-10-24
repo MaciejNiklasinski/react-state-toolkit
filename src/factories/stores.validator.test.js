@@ -14,35 +14,48 @@ import {
   UnableToCreateSliceSelectorStore,
   UnableToCreateSliceRegisteredSelectorStore,
   UnableToCreateMissingSelectorStore,
+  // Store Import Action
+  UnableToCreateUnknownSliceActionImportStore,
+  UnableToCreateUnknownActionImportStore,
+  // Store Import Selector
+  UnableToCreateUnknownSliceSelectorImportStore,
+  UnableToCreateUnknownSelectorImportStore,
 } from "../errors/UnableToCreateStore";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
-import { getSliceId } from "./ids";
+import { getImportersFactory } from "./importers";
+import { getActionId, getSelectorId, getSliceId } from "./ids";
 
-let stores, slices, actions, actionsByType, selectors;
-let createStore, createSlice, createAction, createAsyncAction, createSelector;
+let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
+let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 const reset = () => {
   stores = {};
   slices = {};
   actions = {};
   actionsByType = {};
+  actionsImports = {};
   selectors = {};
+  selectorsImports = {};
 
   ({ createStore } = getStoresFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSlice } = getSlicesFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({
     createAction,
@@ -52,19 +65,32 @@ const reset = () => {
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSelector } = getSelectorsFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
+  }));
+  ({ createImporter } = getImportersFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
   }));
 };
+beforeEach(reset);
 
 describe("stores validator", () => {
-  beforeEach(reset);
   test("Should throw correct error when attempting to create store with invalid name.", () => {
     let error;
     try {
@@ -243,5 +269,91 @@ describe("stores validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateMissingSelectorStore({ storeName: DEFAULT_STORE, missingSelectorId: missingStoreSelector.__selectorId }));
+  });
+
+  test("Should throw correct error when attempting to create store with unknown slice action import", () => {
+    const { importAction } = createImporter();
+    const importSliceName = "importSlice";
+    const importActionName = "importAction";
+    const importActionId = getActionId({ 
+      storeName: DEFAULT_STORE,
+      sliceName: importSliceName,
+      actionName: importActionName
+    });
+    importAction(importSliceName, importActionName);
+    const sliceName = "testSlice";
+    const slice = createSlice({ name: sliceName, reducer: {}, sliceSelectors: {} });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateUnknownSliceActionImportStore({ actionId: importActionId }));
+  });  
+
+  test("Should throw correct error when attempting to create store with unknown action import", () => {
+    const { importAction } = createImporter();
+    const sliceName = "testSlice";
+    const importActionName = "importAction";
+    const importActionId = getActionId({ 
+      storeName: DEFAULT_STORE,
+      sliceName,
+      actionName: importActionName
+    });
+    importAction(sliceName, importActionName);
+    const slice = createSlice({ name: sliceName, reducer: {}, sliceSelectors: {} });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateUnknownActionImportStore({ actionId: importActionId }));
+  });
+
+  test("Should throw correct error when attempting to create store with unknown slice selector import", () => {
+    const { importSelector } = createImporter();
+    const importSliceName = "importSlice";
+    const importSelectorName = "importSelector";
+    const importSelectorId = getSelectorId({ 
+      storeName: DEFAULT_STORE,
+      sliceName: importSliceName,
+      selectorName: importSelectorName
+    });
+    importSelector(importSliceName, importSelectorName);
+    const sliceName = "testSlice";
+    const slice = createSlice({ name: sliceName, reducer: {}, sliceSelectors: {} });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateUnknownSliceSelectorImportStore({ selectorId: importSelectorId }));
+  });
+
+  test("Should throw correct error when attempting to create store with unknown selector import", () => {
+    const { importSelector } = createImporter();
+    const sliceName = "testSlice";
+    const importSelectorName = "importSelector";
+    const importSelectorId = getSelectorId({ 
+      storeName: DEFAULT_STORE,
+      sliceName,
+      selectorName: importSelectorName
+    });
+    importSelector(sliceName, importSelectorName);
+    const slice = createSlice({ name: sliceName, reducer: {}, sliceSelectors: {} });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateUnknownSelectorImportStore({ selectorId: importSelectorId }));
   });
 });

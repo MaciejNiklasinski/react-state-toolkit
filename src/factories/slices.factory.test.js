@@ -3,29 +3,36 @@ import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
+import { getImportersFactory } from "./importers";
 
-let stores, slices, actions, actionsByType, selectors;
-let createStore, createSlice, createAction, createAsyncAction, createSelector;
+let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
+let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 const reset = () => {
   stores = {};
   slices = {};
   actions = {};
   actionsByType = {};
+  actionsImports = {};
   selectors = {};
+  selectorsImports = {};
 
   ({ createStore } = getStoresFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSlice } = getSlicesFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({
     createAction,
@@ -35,14 +42,27 @@ const reset = () => {
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSelector } = getSelectorsFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
+  }));
+  ({ createImporter } = getImportersFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
   }));
 };
 beforeEach(reset);
@@ -142,7 +162,7 @@ describe("slices factory", () => {
 
     expect(slice.storeName).toEqual(DEFAULT_STORE);
     expect(slice.sliceName).toEqual(sliceName);
-    expect(stores[DEFAULT_STORE].selectors).toEqual({ [sliceName]: { validSelector } });
+    expect(typeof stores[DEFAULT_STORE].selectors[sliceName].validSelector).toEqual("function");
     expect(stores[DEFAULT_STORE].actions).toEqual({});
     expect(stores[DEFAULT_STORE].reducers).toEqual({ [sliceName]: {} });
     expect(stores[DEFAULT_STORE].slices[sliceName].storeName).toEqual(DEFAULT_STORE);
@@ -170,7 +190,7 @@ describe("slices factory", () => {
 
     expect(slice.storeName).toEqual(storeName);
     expect(slice.sliceName).toEqual(sliceName);
-    expect(stores[storeName].selectors).toEqual({ [sliceName]: { validSelector } });
+    expect(typeof stores[storeName].selectors[sliceName].validSelector).toEqual("function");
     expect(stores[storeName].actions).toEqual({});
     expect(stores[storeName].reducers).toEqual({ [sliceName]: {} });
     expect(stores[storeName].slices[sliceName].storeName).toEqual(storeName);
@@ -194,7 +214,7 @@ describe("slices factory", () => {
 
     expect(slice.storeName).toEqual(DEFAULT_STORE);
     expect(slice.sliceName).toEqual(sliceName);
-    expect(stores[DEFAULT_STORE].selectors).toEqual({ [DEFAULT_SLICE]: { validStoreSelector } });
+    expect(typeof stores[DEFAULT_STORE].selectors[DEFAULT_SLICE].validStoreSelector).toEqual("function");
     expect(stores[DEFAULT_STORE].actions).toEqual({});
     expect(stores[DEFAULT_STORE].reducers).toEqual({ [sliceName]: {} });
     expect(stores[DEFAULT_STORE].slices[sliceName].storeName).toEqual(DEFAULT_STORE);
@@ -221,7 +241,7 @@ describe("slices factory", () => {
 
     expect(slice.storeName).toEqual(storeName);
     expect(slice.sliceName).toEqual(sliceName);
-    expect(stores[storeName].selectors).toEqual({ [DEFAULT_SLICE]: { validStoreSelector } });
+    expect(typeof stores[storeName].selectors[DEFAULT_SLICE].validStoreSelector).toEqual("function");
     expect(stores[storeName].actions).toEqual({});
     expect(stores[storeName].reducers).toEqual({ [sliceName]: {} });
     expect(stores[storeName].slices[sliceName].storeName).toEqual(storeName);

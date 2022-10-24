@@ -3,29 +3,36 @@ import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
+import { getImportersFactory } from "./importers";
 
-let stores, slices, actions, actionsByType, selectors;
-let createStore, createSlice, createAction, createAsyncAction, createSelector;
+let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
+let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 const reset = () => {
   stores = {};
   slices = {};
   actions = {};
   actionsByType = {};
+  actionsImports = {};
   selectors = {};
+  selectorsImports = {};
 
   ({ createStore } = getStoresFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSlice } = getSlicesFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({
     createAction,
@@ -35,14 +42,27 @@ const reset = () => {
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSelector } = getSelectorsFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
+  }));
+  ({ createImporter } = getImportersFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
   }));
 };
 beforeEach(reset);
@@ -240,7 +260,7 @@ describe("async action factory", () => {
     expect(actionsByType[action.actionType.RESOLVED].VALID_ASYNC_ACTION).toEqual(action.VALID_ASYNC_ACTION);
     expect(typeof actionsByType[action.actionType.RESOLVED][actionName]).toEqual("function");
   });
-  
+
   test("Should be able to create valid async action with already suffixed name.", () => {
     const sliceName = "testSlice";
     const name = "validAsyncAction";

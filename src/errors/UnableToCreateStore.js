@@ -83,3 +83,33 @@ export class UnableToCreateMissingSelectorStore extends UnableToCreateStore {
     super({ storeName, baseMessageSuffix: `store selector ${missingSelectorId} is missing storeSelectors passed to createStore() function.` });
   }
 };
+
+// Store Action Imports
+export class UnableToCreateUnknownSliceActionImportStore extends UnableToCreateStore {
+  constructor({ actionId }) {
+    const [storeName, sliceName, actionName] = actionId.split(".");
+    super({ storeName, baseMessageSuffix: `store import is attempting to import unknown slice ${sliceName} action ${actionName}` });
+  }
+};
+
+export class UnableToCreateUnknownActionImportStore extends UnableToCreateStore {
+  constructor({ actionId }) {
+    const [storeName, sliceName, actionName] = actionId.split(".");
+    super({ storeName, baseMessageSuffix: `store import is attempting to import unknown action ${actionId}` });
+  }
+};
+
+// Store Selectors Imports
+export class UnableToCreateUnknownSliceSelectorImportStore extends UnableToCreateStore {
+  constructor({ selectorId }) {
+    const [storeName, sliceName, selectorName] = selectorId.split(".");
+    super({ storeName, baseMessageSuffix: `store import is attempting to import unknown slice ${sliceName} selector ${selectorName}` });
+  }
+};
+
+export class UnableToCreateUnknownSelectorImportStore extends UnableToCreateStore {
+  constructor({ selectorId }) {
+    const [storeName, sliceName, selectorName] = selectorId.split(".");
+    super({ storeName, baseMessageSuffix: `store import is attempting to import unknown selector ${selectorId}` });
+  }
+};

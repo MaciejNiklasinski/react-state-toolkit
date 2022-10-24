@@ -12,7 +12,9 @@ export const getActionsFactory = ({
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 }) => ({
   createAction: ({
     storeName = DEFAULT_STORE,
@@ -28,7 +30,9 @@ export const getActionsFactory = ({
       slices,
       actions,
       actionsByType,
+      actionsImports,
       selectors,
+      selectorsImports,
     });
     validateAction({ storeName, sliceName, actionName: suffixedName, func });
 
@@ -86,7 +90,9 @@ export const getActionsFactory = ({
       slices,
       actions,
       actionsByType,
+      actionsImports,
       selectors,
+      selectorsImports,
     });
     validateAction({ storeName, sliceName, actionName: suffixedName, func });
 

@@ -1,33 +1,43 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from "../constants/store";
+import {
+  // Action Invocation
+  UnableToInvokeUninitializedStoreAction
+} from "../errors/UnableToInvokeUninitializedStoreAction";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
-import { UnableToInvokeUninitializedStoreAction } from "../errors/UnableToInvokeUninitializedStoreAction";
+import { getImportersFactory } from "./importers";
 import { getActionId } from "./ids";
 
-let stores, slices, actions, actionsByType, selectors;
-let createStore, createSlice, createAction, createAsyncAction, createSelector;
+let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
+let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 const reset = () => {
   stores = {};
   slices = {};
   actions = {};
   actionsByType = {};
+  actionsImports = {};
   selectors = {};
+  selectorsImports = {};
 
   ({ createStore } = getStoresFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSlice } = getSlicesFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({
     createAction,
@@ -37,14 +47,27 @@ const reset = () => {
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSelector } = getSelectorsFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
+  }));
+  ({ createImporter } = getImportersFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
   }));
 };
 beforeEach(reset);

@@ -7,27 +7,34 @@ export const getStoresFactory = ({
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 }) => ({
   createStore: ({
     name = DEFAULT_STORE,
     storeSlices = {},
     storeSelectors = {},
   }) => {
+    // Normalize store creations arguments
     if (storeSlices && typeof storeSlices === "object")
       storeSlices = Object.values(storeSlices);
     if (storeSelectors && typeof storeSelectors === "object")
       storeSelectors = Object.values(storeSelectors);
 
+    // Validate store creation
     const { validateStore } = getStoreValidator({
       stores,
       slices,
       actions,
       actionsByType,
+      actionsImports,
       selectors,
+      selectorsImports,
     });
     validateStore({ storeName: name, storeSlices, storeSelectors });
 
+    // Create store functions
     const getState = (sliceName = null) =>
       sliceName ? stores[name].state[sliceName] : stores[name].state;
     const getActions = (sliceName = null) =>
@@ -86,11 +93,21 @@ export const getStoresFactory = ({
       return selected;
     };
 
-    const getStorePropName = propName =>
-      name !== DEFAULT_STORE
-        ? `${propName.slice(0, 3)}${name[0].toUpperCase()}${name.slice(1)}${propName.slice(3)}`
-        : propName;
+    // Assign validated store imports
+    const storeActionImports = actionsImports[name] || {};
+    Object.keys(storeActionImports).forEach(
+      (sliceName) => Object.keys(storeActionImports[sliceName]).forEach(
+        (actionName) => storeActionImports[sliceName][actionName].forEach(assignImport => assignImport())
+      )
+    );
+    const storeSelectorImports = selectorsImports[name] || {};
+    Object.keys(storeSelectorImports).forEach(
+      (sliceName) => Object.keys(storeSelectorImports[sliceName]).forEach(
+        (selectorName) => storeSelectorImports[sliceName][selectorName].forEach(assignImport => assignImport())
+      )
+    );
 
+    // Create and freeze store
     stores[name].subscriptions = subscriptions;
     stores[name].dispatch = dispatch;
     stores[name].useStoreState = useStoreState;
@@ -108,12 +125,17 @@ export const getStoresFactory = ({
     );
     Object.freeze(stores[name].actions);
 
-    return {
+    const getStorePropName = propName =>
+      name !== DEFAULT_STORE
+        ? `${propName.slice(0, 3)}${name[0].toUpperCase()}${name.slice(1)}${propName.slice(3)}`
+        : propName;
+
+    return Object.freeze({
       [getStorePropName('useStoreState')]: useStoreState,
       [getStorePropName('useSelector')]: useSelector,
       [getStorePropName('getState')]: getState,
       [getStorePropName('getActions')]: getActions,
       [getStorePropName('getSelectors')]: getSelectors,
-    };
+    });
   },
 });
