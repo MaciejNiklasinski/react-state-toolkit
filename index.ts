@@ -4,4 +4,5 @@ export {
   createAction,
   createAsyncAction,
   createSelector,
+  createImporter,
 } from "./src/";
