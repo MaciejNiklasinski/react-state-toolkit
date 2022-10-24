@@ -4,6 +4,7 @@ import { getStoresFactory } from "./factories/stores";
 import { getSlicesFactory } from "./factories/slices";
 import { getActionsFactory } from "./factories/actions";
 import { getSelectorsFactory } from "./factories/selectors";
+import { getImportersFactory } from "./factories/importers";
 
 const stores = {};
 const slices = {};
@@ -40,6 +41,15 @@ const actionsFactory = getActionsFactory({
   selectorsImports,
 });
 const selectorsFactory = getSelectorsFactory({
+  stores,
+  slices,
+  actions,
+  actionsByType,
+  actionsImports,
+  selectors,
+  selectorsImports,
+});
+const importersFactory = getImportersFactory({
   stores,
   slices,
   actions,
@@ -112,3 +122,7 @@ export const createSelector = ({
   funcs,
   memoOnArgs,
 });
+
+export const createImporter = ({
+  storeName = DEFAULT_STORE,
+} = {}) => importersFactory.createImporter({ storeName });
