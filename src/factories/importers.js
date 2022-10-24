@@ -45,19 +45,14 @@ export const getImportersFactory = ({
       const actionId = getActionId({ storeName, sliceName, actionName });
 
       if (stores[storeName]?.initialized) {
-        if (!slices[sliceId])
-          throw new Error(`Unable to import action ${actionId}. Slice ${sliceId} not found.`);
-        else if (!actions[actionId])
-          throw new Error(`Unable to import action ${actionId}. Action ${actionId} not found.`);
-        else
-          return Object.freeze({ [actionName]: actions[actionId][actionName] });
+        return Object.freeze({ [actionName]: actions[actionId][actionName], isReady: () => true });
       } else {
         let actionFunc = () => { throw new UnableToInvokeUninitializedStoreAction({ actionId }); }
         let actionFuncWrapper = (param) => actionFunc(param);
         actionFuncWrapper.__isImportWrapper = true;
 
         let isReady = false;
-        const importActionFunc = () => { 
+        const importActionFunc = () => {
           actionFunc = actions[actionId][actionName];
           isReady = true;
         };
@@ -83,12 +78,7 @@ export const getImportersFactory = ({
       const selectorId = getSelectorId({ storeName, sliceName, selectorName });
 
       if (stores[storeName]?.initialized) {
-        if (!slices[sliceId])
-          throw new Error(`Unable to import selector ${selectorId}. Slice ${sliceId} not found.`);
-        else if (!selectors[selectorId])
-          throw new Error(`Unable to import selector ${selectorId}. Selector ${selectorId} not found.`);
-        else
-          return Object.freeze({ [selectorName]: selectors[selectorId][selectorName] });
+        return Object.freeze({ [selectorName]: selectors[selectorId][selectorName], isReady: () => true });
       } else {
         let selectorFunc = () => { throw new UnableToInvokeUninitializedStoreSelector({ selectorId }); }
         let selectorFuncWrapper = (param) => selectorFunc(param);

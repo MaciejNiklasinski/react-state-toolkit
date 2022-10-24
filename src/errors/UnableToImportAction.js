@@ -34,16 +34,28 @@ export class UnableToImportAction extends Error {
   }
 };
 
-// Action slice validation
+// ImportAction slice validation
 export class UnableToImportInvalidNameSliceAction extends UnableToImportAction {
   constructor({ storeName, sliceName, actionName }) {
     super({ storeName, sliceName, actionName, baseMessageSuffix: `sliceName must be a string and its not allow to contain "." and/or "_" characters.` });
   }
 };
 
-// Action validation
+export class UnableToImportUnregisteredSliceAction extends UnableToImportAction {
+  constructor({ storeName, sliceName, actionName }) {
+    super({ storeName, sliceName, actionName, baseMessageSuffix: `slice ${sliceName} has never been register within ${storeName} store.` });
+  }
+};
+
+// ImportAction validation
 export class UnableToImportInvalidNameAction extends UnableToImportAction {
   constructor({ storeName, sliceName, actionName }) {
     super({ storeName, sliceName, actionName, baseMessageSuffix: `name must be a string and its not allow to contain "." and/or "_" characters.` });
+  }
+};
+
+export class UnableToImportUnregisteredAction extends UnableToImportAction {
+  constructor({ storeName, sliceName, actionName }) {
+    super({ storeName, sliceName, actionName, baseMessageSuffix: `slice ${sliceName} has never been register within ${getSliceId({ storeName, sliceName })} slice.` });
   }
 };
