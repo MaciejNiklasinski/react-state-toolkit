@@ -3,30 +3,38 @@ import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
+import { getImportersFactory } from "./importers";
 import { getSelectorId } from "./ids";
+import { UnableToInvokeUninitializedStoreSelector } from "../errors/UnableToInvokeUninitializedStoreSelector";
 
-let stores, slices, actions, actionsByType, selectors;
-let createStore, createSlice, createAction, createAsyncAction, createSelector;
+let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
+let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 const reset = () => {
   stores = {};
   slices = {};
   actions = {};
   actionsByType = {};
+  actionsImports = {};
   selectors = {};
+  selectorsImports = {};
 
   ({ createStore } = getStoresFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSlice } = getSlicesFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({
     createAction,
@@ -36,19 +44,53 @@ const reset = () => {
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
   }));
   ({ createSelector } = getSelectorsFactory({
     stores,
     slices,
     actions,
     actionsByType,
+    actionsImports,
     selectors,
+    selectorsImports,
+  }));
+  ({ createImporter } = getImportersFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
   }));
 };
 beforeEach(reset);
 
 describe("single func selector", () => {
+  test("Should throw error when executed before store creation.", () => {
+    const sliceName = "testSlice";
+    const selectorName = "validSelector";
+    const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
+    const { validSelector } = createSelector({
+      sliceName,
+      name: selectorName,
+      funcs: [(state) => state[sliceName].value]
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: [validSelector],
+      initialState: { value: 0 }
+    });    
+    let error;
+    try { validSelector(); }
+    catch (err) { error = err; }
+    expect(error).toEqual(new UnableToInvokeUninitializedStoreSelector({ selectorId }));
+  });
+
   test("Should be able to select value from initial state.", () => {
     const sliceName = "testSlice";
     const { validSelector } = createSelector({
@@ -106,6 +148,34 @@ describe("single func selector", () => {
 });
 
 describe("multi func selector", () => {
+  test("Should throw error when executed before store creation.", () => {
+    const sliceName = "testSlice";
+    const selectorName = "validSelector";
+    const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
+    const { validSelector } = createSelector({
+      sliceName,
+      name: selectorName,
+      funcs: [
+        (state) => state[sliceName].obj1,
+        (state) => state[sliceName].obj2,
+        (obj1, obj2) => obj1.value + obj2.value,
+      ]
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: [validSelector],
+      initialState: {
+        obj1: { value: 1 },
+        obj2: { value: 2 },
+      },
+    });    
+    let error;
+    try { validSelector(); }
+    catch (err) { error = err; }
+    expect(error).toEqual(new UnableToInvokeUninitializedStoreSelector({ selectorId }));
+  });
+
   test("Should be able to select value from initial state.", () => {
     const sliceName = "testSlice";
     const { validSelector } = createSelector({
