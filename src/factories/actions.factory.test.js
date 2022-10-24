@@ -107,6 +107,21 @@ describe("action factory", () => {
     expect(actionsByType[action.actionType].VALID_SYNC_ACTION).toEqual(action.VALID_SYNC_ACTION);
     expect(typeof actionsByType[action.actionType][actionName]).toEqual("function");
   });
+
+  test("Should be able to create valid sync action with already suffixed name.", () => {
+    const sliceName = "testSlice";
+    const name = "validSyncAction";
+    const syncFunc = () => ({});
+    const action = createAction({
+      sliceName,
+      name,
+      func: syncFunc,
+    });
+
+    expect(action.storeName).toEqual(DEFAULT_STORE);
+    expect(action.sliceName).toEqual(sliceName);
+    expect(action.actionName).toEqual(name);
+  });
 });
 
 describe("async action factory", () => {
@@ -224,5 +239,20 @@ describe("async action factory", () => {
     expect(actionsByType[action.actionType.RESOLVED].actionType).toEqual(action.actionType);
     expect(actionsByType[action.actionType.RESOLVED].VALID_ASYNC_ACTION).toEqual(action.VALID_ASYNC_ACTION);
     expect(typeof actionsByType[action.actionType.RESOLVED][actionName]).toEqual("function");
+  });
+  
+  test("Should be able to create valid async action with already suffixed name.", () => {
+    const sliceName = "testSlice";
+    const name = "validAsyncAction";
+    const asyncFunc = async () => ({});
+    const action = createAsyncAction({
+      sliceName,
+      name,
+      func: asyncFunc,
+    });
+
+    expect(action.storeName).toEqual(DEFAULT_STORE);
+    expect(action.sliceName).toEqual(sliceName);
+    expect(action.actionName).toEqual(name);
   });
 });

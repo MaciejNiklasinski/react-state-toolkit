@@ -20,7 +20,9 @@ export const getActionsFactory = ({
     name,
     func,
   }) => {
-    const suffixedName = name ? `${name}Action` : name;
+    let suffixedName = name;
+    if (name && (typeof name !== "string" || !name.endsWith("Action")))
+      suffixedName = `${name}Action`;
     const { validateAction } = getActionValidator({
       stores,
       slices,
@@ -76,7 +78,9 @@ export const getActionsFactory = ({
     name,
     func,
   }) => {
-    const suffixedName = name ? `${name}Action` : name;
+    let suffixedName = name;
+    if (name && (typeof name !== "string" || !name.endsWith("Action")))
+      suffixedName = `${name}Action`;
     const { validateAction } = getActionValidator({
       stores,
       slices,

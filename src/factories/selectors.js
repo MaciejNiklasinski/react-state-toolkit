@@ -16,7 +16,9 @@ export const getSelectorsFactory = ({
     funcs = [],
     memoOnArgs = false,
   }) => {
-    const suffixedName = name ? `${name}Selector` : name;
+    let suffixedName = name;
+    if (name && (typeof name !== "string" || !name.endsWith("Selector")))
+      suffixedName = `${name}Selector`;
     const { validateSelector } = getSelectorValidator({
       stores,
       slices,

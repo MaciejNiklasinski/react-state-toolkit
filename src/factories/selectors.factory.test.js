@@ -128,4 +128,19 @@ describe("selector factory", () => {
     expect(stores[storeName].selectors[DEFAULT_SLICE][selectorName]).toEqual(selector[selector.selectorName]);
     expect(selectors[getSelectorId({ storeName, sliceName: DEFAULT_SLICE, selectorName })]).toEqual(selector);
   });
+
+  test("Should be able to create selector with already suffixed name.", () => {
+    const storeName = "nonDefault";
+    const name = "validSelector";
+    const funcs = [(state) => state];
+    const selector = createSelector({
+      storeName,
+      name,
+      funcs,
+    });
+
+    expect(selector.storeName).toEqual(storeName);
+    expect(selector.sliceName).toEqual(DEFAULT_SLICE);
+    expect(selector.selectorName).toEqual(name);
+  });
 });
