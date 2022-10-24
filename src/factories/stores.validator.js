@@ -70,7 +70,8 @@ export const getStoreValidator = ({
                 throw new UnableToCreateSliceRegisteredSelectorStore({ storeName, selectorId: __selectorId });
             });
         });
-      } else storeSelectorsIds.push(__selectorId);
+      }
+      storeSelectorsIds.push(__selectorId);
     });
 
     const selectorsSliceNames = Object.values(stores[storeName].slices)
