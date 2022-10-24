@@ -2,14 +2,20 @@
 
 React global store based exclusively on build-in React hooks, useState and useEffect. General structure inspired by @reduxjs/toolkit.
 
+<h2>Installation:</h2>
+
+<code>yarn add react-state-toolkit</code><br/>
+
 <h2>Improvements:</h2>
 
 <h3>Dispatch</h3>
 No more dispatch!<br/>
-All actions created using either createAction or createAsyncAction are self-dispatchable.<br/>
+Working with redux there is dispatch everywhere. Personally I never perceived any value in having it and I am of the opinion that code can be much cleaner if dispatch will be obfuscated behind the action. In react-state-toolkit there is no dispatch visible for the action caller! All actions created using either createAction or createAsyncAction are self-dispatchable.<br/>
 
-<h3>Circular imports</h3>
-Strict creation/registration order policy.<br/>
+<h3>Strict creation/registration policy requirements/order</h3>
+If it built, it works!<br/>
+Working with redux or redux with @reduxjs/toolkit, is prone to time-consuming debugging of errors caused by simple mistakes like for example forgetting to create/assign action handler for newly created action. Strict creation/registration policy should prevent that! Store creation follows a very strict set of rules which throws descriptive errors whenever any of them is violated. This should cause majority of aforementioned issues to be flagged by such error preventing application from building entirely.<br/><br/>
+
 All store elements actions/selectors/slices must be created following creation order/rules:
 <ul>
   <li>Actions and slice-registered selectors must be created before their slice.</li>
@@ -22,8 +28,9 @@ All store elements actions/selectors/slices must be created following creation o
   <li>Store must register all store selectors not registered directly in any of the slices, by passing them to storeSelectors.</li>
 </ul>
 
-No more circular imports!<br/>
-Thanks to strict creation/registration policy all store actions/selectors which will ever be valid for the store, have been created and registered within the store on creation and are immediately available through store getActions/getSelectors functions. That allows (and its recommended) to abandon usage of standard, prone-to-be-circular esm imports within actions, selectors and store-aware components files.
+<h3>Sudo actions/selectors imports</h3>
+No more broken circular imports!<br/>
+Thanks to strict creation/registration policy all store actions/selectors which will ever be valid for the store, have been created and registered within the store on creation and are immediately available through store getActions/getSelectors functions. That allows (and its recommended) to substitute usage of standard, prone-to-be-circular esm imports when importing actions or selectors into actions, selectors and store-aware components files, with sudo-import via store created importer importAction/importSelector functions. Using these will ensure imports validation (descriptive errors on either import attempt or store creation) and will also allow for safe circular imports.<br/><br/>
 
 Only import actions/selectors using standard esm import to:
 <ul>
@@ -33,7 +40,7 @@ Only import actions/selectors using standard esm import to:
   <li>Import the store file wherever you need a store-aware component. Get access to getSelectors/getActions.</li>
 </ul>
 
-Use store importAction/importSelector to:
+Use store importer importAction/importSelector sudo-import functions to:
 <ul>
   <li>Import to action file.</li>
   <li>Import to selector file.</li>
@@ -41,7 +48,17 @@ Use store importAction/importSelector to:
 </ul>
 
 <h3>Re-throw rejected action error</h3>
-Whenever async action throws an error and completes rejected, after processing REJECTED action handler the error will be re-thrown back to action caller. This is unlike in @reduxjs/toolkit with redux-thunk, where if thunk action promise has thrown an error, the error is not re-thrown to action dispatcher, instead it is returned as error property of action result. This I believe is highly counter-intuitive as well as requires this awful snippet being anywhere error has to be re-thrown:<br/>
+When working with @redux/toolkit with redux-thunk combination, one of highly counter-intuitive problems is the fact that REJECTED thunk actions do not throw an error back to dispatcher. Instead the promise will resolve with status "fulfilled" and returned action result will contain error property. This I believe is highly counter-intuitive as well as requires this awful snippet to handle it with re-throw:<br/><br/>
 
-const { payload, error } = await dispatch(someThunkAction());<br/>
-if (error) { throw error; }
+<pre><code>const { payload, error } = await dispatch(someThunkAction());
+if (error) { throw error; }</code></pre><br/><br/>
+
+Actions created with createAction and createAsyncAction will rethrow the error back to the caller! (After processing REJECTED action handler if such registered for async acton) And can be handle as shown:<br/><br/>
+
+<pre><code>try {
+  const { payload } = await someAction();
+  return payload;
+} catch (error) {
+  console.log(error);
+  throw error;
+}</code></pre>
