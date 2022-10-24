@@ -82,7 +82,7 @@ beforeEach(reset);
 
 describe("importer action", () => {
   test("Should be able to import default store sync action before its creation.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const { setValueAction: importedSetValue, isReady } = importAction(sliceName, actionName);
@@ -111,7 +111,7 @@ describe("importer action", () => {
   });
 
   test("Should be able to import default store async action before its creation.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const { setValueAction: importedSetValue, isReady } = importAction(sliceName, actionName);
@@ -142,7 +142,7 @@ describe("importer action", () => {
   });
 
   test("Should throw correct error when imported sync action gets invoked before store creation.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const actionId = getActionId({ storeName: DEFAULT_STORE, sliceName, actionName });
@@ -169,7 +169,7 @@ describe("importer action", () => {
   });
 
   test("Should throw correct error when imported async action gets invoked before store creation.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const actionId = getActionId({ storeName: DEFAULT_STORE, sliceName, actionName });
@@ -196,7 +196,7 @@ describe("importer action", () => {
   });
 
   test("Should be able to invoke imported sync action after store creation.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const { setValueAction: importedSetValue } = importAction(sliceName, actionName);
@@ -223,7 +223,7 @@ describe("importer action", () => {
   });
 
   test("Should be able to invoke imported async action after store creation.", async () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "setValueAction";
     const { setValueAction: importedSetValue } = importAction(sliceName, actionName);
@@ -254,7 +254,7 @@ describe("importer action", () => {
 
 describe("importer selector", () => {
   test("Should be able to import default store slice selector before its creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
@@ -282,7 +282,7 @@ describe("importer selector", () => {
   });
 
   test("Should be able to import default store slice-registered store selector before its creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
@@ -309,7 +309,7 @@ describe("importer selector", () => {
   });
 
   test("Should be able to import default store selector before its creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
@@ -336,7 +336,7 @@ describe("importer selector", () => {
   });
 
   test("Should throw correct error when imported slice selector gets invoked before store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
@@ -360,7 +360,7 @@ describe("importer selector", () => {
   });
 
   test("Should throw correct error when imported slice-registered store selector gets invoked before store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
@@ -383,7 +383,7 @@ describe("importer selector", () => {
   });
 
   test("Should throw correct error when imported store selector gets invoked before store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
@@ -405,7 +405,7 @@ describe("importer selector", () => {
   });
   
   test("Should be able to invoke imported slice selector after store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
@@ -433,7 +433,7 @@ describe("importer selector", () => {
   });
 
   test("Should be able to invoke imported slice-registered store selector after store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
@@ -460,7 +460,7 @@ describe("importer selector", () => {
   });
 
   test("Should be able to invoke imported store selector after store creation.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "valueSelector";
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });

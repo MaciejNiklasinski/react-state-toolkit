@@ -113,7 +113,7 @@ describe("importer creation validator", () => {
 
 describe("import action validator", () => {
   test("Should throw correct error when attempting to import action with invalid sliceName.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const actionName = "someAction";
     let error;
     try {
@@ -141,7 +141,7 @@ describe("import action validator", () => {
   });
 
   test("Should throw correct error when attempting to import action with invalid name.", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const actionName = "someAction";
     let error;
@@ -172,7 +172,7 @@ describe("import action validator", () => {
 
 describe("import selector validator", () => {
   test("Should throw correct error when attempting to import selector with invalid sliceName.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const selectorName = "someSelector";
     let error;
     try {
@@ -200,7 +200,7 @@ describe("import selector validator", () => {
   });
 
   test("Should throw correct error when attempting to import selector with invalid name.", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const selectorName = "someSelector";
     let error;

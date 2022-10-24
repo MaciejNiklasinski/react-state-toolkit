@@ -73,7 +73,7 @@ beforeEach(reset);
 
 describe("importer creation validator", () => {
   test("Should be able to create default store importer.", () => {
-    const importer = createImporter();
+    const importer = createImporter({});
 
     expect(typeof importer.importAction).toEqual("function");
     expect(typeof importer.importSelector).toEqual("function");

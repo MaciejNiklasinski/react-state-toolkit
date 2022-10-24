@@ -13,7 +13,7 @@ export const getImportersFactory = ({
   selectors,
   selectorsImports,
 }) => ({
-  createImporter: ({ storeName = DEFAULT_STORE } = {}) => {
+  createImporter: ({ storeName = DEFAULT_STORE }) => {
     const {
       validateImporter,
       validateImportAction,

@@ -272,7 +272,7 @@ describe("stores validator", () => {
   });
 
   test("Should throw correct error when attempting to create store with unknown slice action import", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const importSliceName = "importSlice";
     const importActionName = "importAction";
     const importActionId = getActionId({ 
@@ -294,7 +294,7 @@ describe("stores validator", () => {
   });  
 
   test("Should throw correct error when attempting to create store with unknown action import", () => {
-    const { importAction } = createImporter();
+    const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const importActionName = "importAction";
     const importActionId = getActionId({ 
@@ -315,7 +315,7 @@ describe("stores validator", () => {
   });
 
   test("Should throw correct error when attempting to create store with unknown slice selector import", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const importSliceName = "importSlice";
     const importSelectorName = "importSelector";
     const importSelectorId = getSelectorId({ 
@@ -337,7 +337,7 @@ describe("stores validator", () => {
   });
 
   test("Should throw correct error when attempting to create store with unknown selector import", () => {
-    const { importSelector } = createImporter();
+    const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const importSelectorName = "importSelector";
     const importSelectorId = getSelectorId({ 
