@@ -1,4 +1,5 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
+import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
 import { getSelectorId } from './ids';
 import { getSelectorValidator } from './selectors.validator';
 
@@ -7,7 +8,9 @@ export const getSelectorsFactory = ({
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 }) => ({
   createSelector: ({
     storeName = DEFAULT_STORE,
@@ -24,7 +27,9 @@ export const getSelectorsFactory = ({
       slices,
       actions,
       actionsByType,
+      actionsImports,
       selectors,
+      selectorsImports,
     });
     validateSelector({
       storeName,
@@ -148,11 +153,23 @@ export const getSelectorsFactory = ({
     });
     func.__selectorId = selectorId;
     stores[storeName].selectors[sliceName][suffixedName] = func;
+    
+    let safeFunc;
+    const funcWrapper = (state) => {
+      if (safeFunc) return safeFunc(state);
+      else if (!stores[storeName].initialized)
+        throw new UnableToInvokeUninitializedStoreSelector({ selectorId });
+      safeFunc = func;
+      return safeFunc(state);
+    };
+    funcWrapper.__selectorId = selectorId;
+    funcWrapper.__shouldReselect = func.__shouldReselect;
+
     selectors[selectorId] = Object.freeze({
       storeName,
       sliceName,
       selectorName: suffixedName,
-      [suffixedName]: func,
+      [suffixedName]: funcWrapper,
     });
     return selectors[selectorId];
   },

@@ -9,34 +9,44 @@ const stores = {};
 const slices = {};
 const actions = {};
 const actionsByType = {};
+const actionsImports = {};
 const selectors = {};
+const selectorsImports = {};
 const storesFactory = getStoresFactory({
   stores,
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 });
 const slicesFactory = getSlicesFactory({
   stores,
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 });
 const actionsFactory = getActionsFactory({
   stores,
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 });
 const selectorsFactory = getSelectorsFactory({
   stores,
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 });
 
 export const createStore = ({

@@ -7,7 +7,9 @@ export const getSlicesFactory = ({
   slices,
   actions,
   actionsByType,
+  actionsImports,
   selectors,
+  selectorsImports,
 }) => ({
   createSlice: ({
     storeName = DEFAULT_STORE,
@@ -25,7 +27,9 @@ export const getSlicesFactory = ({
       slices,
       actions,
       actionsByType,
+      actionsImports,
       selectors,
+      selectorsImports,
     });
     validateSlice({
       storeName,
