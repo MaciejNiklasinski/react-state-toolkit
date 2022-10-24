@@ -23,14 +23,21 @@ All store elements actions/selectors/slices must be created following creation o
 </ul>
 
 No more circular imports!<br/>
-Thanks to strict creation/registration policy all store actions/selectors which will ever be valid for the store, have been created and registered within the store on creation and are immediately available through store getActions/getSelectors functions. That allows(and its recommended) to abandon usage of standard, prone-to-be-circular imports within actions, selectors and store-aware components. All actions and selectors are being invoked with an extra storeArg. Selector storeArg obj will consist of only getSelectors function while action storeArg will also contain getActions and getState functions.
+Thanks to strict creation/registration policy all store actions/selectors which will ever be valid for the store, have been created and registered within the store on creation and are immediately available through store getActions/getSelectors functions. That allows (and its recommended) to abandon usage of standard, prone-to-be-circular esm imports within actions, selectors and store-aware components files.
 
-Only use imports to:
+Only import actions/selectors using standard esm import to:
 <ul>
   <li>Import all action types into the slice file.</li>
   <li>Import all slice-selectors (and store-selectors to be slice-registered) into the slice file.</li>
   <li>Import all slices into the store file.</li>
   <li>Import the store file wherever you need a store-aware component. Get access to getSelectors/getActions.</li>
+</ul>
+
+Use store importAction/importSelector to:
+<ul>
+  <li>Import to action file.</li>
+  <li>Import to selector file.</li>
+  <li>Import to store-aware component.</li>
 </ul>
 
 <h3>Re-throw rejected action error</h3>
