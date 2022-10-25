@@ -328,5 +328,129 @@ describe("multi func selector", () => {
     const argUpdatedChangedSelectedValue = validSelector(argUpdatedChangedState);
     expect(selectedValue === argUpdatedChangedSelectedValue).toEqual(false);
     expect(argUpdatedChangedSelectedValue).toEqual({ value1: 2, value2: 2 });
+
+    setObj1ValueAction(2);
+    const argPostChangeReselectedState = store.getState();
+    const argPostChangeReselectedSelectedValue = validSelector(argPostChangeReselectedState);
+    expect(argUpdatedChangedSelectedValue === argPostChangeReselectedSelectedValue).toEqual(true);
+    expect(argPostChangeReselectedSelectedValue).toEqual({ value1: 2, value2: 2 });
+    
+    const argSubsequentReselectedState = store.getState();
+    const argSubsequentReselectedSelectedValue = validSelector(argSubsequentReselectedState);
+    expect(argUpdatedChangedSelectedValue === argSubsequentReselectedSelectedValue).toEqual(true);
+    expect(argSubsequentReselectedSelectedValue).toEqual({ value1: 2, value2: 2 });
+
+    setObj1ValueAction(1);
+    const argSubsequentChangedState = store.getState();
+    const argSubsequentChangeSelectedValue = validSelector(argSubsequentChangedState);
+    expect(argSubsequentReselectedSelectedValue === argSubsequentChangeSelectedValue).toEqual(false);
+    expect(argSubsequentChangeSelectedValue).toEqual({ value1: 1, value2: 2 });
+  });
+
+  test("Should reselect memoized obj value when args selectors results not change, memoOnArgs is true, and one of the args selectors is multi func memoOnArgs selector itself", () => {
+    const sliceName = "testSlice";
+    const { validSelector } = createSelector({
+      sliceName,
+      name: "valid",
+      funcs: [
+        (state) => state[sliceName].obj1.value,
+        (state) => state[sliceName].obj2.value,
+        (value1, value2) => ({ value1, value2 })
+      ],
+      memoOnArgs: true
+    });
+    const { validCombinedSelector } = createSelector({
+      sliceName,
+      name: "validCombined",
+      funcs: [
+        validSelector,
+        (state) => state[sliceName].obj3.value,
+        ({ value1, value2 }, value3) => {
+          return { value1, value2, value3 }; 
+        }
+      ],
+      memoOnArgs: true
+    });
+    const { setObj1ValueAction, SET_OBJ1_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setObj1Value",
+      func: (value) => value
+    });
+    const { setObj3ValueAction, SET_OBJ3_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setObj3Value",
+      func: (value) => value
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {
+        [SET_OBJ1_VALUE_ACTION]: (state, action) => {
+          state.obj1 = { value: action.payload };
+        },
+        [SET_OBJ3_VALUE_ACTION]: (state, action) => {
+          state.obj3 = { value: action.payload };
+        },
+      },
+      sliceSelectors: [validSelector, validCombinedSelector],
+      initialState: {
+        obj1: { value: 1 },
+        obj2: { value: 2 },
+        obj3: { value: 3 },
+      },
+    });
+    const store = createStore({
+      storeSlices: { slice }
+    });
+    const state = store.getState();
+    const selectedValue = validCombinedSelector(state);
+    expect(selectedValue).toEqual({ value1: 1, value2: 2, value3: 3 });
+
+    const reselectedValue = validCombinedSelector(state);
+    const reselectedValue2 = validCombinedSelector(state);
+    expect(selectedValue === reselectedValue).toEqual(true);
+    expect(reselectedValue).toEqual({ value1: 1, value2: 2, value3: 3 });
+
+    setObj1ValueAction(1);
+    setObj3ValueAction(3);
+    const argUpdatedNotChangedState = store.getState();
+    const argUpdatedNotChangedSelectedValue = validCombinedSelector(argUpdatedNotChangedState);
+    expect(selectedValue === argUpdatedNotChangedSelectedValue).toEqual(true);
+    expect(argUpdatedNotChangedSelectedValue).toEqual({ value1: 1, value2: 2, value3: 3 });
+
+    setObj1ValueAction(2);
+    const argUpdatedChangedState = store.getState();
+    const argUpdatedChangedSelectedValue = validCombinedSelector(argUpdatedChangedState);
+    expect(selectedValue === argUpdatedChangedSelectedValue).toEqual(false);
+    expect(argUpdatedChangedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 3 });    
+
+    setObj1ValueAction(2);
+    const argPostChangeReselectedState = store.getState();
+    const argPostChangeReselectedSelectedValue = validCombinedSelector(argPostChangeReselectedState);
+    expect(argUpdatedChangedSelectedValue === argPostChangeReselectedSelectedValue).toEqual(true);
+    expect(argPostChangeReselectedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 3 });
+
+    const argSubsequentReselectedState = store.getState();
+    const argSubsequentReselectedSelectedValue = validCombinedSelector(argSubsequentReselectedState);
+    expect(argUpdatedChangedSelectedValue === argSubsequentReselectedSelectedValue).toEqual(true);
+    expect(argSubsequentReselectedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 3 });
+
+    setObj3ValueAction(4);
+    const argOtherValueChangedState = store.getState();
+    const argOtherValueChangeSelectedValue = validCombinedSelector(argOtherValueChangedState);
+    expect(argSubsequentReselectedSelectedValue === argOtherValueChangeSelectedValue).toEqual(false);
+    expect(argOtherValueChangeSelectedValue).toEqual({ value1: 2, value2: 2, value3: 4 });
+
+    const argOtherValueChangedReselectedState = store.getState();
+    const argOtherValueChangedReselectedSelectedValue = validCombinedSelector(argOtherValueChangedReselectedState);
+    expect(argOtherValueChangeSelectedValue === argOtherValueChangedReselectedSelectedValue).toEqual(true);
+    expect(argOtherValueChangedReselectedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 4 });
+  
+    setObj1ValueAction(2);
+    setObj3ValueAction(4);
+    const argSubsequentUpdatedNotChangedState = store.getState();
+    const argSubsequentUpdatedNotChangedSelectedValue = validCombinedSelector(argSubsequentUpdatedNotChangedState);
+    const argSubsequentUpdatedNotChangedSelectedValue2 = validCombinedSelector(argSubsequentUpdatedNotChangedState);
+    expect(argOtherValueChangedReselectedSelectedValue === argSubsequentUpdatedNotChangedSelectedValue).toEqual(true);
+    expect(argSubsequentUpdatedNotChangedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 4 });
   });
 });
