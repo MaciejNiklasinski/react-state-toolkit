@@ -75,6 +75,7 @@ export const getSelectorsFactory = ({
       sliceName,
       selectorName: suffixedName,
     });
+    func.__storeName = storeName;
     func.__selectorId = selectorId;
     stores[storeName].selectors[sliceName][suffixedName] = func;
     
@@ -86,6 +87,7 @@ export const getSelectorsFactory = ({
       safeFunc = func;
       return safeFunc(state);
     };
+    funcWrapper.__storeName = storeName;
     funcWrapper.__selectorId = selectorId;
     funcWrapper.__shouldReselect = func.__shouldReselect;
 

@@ -22,8 +22,8 @@ export const getStoresFactory = ({
     if (storeSelectors && typeof storeSelectors === "object")
       storeSelectors = Object.values(storeSelectors);
 
-    // Validate store creation
-    const { validateStore } = getStoreValidator({
+    // Create validators
+    const { validateStore, validateUseSelector } = getStoreValidator({
       stores,
       slices,
       actions,
@@ -32,6 +32,7 @@ export const getStoresFactory = ({
       selectors,
       selectorsImports,
     });
+    // Validate store creation
     validateStore({ storeName: name, storeSlices, storeSelectors });
 
     // Create store functions
@@ -42,8 +43,9 @@ export const getStoresFactory = ({
     const getSelectors = (sliceName = null) =>
       sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
 
+    const renderTriggers = new Map();
     const subscriptions = new Map();
-    const subscriptionsSelected = new Map();
+    const subscriptionsById = new Map();
     const dispatch = action => {
       const reducer = stores[name].reducers[action.sliceName][action.type];
       if (!reducer || action instanceof Promise) return;
@@ -55,39 +57,93 @@ export const getStoresFactory = ({
         [action.sliceName]: newSliceState,
       };
       stores[name].state = newState;
-      subscriptions.forEach(subscription => subscription(newState));
+      subscriptions.forEach(({ onStateChange }) => onStateChange(newState));
+      renderTriggers.forEach(renderTrigger => {
+        const { requiresRender, value, invoke } = renderTrigger;
+        if (!requiresRender) return;
+        renderTrigger.value = null;
+        invoke(value);
+      });
     };
 
     const useStoreState = () => {
-      let subscriptionDispatch;
-      [stores[name].state, subscriptionDispatch] = useState(stores[name].state);
+      let setState;
+      [stores[name].state, setState] = useState(stores[name].state);
       useEffect(() => {
         const key = Symbol();
-        subscriptions.set(key, subscriptionDispatch);
-        return () => subscriptions.delete(key);
+        const renderTrigger = {
+          key,
+          requiresRender: false,
+          value: null,
+          invoke: newState => setState(newState),
+        };
+        const subscription = { 
+          key,
+          onStateChange: newState => {
+            renderTrigger.requiresRender = true;
+            renderTrigger.value = newState
+          },
+        };
+        renderTriggers.set(renderTrigger.key, renderTrigger);
+        subscriptions.set(subscription.key, subscription);
+        return () => {
+          subscriptions.delete(subscription.key);
+          renderTriggers.delete(renderTrigger.key);
+        };
       }, []); // eslint-disable-line react-hooks/exhaustive-deps
       return stores[name].state;
     };
 
     const useSelector = (selector = state => state) => {
-      const [selected, selectorDispatch] = useState(selector(stores[name].state));
+      const [selected, setSelected] = useState(selector(stores[name].state));
 
       useEffect(() => {
-        const key = Symbol();
+        const selectorId = selector.__selectorId;
+        const renderTrigger = {
+          key: Symbol(),
+          requiresRender: false,
+          value: null,
+          invoke: newSelected => setSelected(newSelected),
+        };
 
-        subscriptions.set(key, newState => {
-          const lastSelected = subscriptionsSelected.get(key);
-          const newSelected = selector(newState);
-          if (lastSelected === newSelected) return;
-          subscriptionsSelected.set(key, newSelected);
-          selectorDispatch(newSelected);
-        });
+        let subscription = subscriptionsById[selectorId];        
+        if (!subscription) {
+          validateUseSelector({ storeName: name, selector });
+          subscription = { 
+            selectorId,
+            key: Symbol(),
+            triggers: new Map(),
+            lastSelected: selected
+          };
 
-        subscriptionsSelected.set(key, selected);
+          const onSelectedChange = newSelected =>
+            subscription.triggers.forEach((trigger) => {
+              trigger.requiresRender = true;
+              trigger.value = newSelected;
+            });
+          const onStateChange = newState => {
+            const { lastSelected } = subscription;
+            const newSelected = selector(newState);
+            if (lastSelected === newSelected) return;
+            subscription.lastSelected = newSelected;
+            onSelectedChange(newSelected);
+          };
+
+          subscription.onSelectedChange = onSelectedChange;
+          subscription.onStateChange = onStateChange;
+          subscriptions.set(subscription.key, subscription);
+          subscriptionsById.set(selectorId, subscription);
+        }
+
+        renderTriggers.set(renderTrigger.key, renderTrigger);
+        subscription.triggers.set(renderTrigger.key, renderTrigger);
 
         return () => {
-          subscriptions.delete(key);
-          subscriptionsSelected.delete(key);
+          renderTriggers.delete(renderTrigger.key);
+          subscription.triggers.delete(renderTrigger.key);
+          if (subscription.triggers.size > 0) return;
+          subscriptions.delete(subscription.key);
+          subscriptionsById.delete(subscription.selectorId);
         };
       }, []); // eslint-disable-line react-hooks/exhaustive-deps
       return selected;
