@@ -77,7 +77,7 @@ export const getStoresFactory = ({
           value: null,
           invoke: newState => setState(newState),
         };
-        const subscription = { 
+        const subscription = {
           key,
           onStateChange: newState => {
             renderTrigger.requiresRender = true;
@@ -106,10 +106,10 @@ export const getStoresFactory = ({
           invoke: newSelected => setSelected(newSelected),
         };
 
-        let subscription = subscriptionsById[selectorId];        
+        let subscription = subscriptionsById.get(selectorId);
         if (!subscription) {
           validateUseSelector({ storeName: name, selector });
-          subscription = { 
+          subscription = {
             selectorId,
             key: Symbol(),
             triggers: new Map(),
