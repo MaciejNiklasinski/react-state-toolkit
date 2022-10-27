@@ -95,7 +95,13 @@ export const getStoresFactory = ({
     };
 
     const useSelector = (selector = state => state) => {
-      const [selected, setSelected] = useState(selector(stores[name].state));
+      const [selected, setSelected] = useState(() => {
+        if (!selector.__hasInitialSelected) {
+          selector.__lastSelected = selector(stores[name].state);
+          selector.__hasInitialSelected = true;
+        }
+        return selector.__lastSelected;
+      });
 
       useEffect(() => {
         const selectorId = selector.__selectorId;
@@ -122,10 +128,9 @@ export const getStoresFactory = ({
               trigger.value = newSelected;
             });
           const onStateChange = newState => {
-            const { lastSelected } = subscription;
             const newSelected = selector(newState);
-            if (lastSelected === newSelected) return;
-            subscription.lastSelected = newSelected;
+            if (selector.__lastSelected === newSelected) return;
+            selector.__lastSelected = newSelected;
             onSelectedChange(newSelected);
           };
 
