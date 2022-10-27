@@ -169,7 +169,9 @@ export const getStoresFactory = ({
     );
 
     // Create and freeze store
+    stores[name].renderTriggers = renderTriggers;
     stores[name].subscriptions = subscriptions;
+    stores[name].subscriptionsById = subscriptionsById;
     stores[name].dispatch = dispatch;
     stores[name].useStoreState = useStoreState;
     stores[name].useSelector = useSelector;
