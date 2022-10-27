@@ -21,6 +21,11 @@ import {
   UnableToCreateUnknownSliceSelectorImportStore,
   UnableToCreateUnknownSelectorImportStore,
 } from '../errors/UnableToCreateStore';
+import { 
+  // Store useSelector
+  UnableToUseForeignStoreSelector,
+  UnableToUseNonSelector
+} from '../errors/UnableToUseSelector';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 
 export const getStoreValidator = ({
@@ -130,6 +135,13 @@ export const getStoreValidator = ({
       validateStoreSelectors({ storeName, storeSlices, storeSelectors });
       validateStoreActionImports({ storeName });
       validateStoreSelectorImports({ storeName });
+    },
+    // Store useSelector
+    validateUseSelector: ({ storeName, selector }) => {
+      if (!selector.__selectorId)
+        throw new UnableToUseNonSelector({ storeName });
+      else if (storeName !== selector.__storeName)
+        throw new UnableToUseForeignStoreSelector({ storeName, selectorId: selector.__selectorId });
     },
   };
 };

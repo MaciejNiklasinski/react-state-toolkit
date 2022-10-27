@@ -212,6 +212,10 @@ describe("store useStoreState", () => {
     };
 
     render(<App />);
+    
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -277,6 +281,10 @@ describe("store useStoreState", () => {
 
     render(<App />);
 
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
+
     expect(valueSelector(getOtherState())).toEqual(0);
     expect(appRenders).toEqual(1);
     const setValue = screen.getByText("setValue");
@@ -337,6 +345,10 @@ describe("store useStoreState", () => {
 
     render(<App />);
 
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
+
     expect(valueSelector(getState())).toEqual(0);
     expect(childRenders).toEqual(1);
     expect(appRenders).toEqual(1);
@@ -394,6 +406,10 @@ describe("store useSelector", () => {
     };
 
     render(<App />);
+    
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -446,6 +462,10 @@ describe("store useSelector", () => {
     };
 
     render(<App />);
+
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
 
     expect(isFalsyValueSelector(getState())).toEqual(true);
     expect(appRenders).toEqual(1);
@@ -506,6 +526,10 @@ describe("store useSelector", () => {
 
     render(<App />);
 
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
     expect(childRenders).toEqual(1);
@@ -515,5 +539,79 @@ describe("store useSelector", () => {
     expect(valueSelector(getState())).toEqual(1);
     expect(appRenders).toEqual(2);
     expect(childRenders).toEqual(1);
+  });
+
+  test("should invoke selector func used by multiple instances of useSelector only single time when state change", () => {
+    const sliceName = "testSlice";
+    let valueSelectorInvocationsCount = 0;
+    const { valueSelector } = createSelector({
+      sliceName,
+      name: "value",
+      funcs: [(state) => {
+        valueSelectorInvocationsCount++;
+        return state[sliceName].value;
+      }]
+    });
+    const { setValueAction, SET_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setValue",
+      func: (value) => value
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {
+        [SET_VALUE_ACTION]: (state, action) => {
+          state.value = action.payload;
+        },
+      },
+      sliceSelectors: [valueSelector],
+      initialState: { value: 0 },
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    let childRenders = 0;
+    const Child = memo(() => {
+      const value = useSelector(valueSelector);
+      childRenders++;
+      return (<div>{`${value}`}</div>);
+    });
+
+    let appRenders = 0;
+    const App = () => {
+      const value = useSelector(valueSelector);
+      appRenders++;
+      return (
+        <div>
+          <Child />
+          <div>{`${value}`}</div>
+          <button onClick={() => setValueAction(1)}>setValue</button>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(2);
+    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+
+    const state = getState();
+    expect(state[sliceName].value).toEqual(0);
+    expect(appRenders).toEqual(1);
+    expect(childRenders).toEqual(1);
+    expect(valueSelectorInvocationsCount).toEqual(1);
+
+    const setValue = screen.getByText("setValue");
+    userEvent.click(setValue);
+    const newState = getState();
+    expect(newState[sliceName].value).toEqual(1);
+    expect(appRenders).toEqual(2);
+    expect(childRenders).toEqual(2);
+    expect(valueSelectorInvocationsCount).toEqual(2);
   });
 });
