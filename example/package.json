@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "setup": "cd ../ && yarn && yarn build && yalc publish && cd ./example && yalc link react-state-toolkit",
     "start": "yarn setup && react-scripts start"
   },
   "dependencies": {
@@ -13,6 +14,9 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "yalc": "^1.0.0-pre.53"
   },
   "eslintConfig": {
     "extends": [
