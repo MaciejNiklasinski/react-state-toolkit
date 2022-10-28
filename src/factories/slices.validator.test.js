@@ -19,6 +19,7 @@ import {
   UnableToCreateForeignStoreSelectorSlice,
   UnableToCreateForeignSliceSelectorSlice,
   UnableToCreateForeignRegisteredSliceSelectorSlice,
+  UnableToCreateImportWrapperSelectorSlice,
   UnableToCreateMissingSliceSelectorSlice,
 } from "../errors/UnableToCreateSlice";
 import { getStoresFactory } from "./stores";
@@ -26,6 +27,7 @@ import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
 import { getImportersFactory } from "./importers";
+import { getSelectorId } from "./ids";
 
 let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
 let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
@@ -445,6 +447,32 @@ describe("slices validator", () => {
       selectorSliceName: foreignSliceName,
       selectorId: foreignRegisteredSelector.__selectorId
     }));
+  });
+
+  test("Should throw correct error when attempting to create slice with selector sudo import wrapper selector.", () => {
+    const sliceName = "testSlice";
+    const selectorName = "valueSelector";
+    const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
+
+    const { importSelector } = createImporter({});
+    const { valueSelector: valueSelectorImportWrapper } = importSelector(sliceName, selectorName);
+
+    const { valueSelector } = createSelector({
+      sliceName,
+      name: selectorName,
+      funcs: [(state) => state[sliceName].value],
+    });
+
+    let error;
+    try {
+      createSlice({
+        name: sliceName,
+        reducer: {},
+        sliceSelectors: { valueSelectorImportWrapper },
+        initialState: { value: 0 }
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateImportWrapperSelectorSlice({ storeName: DEFAULT_STORE, sliceName, selectorId }));
   });
 
   test("Should throw correct error when attempting to create slice with missing slice selector.", () => {
