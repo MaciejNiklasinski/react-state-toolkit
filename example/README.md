@@ -1,0 +1,1 @@
+Example of React application using react-state-toolkit package.
