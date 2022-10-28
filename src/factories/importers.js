@@ -82,6 +82,7 @@ export const getImportersFactory = ({
       } else {
         let selectorFunc = () => { throw new UnableToInvokeUninitializedStoreSelector({ selectorId }); }
         let selectorFuncWrapper = (param) => selectorFunc(param);
+        selectorFuncWrapper.__storeName = storeName;
         selectorFuncWrapper.__selectorId = selectorId;
         selectorFuncWrapper.__isImportWrapper = true;
 

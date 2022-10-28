@@ -13,6 +13,7 @@ import {
   UnableToCreateForeignStoreSelectorStore,
   UnableToCreateSliceSelectorStore,
   UnableToCreateSliceRegisteredSelectorStore,
+  UnableToCreateImportWrapperSelectorStore,
   UnableToCreateMissingSelectorStore,
   // Store Action Imports
   UnableToCreateUnknownSliceActionImportStore,
@@ -57,7 +58,7 @@ export const getStoreValidator = ({
   };
   const validateStoreSelectors = ({ storeName, storeSlices, storeSelectors }) => {
     const storeSelectorsIds = [];
-    Object.values(storeSelectors).forEach(({ __selectorId }) => {
+    storeSelectors.forEach(({ __selectorId, __isImportWrapper }) => {
       if (!__selectorId)
         throw new UnableToCreateUnknownSelectorStore({ storeName });
 
@@ -66,7 +67,7 @@ export const getStoreValidator = ({
         throw new UnableToCreateForeignStoreSelectorStore({ storeName, foreignSelectorId: __selectorId });
       else if (DEFAULT_SLICE !== selectorSliceName)
         throw new UnableToCreateSliceSelectorStore({ storeName, sliceSelectorId: __selectorId });
-      else if (selectorSliceName === DEFAULT_SLICE) {
+      else if (!__isImportWrapper) {
         storeSlices.forEach(({ sliceName }) => {
           const { selectors: sliceSelectors } = stores[storeName].slices[sliceName];
           if (sliceSelectors)
@@ -75,7 +76,8 @@ export const getStoreValidator = ({
                 throw new UnableToCreateSliceRegisteredSelectorStore({ storeName, selectorId: __selectorId });
             });
         });
-      }
+      } else
+        throw new UnableToCreateImportWrapperSelectorStore({ storeName, selectorId: __selectorId });
       storeSelectorsIds.push(__selectorId);
     });
 

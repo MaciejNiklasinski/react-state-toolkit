@@ -97,8 +97,11 @@ export class UnableToCreateNoSelectorsSlice extends UnableToCreateSlice {
 };
 
 export class UnableToCreateUnknownSelectorSlice extends UnableToCreateSlice {
-  constructor({ storeName, sliceName }) {
-    super({ storeName, sliceName, baseMessageSuffix: "unknown selector passed to createSlice() function. All selectors must be created using createSelector() function." });
+  constructor({ storeName, sliceName, selectorId }) {
+    const baseMessageSuffix = selectorId 
+      ? `unknown selector ${selectorId} passed to createSlice() function. All selectors must be created using createSelector() function.`
+      : `unknown selector passed to createSlice() function. All selectors must be created using createSelector() function.`;
+    super({ storeName, sliceName, baseMessageSuffix });
   }
 };
 
@@ -117,6 +120,12 @@ export class UnableToCreateForeignSliceSelectorSlice extends UnableToCreateSlice
 export class UnableToCreateForeignRegisteredSliceSelectorSlice extends UnableToCreateSlice {
   constructor({ storeName, sliceName, selectorSliceName, selectorId }) {
     super({ storeName, sliceName, baseMessageSuffix: `store selector ${selectorId} has already been registered in ${getSliceId({ storeName, sliceName: selectorSliceName })} slice. Make sure each store selector is passed as argument to only one createSlice()/createStore() function call.` });
+  }
+};
+
+export class UnableToCreateImportWrapperSelectorSlice extends UnableToCreateSlice {
+  constructor({ storeName, sliceName, selectorId }) {
+    super({ storeName, sliceName, baseMessageSuffix: `${selectorId} selector sudo import wrapper has been found in sliceSelectors but it is not allowed to be used for selector registration. Please use standard-esm import to get appropriate for registration instance of the selector func.` });
   }
 };
 

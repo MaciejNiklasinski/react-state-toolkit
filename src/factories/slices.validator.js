@@ -19,6 +19,7 @@ import {
   UnableToCreateForeignStoreSelectorSlice,
   UnableToCreateForeignSliceSelectorSlice,
   UnableToCreateForeignRegisteredSliceSelectorSlice,
+  UnableToCreateImportWrapperSelectorSlice,
   UnableToCreateMissingSliceSelectorSlice,
 } from '../errors/UnableToCreateSlice';
 import { getSliceId } from './ids';
@@ -97,15 +98,15 @@ export const getSliceValidator = ({
     if (!sliceSelectors)
       throw new UnableToCreateNoSelectorsSlice({ storeName, sliceName });
 
-    Object.values(sliceSelectors).forEach(({ __selectorId }) => {
+    sliceSelectors.forEach(({ __selectorId, __isImportWrapper }) => {
       if (!selectors[__selectorId])
-        throw new UnableToCreateUnknownSelectorSlice({ storeName, sliceName });
+        throw new UnableToCreateUnknownSelectorSlice({ storeName, sliceName, selectorId: __selectorId });
       const [selectorStoreName, selectorSliceName] = __selectorId.split('.');
       if (storeName !== selectorStoreName)
         throw new UnableToCreateForeignStoreSelectorSlice({ storeName, sliceName, selectorId: __selectorId });
       else if (![sliceName, DEFAULT_SLICE].includes(selectorSliceName))
         throw new UnableToCreateForeignSliceSelectorSlice({ storeName, sliceName, selectorId: __selectorId });
-      else if (selectorSliceName === DEFAULT_SLICE && stores[storeName].slices) {
+      else if (selectorSliceName === DEFAULT_SLICE && stores[storeName].slices)
         Object.entries(stores[storeName].slices).forEach(
           ([storeSliceName, slice]) => {
             if (storeSliceName !== DEFAULT_SLICE && slice.selectors)
@@ -115,7 +116,8 @@ export const getSliceValidator = ({
               });
           },
         );
-      }
+      else if (__isImportWrapper)
+        throw new UnableToCreateImportWrapperSelectorSlice({ storeName, sliceName, selectorId: __selectorId });
     });
 
     Object.keys(selectors).forEach(selectorId => {
