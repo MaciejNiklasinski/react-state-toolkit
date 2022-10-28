@@ -260,6 +260,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(sliceName, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);
@@ -288,6 +289,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(DEFAULT_SLICE, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);
@@ -315,6 +317,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(DEFAULT_SLICE, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);
@@ -411,6 +414,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(sliceName, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);
@@ -439,6 +443,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(DEFAULT_SLICE, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);
@@ -466,6 +471,7 @@ describe("importer selector", () => {
     const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
     const { valueSelector: importedValueSelector, isReady } = importSelector(DEFAULT_SLICE, selectorName);
     expect(typeof importedValueSelector).toEqual("function");
+    expect(importedValueSelector.__storeName).toEqual(DEFAULT_STORE);
     expect(importedValueSelector.__selectorId).toEqual(selectorId);
     expect(importedValueSelector.__isImportWrapper).toEqual(true);
     expect(isReady()).toEqual(false);

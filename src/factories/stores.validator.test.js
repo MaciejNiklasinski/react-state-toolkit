@@ -13,6 +13,7 @@ import {
   UnableToCreateForeignStoreSelectorStore,
   UnableToCreateSliceSelectorStore,
   UnableToCreateSliceRegisteredSelectorStore,
+  UnableToCreateImportWrapperSelectorStore,
   UnableToCreateMissingSelectorStore,
   // Store Import Action
   UnableToCreateUnknownSliceActionImportStore,
@@ -252,6 +253,36 @@ describe("stores validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateSliceRegisteredSelectorStore({ storeName: DEFAULT_STORE, selectorId: validSelector.__selectorId }));
+  });
+
+  test("Should throw correct error when attempting to create slice with selector sudo import wrapper selector.", () => {
+    const sliceName = "testSlice";
+    const selectorName = "valueSelector";
+    const selectorId = getSelectorId({ storeName: DEFAULT_STORE, sliceName: DEFAULT_SLICE, selectorName });
+
+    const { importSelector } = createImporter({});
+    const { valueSelector: valueSelectorImportWrapper } = importSelector(DEFAULT_SLICE, selectorName);
+
+    const { valueSelector } = createSelector({
+      name: selectorName,
+      funcs: [(state) => state[sliceName].value],
+    });
+    
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {},
+      initialState: { value: 0 }
+    });
+
+    let error;
+    try {
+      createStore({ 
+        storeSlices: { slice },
+        storeSelectors: { valueSelectorImportWrapper }
+      })
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateImportWrapperSelectorStore({ storeName: DEFAULT_STORE, selectorId }));
   });
 
   test("Should throw correct error when attempting to create store with missing store selector", () => {

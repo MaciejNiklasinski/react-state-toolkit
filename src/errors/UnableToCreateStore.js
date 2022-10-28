@@ -25,6 +25,7 @@ export class UnableToCreateInvalidNameStore extends UnableToCreateStore {
     super({ storeName, baseMessageSuffix: 'name must be a string and its not allow to contain "." and/or "_" characters.' });
   }
 };
+
 export class UnableToCreateInitializedStore extends UnableToCreateStore {
   constructor({ storeName }) {
     super({ storeName, baseMessageSuffix: 'as it has already been initialized. Make sure that you are only calling createStore() once per store.' });
@@ -37,16 +38,19 @@ export class UnableToCreateForeignSliceStore extends UnableToCreateStore {
     super({ storeName, baseMessageSuffix: `found foreign store slice ${foreignSliceId} in storeSlices passed to createStore() function.` });
   }
 };
+
 export class UnableToCreateUnknownSliceStore extends UnableToCreateStore {
   constructor({ storeName, unknownSliceId }) {
     super({ storeName, baseMessageSuffix: `unknown store slice ${unknownSliceId} in storeSlices passed to createStore() function. Make sure all the slices have been created using createSlice() function.` });
   }
 };
+
 export class UnableToCreateMissingSliceStore extends UnableToCreateStore {
   constructor({ storeName, missingSliceId }) {
     super({ storeName, baseMessageSuffix: `missing store slice ${missingSliceId} in storeSlices passed to createStore() function. Make sure you are passing all the store slices created using createSlice() function.` });
   }
 };
+
 export class UnableToCreateEmptyStore extends UnableToCreateStore {
   constructor({ storeName }) {
     super({ storeName, baseMessageSuffix: 'at least one slice is required when creating store.' });
@@ -59,11 +63,13 @@ export class UnableToCreateUnknownSelectorStore extends UnableToCreateStore {
     super({ storeName, baseMessageSuffix: `unknown selector passed to createStore() function. All selectors must be created using createSelector() function.` });
   }
 };
+
 export class UnableToCreateForeignStoreSelectorStore extends UnableToCreateStore {
   constructor({ storeName, foreignSelectorId }) {
     super({ storeName, baseMessageSuffix: `foreign store selector ${foreignSelectorId} has been passed to createStore() function.` });
   }
 };
+
 export class UnableToCreateSliceSelectorStore extends UnableToCreateStore {
   constructor({ storeName, sliceSelectorId }) {
     const [selectorStoreName, selectorSliceName] = sliceSelectorId.split(".");
@@ -71,6 +77,7 @@ export class UnableToCreateSliceSelectorStore extends UnableToCreateStore {
     super({ storeName, baseMessageSuffix: `slice selector ${sliceSelectorId} has been passed to createStore() function. Pass it into createSlice() ${selectorSliceId} instead.` });
   }
 };
+
 export class UnableToCreateSliceRegisteredSelectorStore extends UnableToCreateStore {
   constructor({ storeName, selectorId }) {
     const [selectorStoreName, selectorSliceName] = selectorId.split(".");
@@ -78,6 +85,13 @@ export class UnableToCreateSliceRegisteredSelectorStore extends UnableToCreateSt
     super({ storeName, baseMessageSuffix: `store selector ${selectorId} has already been passed to ${selectorSliceId} slice.` });
   }
 };
+
+export class UnableToCreateImportWrapperSelectorStore extends UnableToCreateStore {
+  constructor({ storeName, selectorId }) {
+    super({ storeName, baseMessageSuffix: `${selectorId} selector sudo import wrapper has been found in storeSelectors but it is not allowed to be used for selector registration. Please use standard-esm import to get appropriate for registration instance of the selector func.` });
+  }
+};
+
 export class UnableToCreateMissingSelectorStore extends UnableToCreateStore {
   constructor({ storeName, missingSelectorId }) {
     super({ storeName, baseMessageSuffix: `store selector ${missingSelectorId} is missing storeSelectors passed to createStore() function.` });
