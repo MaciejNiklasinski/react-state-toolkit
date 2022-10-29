@@ -118,12 +118,12 @@ export const getActionsFactory = ({
             getSelectors,
           });
           result = { sliceName, type: RESOLVED, payload };
-          resolve(result);
         } catch (error) {
           result = { sliceName, params, type: REJECTED, error };
-          reject(error);
         } finally {
-          stores[storeName].dispatch(result);
+          try { stores[storeName].dispatch(result); } 
+          catch (error) { reject(error); }
+          result.error ? reject(result.error) : resolve(result);
         }
       });
     };
