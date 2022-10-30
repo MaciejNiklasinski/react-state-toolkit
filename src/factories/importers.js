@@ -89,7 +89,6 @@ export const getImportersFactory = ({
         let isReady = false;
         const importSelectorFunc = () => {
           selectorFunc = selectors[selectorId][selectorName];
-          selectorFuncWrapper.__shouldReselect = selectorFunc.__shouldReselect;
           isReady = true;
         };
         if (!selectorsImports[storeName][sliceName][selectorName])
