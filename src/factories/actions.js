@@ -45,7 +45,7 @@ export const getActionsFactory = ({
     const action = params => {
       const { getState, getActions, getSelectors } = stores[storeName];
       const payload = func(params, { getState, getActions, getSelectors });
-      const result = { sliceName, type, payload };
+      const result = { sliceName, params, type, payload };
       stores[storeName].dispatch(result);
       return result;
     };
@@ -81,6 +81,7 @@ export const getActionsFactory = ({
     sliceName,
     name,
     func,
+    rethrow = true,
   }) => {
     let suffixedName = name;
     if (name && (typeof name !== "string" || !name.endsWith("Action")))
@@ -108,7 +109,7 @@ export const getActionsFactory = ({
 
     const action = async params => {
       const { getState, getActions, getSelectors } = stores[storeName];
-      stores[storeName].dispatch({ sliceName, type: PENDING });
+      stores[storeName].dispatch({ sliceName, params, type: PENDING });
       return new Promise(async (resolve, reject) => {
         let result;
         try {
@@ -117,14 +118,17 @@ export const getActionsFactory = ({
             getActions,
             getSelectors,
           });
-          result = { sliceName, type: RESOLVED, payload };
+          result = { sliceName, params, type: RESOLVED, payload };
         } catch (error) {
-          result = { sliceName, params, type: REJECTED, error };
-        } finally {
-          try { stores[storeName].dispatch(result); } 
-          catch (error) { reject(error); }
-          result.error ? reject(result.error) : resolve(result);
+          result = { sliceName, params, type: REJECTED, error, rethrow };
         }
+
+        try { stores[storeName].dispatch(result); }
+        catch (error) { reject(error); }
+        
+        if (result.error && result.rethrow)
+          reject(result.error)
+        else resolve(result);
       });
     };
     stores[storeName].actions[sliceName][suffixedName] = action;

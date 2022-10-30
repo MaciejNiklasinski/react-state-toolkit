@@ -89,7 +89,6 @@ export const getSelectorsFactory = ({
     };
     funcWrapper.__storeName = storeName;
     funcWrapper.__selectorId = selectorId;
-    funcWrapper.__shouldReselect = func.__shouldReselect;
 
     selectors[selectorId] = {
       storeName,
