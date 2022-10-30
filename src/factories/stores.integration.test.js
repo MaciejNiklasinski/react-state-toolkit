@@ -615,7 +615,7 @@ describe("store useSelector", () => {
     expect(valueSelectorInvocationsCount).toEqual(2);
   });
 
-  test("should cause rerender of components using the same selector in correct order", () => {
+  test("should cause rerender of components using selector in correct order", () => {
     const sliceName = "testSlice";
     const { valueSelector } = createSelector({
       sliceName,
@@ -632,11 +632,19 @@ describe("store useSelector", () => {
       name: "setValue",
       func: (value) => value
     });
+    const { setOtherValueAction, SET_OTHER_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setOtherValue",
+      func: (value) => value
+    });
     const slice = createSlice({
       name: sliceName,
       reducer: {
         [SET_VALUE_ACTION]: (state, action) => {
           state.value = action.payload;
+        },
+        [SET_OTHER_VALUE_ACTION]: (state, action) => {
+          state.otherValue = action.payload;
         },
       },
       sliceSelectors: [valueSelector, otherValueSelector],
@@ -667,6 +675,8 @@ describe("store useSelector", () => {
       return (
         <div>
           <div>{`${otherValue}`}</div>
+          <button onClick={() => setOtherValueAction(0)}>setOtherValueTo0</button>
+          <button onClick={() => setOtherValueAction(1)}>setOtherValueTo1</button>
           <Child />
         </div>
       );
@@ -708,5 +718,23 @@ describe("store useSelector", () => {
     userEvent.click(setValueTo2);
     const subsequentlyUpdatedNotChangedRenderHistory = [...rendersHistory];
     expect(subsequentlyUpdatedNotChangedRenderHistory).toEqual(subsequentlyUpdatedRenderHistory);
+
+    const setOtherValueTo0 = screen.getByText("setOtherValueTo0");
+    userEvent.click(setOtherValueTo0);
+    const otherUpdatedNotChangedRenderHistory = [...rendersHistory];
+    expect(otherUpdatedNotChangedRenderHistory).toEqual(subsequentlyUpdatedRenderHistory);
+
+    const setOtherValueTo1 = screen.getByText("setOtherValueTo1");
+    userEvent.click(setOtherValueTo1);
+    const otherUpdatedRenderHistory = [...rendersHistory];
+    expect(otherUpdatedRenderHistory).toEqual([...subsequentlyUpdatedRenderHistory, "ChildContainer"]);
+
+    userEvent.click(setOtherValueTo0);
+    userEvent.click(setOtherValueTo0);
+    const otherSubsequentlyUpdatedRenderHistory = [...rendersHistory];
+    expect(otherSubsequentlyUpdatedRenderHistory).toEqual([...otherUpdatedRenderHistory, "ChildContainer"]);
+
+    userEvent.click(setValueTo0);
+    expect([...rendersHistory]).toEqual([...otherSubsequentlyUpdatedRenderHistory, "App", "Child"]);
   });
 });
