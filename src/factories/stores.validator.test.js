@@ -1,3 +1,4 @@
+import { render } from '@testing-library/react'
 import { DEFAULT_STORE, DEFAULT_SLICE } from "../constants/store";
 import {
   // Store
@@ -22,6 +23,11 @@ import {
   UnableToCreateUnknownSliceSelectorImportStore,
   UnableToCreateUnknownSelectorImportStore,
 } from "../errors/UnableToCreateStore";
+import {
+  // Store useSelector
+  UnableToUseNonSelector,
+  UnableToUseForeignStoreSelector,
+} from '../errors/UnableToUseSelector';
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
@@ -267,7 +273,7 @@ describe("stores validator", () => {
       name: selectorName,
       funcs: [(state) => state[sliceName].value],
     });
-    
+
     const slice = createSlice({
       name: sliceName,
       reducer: {},
@@ -277,7 +283,7 @@ describe("stores validator", () => {
 
     let error;
     try {
-      createStore({ 
+      createStore({
         storeSlices: { slice },
         storeSelectors: { valueSelectorImportWrapper }
       })
@@ -306,7 +312,7 @@ describe("stores validator", () => {
     const { importAction } = createImporter({});
     const importSliceName = "importSlice";
     const importActionName = "importAction";
-    const importActionId = getActionId({ 
+    const importActionId = getActionId({
       storeName: DEFAULT_STORE,
       sliceName: importSliceName,
       actionName: importActionName
@@ -322,13 +328,13 @@ describe("stores validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateUnknownSliceActionImportStore({ actionId: importActionId }));
-  });  
+  });
 
   test("Should throw correct error when attempting to create store with unknown action import", () => {
     const { importAction } = createImporter({});
     const sliceName = "testSlice";
     const importActionName = "importAction";
-    const importActionId = getActionId({ 
+    const importActionId = getActionId({
       storeName: DEFAULT_STORE,
       sliceName,
       actionName: importActionName
@@ -349,7 +355,7 @@ describe("stores validator", () => {
     const { importSelector } = createImporter({});
     const importSliceName = "importSlice";
     const importSelectorName = "importSelector";
-    const importSelectorId = getSelectorId({ 
+    const importSelectorId = getSelectorId({
       storeName: DEFAULT_STORE,
       sliceName: importSliceName,
       selectorName: importSelectorName
@@ -371,7 +377,7 @@ describe("stores validator", () => {
     const { importSelector } = createImporter({});
     const sliceName = "testSlice";
     const importSelectorName = "importSelector";
-    const importSelectorId = getSelectorId({ 
+    const importSelectorId = getSelectorId({
       storeName: DEFAULT_STORE,
       sliceName,
       selectorName: importSelectorName
@@ -386,5 +392,78 @@ describe("stores validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateUnknownSelectorImportStore({ selectorId: importSelectorId }));
+  });
+});
+
+describe("useSelector validator", () => {
+  test("Should throw correct error when attempting to useSelector with non-selector func", () => {
+    const sliceName = "testSlice";
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    const App = () => {
+      const state = useSelector((state) => state);
+      return (
+        <div>
+          <div>{`${!!state}`}</div>
+          <button onClick={() => setValueAction(1)}>setValue</button>
+        </div>
+      );
+    };
+    let error;
+    try { render(<App />); }
+    catch (err) { error = err; }
+    expect(error).toEqual(new UnableToUseNonSelector({ storeName: DEFAULT_STORE }))
+  });
+
+  test("Should throw correct error when attempting to useSelector with foreign store selector func", () => {
+    const foreignStoreName = "foreignStore";
+    const foreignSliceName = "foreignSlice";
+    const foreignSelectorName = "foreignSelector";
+    const { foreignSelector } = createSelector({
+      storeName: foreignStoreName,
+      sliceName: foreignSliceName,
+      name: foreignSelectorName,
+      funcs: [(state) => state[foreignSliceName].value]
+    });
+    const foreignSelectorId = getSelectorId({
+      storeName: foreignStoreName,
+      sliceName: foreignSliceName,
+      selectorName: foreignSelectorName
+    });
+
+    const sliceName = "testSlice";
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    const App = () => {
+      const state = useSelector(foreignSelector);
+      return (
+        <div>
+          <div>{`${!!state}`}</div>
+          <button onClick={() => setValueAction(1)}>setValue</button>
+        </div>
+      );
+    };
+    let error;
+    try { render(<App />); }
+    catch (err) { error = err; }
+    expect(error).toEqual(new UnableToUseForeignStoreSelector({ storeName: DEFAULT_STORE, selectorId: foreignSelectorId }))
   });
 });

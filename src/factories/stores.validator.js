@@ -22,10 +22,10 @@ import {
   UnableToCreateUnknownSliceSelectorImportStore,
   UnableToCreateUnknownSelectorImportStore,
 } from '../errors/UnableToCreateStore';
-import { 
+import {
   // Store useSelector
+  UnableToUseNonSelector,
   UnableToUseForeignStoreSelector,
-  UnableToUseNonSelector
 } from '../errors/UnableToUseSelector';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 
@@ -106,25 +106,25 @@ export const getStoreValidator = ({
     Object.keys(actionsImports[storeName] || {}).forEach(
       (sliceName) => Object.keys(actionsImports[storeName][sliceName]).forEach(
         (actionName) => {
-        const sliceId = getSliceId({ storeName, sliceName });
-        const actionId = getActionId({ storeName, sliceName, actionName });
-        if (!slices[sliceId])
-          throw new UnableToCreateUnknownSliceActionImportStore({ actionId });
-        else if (!actions[actionId])
-          throw new UnableToCreateUnknownActionImportStore({ actionId });
-      })
+          const sliceId = getSliceId({ storeName, sliceName });
+          const actionId = getActionId({ storeName, sliceName, actionName });
+          if (!slices[sliceId])
+            throw new UnableToCreateUnknownSliceActionImportStore({ actionId });
+          else if (!actions[actionId])
+            throw new UnableToCreateUnknownActionImportStore({ actionId });
+        })
     );
   const validateStoreSelectorImports = ({ storeName }) =>
     Object.keys(selectorsImports[storeName] || {}).forEach(
       (sliceName) => Object.keys(selectorsImports[storeName][sliceName]).forEach(
         (selectorName) => {
-        const sliceId = getSliceId({ storeName, sliceName });
-        const selectorId = getSelectorId({ storeName, sliceName, selectorName });
-        if (!slices[sliceId] && sliceName !== DEFAULT_SLICE)
-          throw new UnableToCreateUnknownSliceSelectorImportStore({ selectorId });
-        else if (!selectors[selectorId])
-          throw new UnableToCreateUnknownSelectorImportStore({ selectorId });
-      })
+          const sliceId = getSliceId({ storeName, sliceName });
+          const selectorId = getSelectorId({ storeName, sliceName, selectorName });
+          if (!slices[sliceId] && sliceName !== DEFAULT_SLICE)
+            throw new UnableToCreateUnknownSliceSelectorImportStore({ selectorId });
+          else if (!selectors[selectorId])
+            throw new UnableToCreateUnknownSelectorImportStore({ selectorId });
+        })
     );
   return {
     // Store
