@@ -91,12 +91,12 @@ export const getSelectorsFactory = ({
     funcWrapper.__selectorId = selectorId;
     funcWrapper.__shouldReselect = func.__shouldReselect;
 
-    selectors[selectorId] = Object.freeze({
+    selectors[selectorId] = {
       storeName,
       sliceName,
       selectorName: suffixedName,
       [suffixedName]: funcWrapper,
-    });
-    return selectors[selectorId];
+    };
+    return Object.freeze({ ...selectors[selectorId] });
   },
 });
