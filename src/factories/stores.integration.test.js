@@ -615,6 +615,102 @@ describe("store useSelector", () => {
     expect(valueSelectorInvocationsCount).toEqual(2);
   });
 
+  test("should only execute selector once when selecting initial value for multiple different import wrappers of the same selector", () => {
+    const sliceName = "testSlice";
+    const name = "valueSelector";
+    const { importSelector } = createImporter({});
+    const { valueSelector: valueSelectorImportWrapper } = importSelector(sliceName, name);
+    let valueSelectorInvocationsCount = 0;
+    const { valueSelector } = createSelector({
+      sliceName,
+      name,
+      funcs: [(state) => {
+        valueSelectorInvocationsCount++;
+        return state[sliceName].value;
+      }]
+    });
+    const { otherValueSelector } = createSelector({
+      sliceName,
+      name: "otherValue",
+      funcs: [(state) => state[sliceName].otherValue]
+    });
+    const { setValueAction, SET_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setValue",
+      func: (value) => value
+    });
+    const { setOtherValueAction, SET_OTHER_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setOtherValue",
+      func: (value) => value
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {
+        [SET_VALUE_ACTION]: (state, action) => {
+          state.value = action.payload;
+        },
+        [SET_OTHER_VALUE_ACTION]: (state, action) => {
+          state.otherValue = action.payload;
+        },
+      },
+      sliceSelectors: [valueSelector, otherValueSelector],
+      initialState: { value: 0, otherValue: 0 },
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+    const { importSelector: importOtherSelector } = createImporter({});
+    const { valueSelector: valueSelectorOtherImportWrapper } = importOtherSelector(sliceName, name);
+
+    const Child = memo(() => {
+      const value = useSelector(valueSelectorImportWrapper);
+      return (
+        <div>
+          Child
+          <div>{`${value}`}</div>
+        </div>
+      );
+    });
+
+    const OtherChild = memo(() => {
+      const value = useSelector(valueSelectorOtherImportWrapper);
+      const otherValue = useSelector(otherValueSelector);
+      return (
+        <div>
+          Other Child
+          <div>{`${value}`}</div>
+          <div>{`${otherValue}`}</div>
+        </div>
+      );
+    });
+
+    const App = () => {
+      const value = useSelector(valueSelector);
+      const valueFromOtherImport = useSelector(valueSelectorImportWrapper);
+      return (
+        <div>
+          <Child />
+          <OtherChild />
+          <button onClick={() => setValueAction(0)}>setValueTo0</button>
+          <button onClick={() => setValueAction(1)}>setValueTo1</button>
+          <button onClick={() => setValueAction(2)}>setValueTo2</button>
+          <button onClick={() => setOtherValueAction(0)}>setOtherValueTo0</button>
+          <button onClick={() => setOtherValueAction(1)}>setOtherValueTo1</button>
+          <div>{`${value}`}</div>
+          <div>{`${valueFromOtherImport}`}</div>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    expect(valueSelectorInvocationsCount).toEqual(1);
+  });
+
   test("should cause rerender of components using selector in correct order", () => {
     const sliceName = "testSlice";
     const { valueSelector } = createSelector({
