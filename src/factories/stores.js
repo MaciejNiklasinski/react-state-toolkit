@@ -97,15 +97,18 @@ export const getStoresFactory = ({
 
     const useSelector = (selector = state => state) => {
       const [selected, setSelected] = useState(() => {
-        if (!selector.__hasInitialSelected) {
-          selector.__lastSelected = selector(stores[name].state);
-          selector.__hasInitialSelected = true;
+        const selectorId = selector.__selectorId;
+        const selectorHandle = selectors[selectorId];
+        if (!selectorHandle.hasInitialSelected) {
+          selectorHandle.lastSelected = selector(stores[name].state);
+          selectorHandle.hasInitialSelected = true;
         }
-        return selector.__lastSelected;
+        return selectorHandle.lastSelected;
       });
 
       useEffect(() => {
         const selectorId = selector.__selectorId;
+        const selectorHandle = selectors[selectorId];
         const renderTrigger = {
           key: Symbol(),
           requiresRender: false,
@@ -130,8 +133,8 @@ export const getStoresFactory = ({
             });
           const onStateChange = newState => {
             const newSelected = selector(newState);
-            if (selector.__lastSelected === newSelected) return;
-            selector.__lastSelected = newSelected;
+            if (selectorHandle.lastSelected === newSelected) return;
+            selectorHandle.lastSelected = newSelected;
             onSelectedChange(newSelected);
           };
 
@@ -180,10 +183,9 @@ export const getStoresFactory = ({
     stores[name].getActions = getActions;
     stores[name].getSelectors = getSelectors;
     stores[name].initialized = true;
+    
     Object.freeze(stores[name].reducers);
-    Object.keys(stores[name].selectors).forEach(sliceName =>
-      Object.freeze(stores[name].selectors[sliceName]),
-    );
+    Object.freeze(stores[name].selectors);
     Object.keys(stores[name].actions).forEach(sliceName =>
       Object.freeze(stores[name].actions[sliceName]),
     );
