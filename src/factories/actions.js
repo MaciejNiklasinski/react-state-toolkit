@@ -81,6 +81,7 @@ export const getActionsFactory = ({
     sliceName,
     name,
     func,
+    rethrow = true,
   }) => {
     let suffixedName = name;
     if (name && (typeof name !== "string" || !name.endsWith("Action")))
@@ -119,12 +120,15 @@ export const getActionsFactory = ({
           });
           result = { sliceName, params, type: RESOLVED, payload };
         } catch (error) {
-          result = { sliceName, params, type: REJECTED, error };
-        } finally {
-          try { stores[storeName].dispatch(result); } 
-          catch (error) { reject(error); }
-          result.error ? reject(result.error) : resolve(result);
+          result = { sliceName, params, type: REJECTED, error, rethrow };
         }
+
+        try { stores[storeName].dispatch(result); }
+        catch (error) { reject(error); }
+        
+        if (result.error && result.rethrow)
+          reject(result.error)
+        else resolve(result);
       });
     };
     stores[storeName].actions[sliceName][suffixedName] = action;
