@@ -99,11 +99,12 @@ export const getStoresFactory = ({
       const [selected, setSelected] = useState(() => {
         const selectorId = selector.__selectorId;
         const selectorHandle = selectors[selectorId];
-        if (!selectorHandle.hasInitialSelected) {
+        if (!selectorHandle?.hasInitialSelected) {
+          validateUseSelector({ storeName: name, selector });
           selectorHandle.lastSelected = selector(stores[name].state);
           selectorHandle.hasInitialSelected = true;
         }
-        return selectorHandle.lastSelected;
+        return selectorHandle?.lastSelected;
       });
 
       useEffect(() => {
@@ -118,7 +119,6 @@ export const getStoresFactory = ({
 
         let subscription = subscriptionsById.get(selectorId);
         if (!subscription) {
-          validateUseSelector({ storeName: name, selector });
           subscription = {
             selectorId,
             key: Symbol(),
@@ -183,7 +183,7 @@ export const getStoresFactory = ({
     stores[name].getActions = getActions;
     stores[name].getSelectors = getSelectors;
     stores[name].initialized = true;
-    
+
     Object.freeze(stores[name].reducers);
     Object.freeze(stores[name].selectors);
     Object.keys(stores[name].actions).forEach(sliceName =>
