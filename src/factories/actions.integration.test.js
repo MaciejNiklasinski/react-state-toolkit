@@ -459,6 +459,132 @@ describe("async action", () => {
     });
   });
 
+  describe("Can manage whether async action error will be re-thrown using rethrow flag", () => {
+    test("Should rethrow error if action with REJECTED action handler and rethrow flag is true (default) executed with error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new Error("Rejected"));
+    });
+
+    test("Should rethrow error if action without REJECTED action handler and rethrow flag is true (default) executed with error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {},
+        noHandlerTypes: [VALID_ASYNC_ACTION],
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new Error("Rejected"));
+    });
+
+    test("Should not rethrow error if action with REJECTED action handler and rethrow flag is false executed with error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        rethrow: false
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      let error = null;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(null);
+    });
+
+    test("Should not rethrow error if action without REJECTED action handler and rethrow flag is false executed with error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        rethrow: false
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {},
+        noHandlerTypes: [VALID_ASYNC_ACTION],
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      let error = null
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(null);
+    });
+  });
+
   describe("Can update store only slice state correctly", () => {
     test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
       const executionOrder = [];
