@@ -61,6 +61,7 @@ export const getStoresFactory = ({
       renderTriggers.forEach(renderTrigger => {
         const { requiresRender, value, invoke } = renderTrigger;
         if (!requiresRender) return;
+        renderTrigger.requiresRender = false;
         renderTrigger.value = null;
         invoke(value);
       });
