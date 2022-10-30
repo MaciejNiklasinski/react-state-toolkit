@@ -212,7 +212,7 @@ describe("store useStoreState", () => {
     };
 
     render(<App />);
-    
+
     expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
     expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
     expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
@@ -406,7 +406,7 @@ describe("store useSelector", () => {
     };
 
     render(<App />);
-    
+
     expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
     expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
     expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
@@ -613,5 +613,100 @@ describe("store useSelector", () => {
     expect(appRenders).toEqual(2);
     expect(childRenders).toEqual(2);
     expect(valueSelectorInvocationsCount).toEqual(2);
+  });
+
+  test("should cause rerender of components using the same selector in correct order", () => {
+    const sliceName = "testSlice";
+    const { valueSelector } = createSelector({
+      sliceName,
+      name: "value",
+      funcs: [(state) => state[sliceName].value]
+    });
+    const { otherValueSelector } = createSelector({
+      sliceName,
+      name: "otherValue",
+      funcs: [(state) => state[sliceName].otherValue]
+    });
+    const { setValueAction, SET_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setValue",
+      func: (value) => value
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {
+        [SET_VALUE_ACTION]: (state, action) => {
+          state.value = action.payload;
+        },
+      },
+      sliceSelectors: [valueSelector, otherValueSelector],
+      initialState: { value: 0, otherValue: 0 },
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    const rendersHistory = [];
+    const Child = memo(() => {
+      const value = useSelector(valueSelector);
+      rendersHistory.push("Child");
+      return (
+        <div>
+          Child
+          <div>{`${value}`}</div>
+        </div>
+      );
+    });
+
+    const ChildContainer = memo(() => {
+      const otherValue = useSelector(otherValueSelector);
+      rendersHistory.push("ChildContainer");
+      return (
+        <div>
+          <div>{`${otherValue}`}</div>
+          <Child />
+        </div>
+      );
+    });
+
+    const App = () => {
+      const value = useSelector(valueSelector);
+      rendersHistory.push("App");
+      return (
+        <div>
+          <ChildContainer />
+          <button onClick={() => setValueAction(0)}>setValueTo0</button>
+          <button onClick={() => setValueAction(1)}>setValueTo1</button>
+          <button onClick={() => setValueAction(2)}>setValueTo2</button>
+          <div>{`${value}`}</div>
+        </div>
+      );
+    };
+
+    render(<App />);
+    const initialRenderHistory = [...rendersHistory];
+    expect(initialRenderHistory).toEqual(["App", "ChildContainer", "Child"]);
+
+    const setValueTo0 = screen.getByText("setValueTo0");
+    userEvent.click(setValueTo0);
+    const updatedNotChangedRenderHistory = [...rendersHistory];
+    expect(updatedNotChangedRenderHistory).toEqual(initialRenderHistory);
+
+    const setValueTo1 = screen.getByText("setValueTo1");
+    userEvent.click(setValueTo1);
+    const updatedRenderHistory = [...rendersHistory];
+    expect(updatedRenderHistory).toEqual([...initialRenderHistory, "App", "Child"]);
+
+    const setValueTo2 = screen.getByText("setValueTo2");
+    userEvent.click(setValueTo2);
+    const subsequentlyUpdatedRenderHistory = [...rendersHistory];
+    expect(subsequentlyUpdatedRenderHistory).toEqual([...updatedRenderHistory, "App", "Child"]);
+
+    userEvent.click(setValueTo2);
+    const subsequentlyUpdatedNotChangedRenderHistory = [...rendersHistory];
+    expect(subsequentlyUpdatedNotChangedRenderHistory).toEqual(subsequentlyUpdatedRenderHistory);
   });
 });
