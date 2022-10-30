@@ -45,7 +45,7 @@ export const getActionsFactory = ({
     const action = params => {
       const { getState, getActions, getSelectors } = stores[storeName];
       const payload = func(params, { getState, getActions, getSelectors });
-      const result = { sliceName, type, payload };
+      const result = { sliceName, params, type, payload };
       stores[storeName].dispatch(result);
       return result;
     };
@@ -108,7 +108,7 @@ export const getActionsFactory = ({
 
     const action = async params => {
       const { getState, getActions, getSelectors } = stores[storeName];
-      stores[storeName].dispatch({ sliceName, type: PENDING });
+      stores[storeName].dispatch({ sliceName, params, type: PENDING });
       return new Promise(async (resolve, reject) => {
         let result;
         try {
@@ -117,7 +117,7 @@ export const getActionsFactory = ({
             getActions,
             getSelectors,
           });
-          result = { sliceName, type: RESOLVED, payload };
+          result = { sliceName, params, type: RESOLVED, payload };
         } catch (error) {
           result = { sliceName, params, type: REJECTED, error };
         } finally {
