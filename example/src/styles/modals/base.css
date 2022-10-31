@@ -1,0 +1,50 @@
+.modal-container {
+  position: fixed;
+  top: 6vh;
+  left: 10vw;
+  height: 88vh;
+  width: 80vw;
+  border: black 0.1em solid;
+  border-radius: 1em;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  padding-left: 0.5em;
+  font-size: 2em;
+}
+
+.modal-content {
+  border-top: black 0.1em solid;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-buttons-container {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.modal-message {
+  margin: 2em;
+  font-size: 1.2em;
+
+}
+
+.modal-button {
+  height: 3em;
+  min-width: 6em;
+  margin-right: 3em;
+  margin-bottom: 2em;
+  border-radius: 0.5em;
+  border-width: 0px;
+  font-weight: 600;
+  box-shadow: 0.15em 0.15em #282c34;
+}
