@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { createElement, useState, useEffect } from 'react';
 import { DEFAULT_STORE } from '../constants/store';
 import { getStoreValidator } from './stores.validator';
 import { insertCapitalized } from '../utils/strings';
@@ -43,7 +43,8 @@ export const getStoresFactory = ({
       sliceName ? stores[name].actions[sliceName] : stores[name].actions;
     const getSelectors = (sliceName = null) =>
       sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
-    const withStore = Component => props => (<Component {...{ ...props, getActions, getSelectors }} />);
+    const withStore = Component => props =>
+      createElement(Component, { ...{ ...props, getActions, getSelectors } }, null);
 
     const renderTriggers = new Map();
     const subscriptions = new Map();
