@@ -201,19 +201,24 @@ export const getStoresFactory = ({
     );
     Object.freeze(stores[name].actions);
 
-    return Object.freeze({
+    let storeExport = {
       withStore,
       useStoreState,
       useSelector,
       getState,
       getActions,
       getSelectors,
-      [insertCapitalized('withStore', 4, name)]: withStore,
-      [insertCapitalized('useStoreState', 3, name)]: useStoreState,
-      [insertCapitalized('useSelector', 3, name)]: useSelector,
-      [insertCapitalized('getState', 3, name)]: getState,
-      [insertCapitalized('getActions', 3, name)]: getActions,
-      [insertCapitalized('getSelectors', 3, name)]: getSelectors,
-    });
+    };
+    if (name !== DEFAULT_STORE)
+      storeExport = {
+        ...storeExport,
+        [insertCapitalized('withStore', 4, name)]: withStore,
+        [insertCapitalized('useStoreState', 3, name)]: useStoreState,
+        [insertCapitalized('useSelector', 3, name)]: useSelector,
+        [insertCapitalized('getState', 3, name)]: getState,
+        [insertCapitalized('getActions', 3, name)]: getActions,
+        [insertCapitalized('getSelectors', 3, name)]: getSelectors,
+      };
+    return Object.freeze(storeExport);
   },
 });

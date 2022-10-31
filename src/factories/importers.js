@@ -96,12 +96,16 @@ export const getImportersFactory = ({
         return Object.freeze({ [selectorName]: selectorFuncWrapper, isReady: () => isReady });
       }
     };
-
-    return {
+    let importerExport = {
       importAction,
       importSelector,
-      [insertCapitalized('importAction', 6, storeName)]: importAction,
-      [insertCapitalized('importSelector', 6, storeName)]: importSelector,
     };
+    if (storeName !== DEFAULT_STORE)
+      importerExport = {
+        ...importerExport,
+        [insertCapitalized('importAction', 6, storeName)]: importAction,
+        [insertCapitalized('importSelector', 6, storeName)]: importSelector,
+      }
+    return Object.freeze(importerExport);
   },
 });
