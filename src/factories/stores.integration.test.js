@@ -833,4 +833,124 @@ describe("store useSelector", () => {
     userEvent.click(setValueTo0);
     expect([...rendersHistory]).toEqual([...otherSubsequentlyUpdatedRenderHistory, "App", "Child"]);
   });
+
+  test("should render with correct value when re-mounting the component after the state update", () => {
+    const sliceName = "testSlice";
+    const name = "valueSelector";
+    const { valueSelector } = createSelector({
+      sliceName,
+      name,
+      funcs: [(state) => state[sliceName].value]
+    });
+    const { otherValueSelector } = createSelector({
+      sliceName,
+      name: "otherValue",
+      funcs: [(state) => state[sliceName].otherValue]
+    });
+    const { showChildSelector } = createSelector({
+      sliceName,
+      name: "showChildSelector",
+      funcs: [(state) => state[sliceName].showChild]
+    });
+    const { setValueAction, SET_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setValue",
+      func: (value) => value
+    });
+    const { setOtherValueAction, SET_OTHER_VALUE_ACTION } = createAction({
+      sliceName,
+      name: "setOtherValue",
+      func: (value) => value
+    });
+    const { setShowChildAction, SET_SHOW_CHILD_ACTION } = createAction({
+      sliceName,
+      name: "setShowChildAction",
+      func: (value) => value
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {
+        [SET_VALUE_ACTION]: (state, action) => {
+          state.value = action.payload;
+        },
+        [SET_OTHER_VALUE_ACTION]: (state, action) => {
+          state.otherValue = action.payload;
+        },
+        [SET_SHOW_CHILD_ACTION]: (state, action) => {
+          state.showChild = action.payload;
+        },
+      },
+      sliceSelectors: [valueSelector, otherValueSelector, showChildSelector],
+      initialState: { value: 0, otherValue: 0, showChild: true },
+    });
+    const {
+      useSelector,
+      getState,
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    let childValue;
+    const Child = memo(() => {
+      childValue = useSelector(valueSelector);
+      return (
+        <div>
+          Child
+          <div>{`${childValue}`}</div>
+        </div>
+      );
+    });
+
+    const OtherChild = memo(() => {
+      const otherValue = useSelector(otherValueSelector);
+      return (
+        <div>
+          Other Child
+          <div>{`${otherValue}`}</div>
+        </div>
+      );
+    });
+
+    let showChild;
+    const App = () => {
+      showChild = useSelector(showChildSelector);
+      return (
+        <div>
+          {showChild && <Child />}
+          <OtherChild />
+          <button onClick={() => setValueAction(0)}>setValueTo0</button>
+          <button onClick={() => setValueAction(1)}>setValueTo1</button>
+          <button onClick={() => setValueAction(2)}>setValueTo2</button>
+          <button onClick={() => setOtherValueAction(0)}>setOtherValueTo0</button>
+          <button onClick={() => setOtherValueAction(1)}>setOtherValueTo1</button>
+          <button onClick={() => setShowChildAction(true)}>setShowChildToTrue</button>
+          <button onClick={() => setShowChildAction(false)}>setShowChildToFalse</button>
+        </div>
+      );
+    };
+
+    render(<App />);
+
+    expect(childValue).toEqual(0);
+    expect(showChild).toEqual(true);
+
+    const setShowChildToFalse = screen.getByText("setShowChildToFalse");
+    userEvent.click(setShowChildToFalse);
+    expect(childValue).toEqual(0);
+    expect(showChild).toEqual(false);
+
+    const setValueTo1 = screen.getByText("setValueTo1");
+    userEvent.click(setValueTo1);
+    expect(childValue).toEqual(0);
+
+    const setShowChildToTrue = screen.getByText("setShowChildToTrue");
+    userEvent.click(setShowChildToTrue);
+
+    expect(childValue).toEqual(1);
+    expect(showChild).toEqual(true);
+
+    const setValueTo2 = screen.getByText("setValueTo2");
+    userEvent.click(setValueTo2);
+    expect(childValue).toEqual(2);
+  });
 });
