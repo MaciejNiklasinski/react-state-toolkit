@@ -1,7 +1,7 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
-import { insertCapitalized } from '../utils/strings';
+import { insertCapitalized, suffixIfRequired } from '../utils/strings';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 import { getImporterValidator } from './importers.validator';
 
@@ -34,9 +34,7 @@ export const getImportersFactory = ({
       selectorsImports[storeName] = {};
 
     const importAction = (sliceName, actionName) => {
-      if (actionName && typeof actionName === "string" && !actionName.endsWith("Action"))
-        actionName = `${actionName}Action`;
-
+      actionName = suffixIfRequired(actionName, "Action");
       validateImportAction({ storeName, sliceName, actionName });
 
       if (!actionsImports[storeName][sliceName])
@@ -67,9 +65,7 @@ export const getImportersFactory = ({
     };
 
     const importSelector = (sliceName, selectorName) => {
-      if (selectorName && typeof selectorName === "string" && !selectorName.endsWith("Selector"))
-        selectorName = `${selectorName}Selector`;
-
+      selectorName = suffixIfRequired(selectorName, "Selector");
       validateImportSelector({ storeName, sliceName, selectorName });
 
       if (!selectorsImports[storeName][sliceName])

@@ -2,6 +2,7 @@ import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
 import { getSelectorId } from './ids';
 import { getSelectorValidator } from './selectors.validator';
+import { suffixIfRequired } from '../utils/strings';
 
 export const getSelectorsFactory = ({
   stores,
@@ -19,9 +20,7 @@ export const getSelectorsFactory = ({
     funcs = [],
     memoOnArgs = false,
   }) => {
-    let suffixedName = name;
-    if (name && (typeof name !== "string" || !name.endsWith("Selector")))
-      suffixedName = `${name}Selector`;
+    const suffixedName = suffixIfRequired(name, "Selector");
     const { validateSelector } = getSelectorValidator({
       stores,
       slices,

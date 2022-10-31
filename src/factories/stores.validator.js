@@ -28,6 +28,7 @@ import {
   UnableToUseForeignStoreSelector,
 } from '../errors/UnableToUseSelector';
 import { getActionId, getSelectorId, getSliceId } from './ids';
+import { isValidName } from '../utils/strings';
 
 export const getStoreValidator = ({
   stores,
@@ -129,7 +130,7 @@ export const getStoreValidator = ({
   return {
     // Store
     validateStore: ({ storeName, storeSlices, storeSelectors }) => {
-      if (!storeName || /[_.]/.test(storeName))
+      if (!isValidName(storeName))
         throw new UnableToCreateInvalidNameStore({ storeName });
       else if (stores[storeName]?.initialized)
         throw new UnableToCreateInitializedStore({ storeName });
