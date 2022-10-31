@@ -1,0 +1,39 @@
+.loader-container {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: black;
+  opacity: 0.9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+  color: white;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loader-spinner {
+    border-radius: 50%;
+    border: white 1em solid;
+    border-top: #61dbfb 1em solid;
+    height: 10em;
+    width: 10em;
+    animation: loader-spin infinite 2s linear;
+  }
+}
+
+@keyframes loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
