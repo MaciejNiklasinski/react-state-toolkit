@@ -93,7 +93,7 @@ export const getStoresFactory = ({
       return stores[name].state;
     };
 
-    const useSelector = (selector = state => state) => {
+    const useSelector = (selector) => {
       const [selected, setSelected] = useState(() => {
         const selectorId = selector.__selectorId;
         const selectorHandle = selectors[selectorId];
