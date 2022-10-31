@@ -1,6 +1,7 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
+import { insertCapitalized, suffixIfRequired } from '../utils/strings';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 import { getImporterValidator } from './importers.validator';
 
@@ -33,9 +34,7 @@ export const getImportersFactory = ({
       selectorsImports[storeName] = {};
 
     const importAction = (sliceName, actionName) => {
-      if (actionName && typeof actionName === "string" && !actionName.endsWith("Action"))
-        actionName = `${actionName}Action`;
-
+      actionName = suffixIfRequired(actionName, "Action");
       validateImportAction({ storeName, sliceName, actionName });
 
       if (!actionsImports[storeName][sliceName])
@@ -66,9 +65,7 @@ export const getImportersFactory = ({
     };
 
     const importSelector = (sliceName, selectorName) => {
-      if (selectorName && typeof selectorName === "string" && !selectorName.endsWith("Selector"))
-        selectorName = `${selectorName}Selector`;
-
+      selectorName = suffixIfRequired(selectorName, "Selector");
       validateImportSelector({ storeName, sliceName, selectorName });
 
       if (!selectorsImports[storeName][sliceName])
@@ -99,15 +96,16 @@ export const getImportersFactory = ({
         return Object.freeze({ [selectorName]: selectorFuncWrapper, isReady: () => isReady });
       }
     };
-
-    const getStorePropName = propName =>
-      storeName !== DEFAULT_STORE
-        ? `${propName.slice(0, 6)}${storeName[0].toUpperCase()}${storeName.slice(1)}${propName.slice(6)}`
-        : propName;
-
-    return {
-      [getStorePropName('importAction')]: importAction,
-      [getStorePropName('importSelector')]: importSelector,
+    let importerExport = {
+      importAction,
+      importSelector,
     };
+    if (storeName !== DEFAULT_STORE)
+      importerExport = {
+        ...importerExport,
+        [insertCapitalized('importAction', 6, storeName)]: importAction,
+        [insertCapitalized('importSelector', 6, storeName)]: importSelector,
+      }
+    return Object.freeze(importerExport);
   },
 });

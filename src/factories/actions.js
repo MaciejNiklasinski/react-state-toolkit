@@ -3,9 +3,7 @@ import { TYPE_SUFFIXES } from '../constants/actions';
 import { getActionId } from './ids';
 import { getActionValidator } from './actions.validator';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
-
-const toSnakeCase = str => str?.replace(/[A-Z]/g, c => `_${c.toLowerCase()}`)?.trimStart('_') || str;
-const toScreamingSnakeCase = str => toSnakeCase(str)?.toUpperCase();
+import { suffixIfRequired, toScreamingSnakeCase } from '../utils/strings';
 
 export const getActionsFactory = ({
   stores,
@@ -22,9 +20,7 @@ export const getActionsFactory = ({
     name,
     func,
   }) => {
-    let suffixedName = name;
-    if (name && (typeof name !== "string" || !name.endsWith("Action")))
-      suffixedName = `${name}Action`;
+    const suffixedName = suffixIfRequired(name, "Action");
     const { validateAction } = getActionValidator({
       stores,
       slices,
@@ -83,9 +79,7 @@ export const getActionsFactory = ({
     func,
     rethrow = true,
   }) => {
-    let suffixedName = name;
-    if (name && (typeof name !== "string" || !name.endsWith("Action")))
-      suffixedName = `${name}Action`;
+    const suffixedName = suffixIfRequired(name, "Action");
     const { validateAction } = getActionValidator({
       stores,
       slices,

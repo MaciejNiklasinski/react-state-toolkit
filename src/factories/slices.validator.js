@@ -23,6 +23,7 @@ import {
   UnableToCreateMissingSliceSelectorSlice,
 } from '../errors/UnableToCreateSlice';
 import { getSliceId } from './ids';
+import { isValidName } from '../utils/strings';
 
 export const getSliceValidator = ({
   stores,
@@ -34,7 +35,7 @@ export const getSliceValidator = ({
   selectorsImports,
 }) => {
   const validateSliceStore = ({ storeName, sliceName }) => {
-    if (!storeName || /[_.]/.test(storeName))
+    if (!isValidName(storeName))
       throw new UnableToCreateInvalidNameStoreSlice({ storeName, sliceName });
     else if (stores[storeName]?.initialized)
       throw new UnableToCreateInitializedStoreSlice({ storeName, sliceName });
@@ -135,7 +136,7 @@ export const getSliceValidator = ({
     validateSlice: ({ storeName, sliceName, reducer, noHandlerTypes, sliceSelectors }) => {
       validateSliceStore({ storeName, sliceName });
 
-      if (!sliceName || /[_.]/.test(sliceName))
+      if (!isValidName(sliceName))
         throw new UnableToCreateInvalidNameSlice({ storeName, sliceName });
       else if (sliceName === DEFAULT_SLICE)
         throw new UnableToCreateReservedNameSlice({ storeName });

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { createElement, useState, useEffect } from 'react';
 import { DEFAULT_STORE } from '../constants/store';
 import { getStoreValidator } from './stores.validator';
+import { insertCapitalized } from '../utils/strings';
 
 export const getStoresFactory = ({
   stores,
@@ -35,17 +36,12 @@ export const getStoresFactory = ({
     // Validate store creation
     validateStore({ storeName: name, storeSlices, storeSelectors });
 
-    // Create store functions
-    const getState = (sliceName = null) =>
-      sliceName ? stores[name].state[sliceName] : stores[name].state;
-    const getActions = (sliceName = null) =>
-      sliceName ? stores[name].actions[sliceName] : stores[name].actions;
-    const getSelectors = (sliceName = null) =>
-      sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
-
+    // Store state subscriptions
     const renderTriggers = new Map();
     const subscriptions = new Map();
     const subscriptionsById = new Map();
+
+    // Create store functions
     const dispatch = action => {
       const reducer = stores[name].reducers[action.sliceName][action.type];
       if (!reducer || action instanceof Promise) return;
@@ -58,7 +54,7 @@ export const getStoresFactory = ({
       };
       stores[name].state = newState;
       stores[name].stateVersion = Symbol();
-      
+
       subscriptions.forEach(({ onStateChange }) => onStateChange(newState));
       renderTriggers.forEach(renderTrigger => {
         const { requiresRender, value, invoke } = renderTrigger;
@@ -97,7 +93,7 @@ export const getStoresFactory = ({
       return stores[name].state;
     };
 
-    const useSelector = (selector = state => state) => {
+    const useSelector = (selector) => {
       const [selected, setSelected] = useState(() => {
         const selectorId = selector.__selectorId;
         const selectorHandle = selectors[selectorId];
@@ -109,7 +105,7 @@ export const getStoresFactory = ({
         } else if (selectorHandle.lastStateVersion !== stores[name].stateVersion) {
           selectorHandle.lastSelected = selector(stores[name].state);
           selectorHandle.lastStateVersion = stores[name].stateVersion;
-        }          
+        }
         return selectorHandle?.lastSelected;
       });
 
@@ -166,6 +162,16 @@ export const getStoresFactory = ({
       return selected;
     };
 
+    const getState = (sliceName = null) =>
+      sliceName ? stores[name].state[sliceName] : stores[name].state;
+    const getActions = (sliceName = null) =>
+      sliceName ? stores[name].actions[sliceName] : stores[name].actions;
+    const getSelectors = (sliceName = null) =>
+      sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
+    const getHooks = () => ({ useStoreState, useSelector });
+    const withStore = Component => props =>
+      createElement(Component, { ...{ ...props, getActions, getSelectors, getHooks } }, null);
+
     // Assign validated store imports
     const storeActionImports = actionsImports[name] || {};
     Object.keys(storeActionImports).forEach(
@@ -190,6 +196,7 @@ export const getStoresFactory = ({
     stores[name].getState = getState;
     stores[name].getActions = getActions;
     stores[name].getSelectors = getSelectors;
+    stores[name].getHooks = getHooks;
     stores[name].initialized = true;
 
     Object.freeze(stores[name].reducers);
@@ -199,17 +206,26 @@ export const getStoresFactory = ({
     );
     Object.freeze(stores[name].actions);
 
-    const getStorePropName = propName =>
-      name !== DEFAULT_STORE
-        ? `${propName.slice(0, 3)}${name[0].toUpperCase()}${name.slice(1)}${propName.slice(3)}`
-        : propName;
-
-    return Object.freeze({
-      [getStorePropName('useStoreState')]: useStoreState,
-      [getStorePropName('useSelector')]: useSelector,
-      [getStorePropName('getState')]: getState,
-      [getStorePropName('getActions')]: getActions,
-      [getStorePropName('getSelectors')]: getSelectors,
-    });
+    let storeExport = {
+      withStore,
+      useStoreState,
+      useSelector,
+      getState,
+      getActions,
+      getSelectors,
+      getHooks,
+    };
+    if (name !== DEFAULT_STORE)
+      storeExport = {
+        ...storeExport,
+        [insertCapitalized('withStore', 4, name)]: withStore,
+        [insertCapitalized('useStoreState', 3, name)]: useStoreState,
+        [insertCapitalized('useSelector', 3, name)]: useSelector,
+        [insertCapitalized('getState', 3, name)]: getState,
+        [insertCapitalized('getActions', 3, name)]: getActions,
+        [insertCapitalized('getSelectors', 3, name)]: getSelectors,
+        [insertCapitalized('getHooks', 3, name)]: getHooks,
+      };
+    return Object.freeze(storeExport);
   },
 });

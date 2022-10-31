@@ -12,6 +12,7 @@ import {
   UnableToCreateExistingSelector
 } from '../errors/UnableToCreateSelector';
 import { getSliceId, getSelectorId } from './ids';
+import { isValidName } from '../utils/strings';
 
 export const getSelectorValidator = ({
   stores,
@@ -23,13 +24,13 @@ export const getSelectorValidator = ({
   selectorsImports,
 }) => {
   const validateSelectorStore = ({ storeName, sliceName, selectorName }) => {
-    if (!storeName || /[_.]/.test(storeName))
+    if (!isValidName(storeName))
       throw new UnableToCreateInvalidNameStoreSelector({ storeName, sliceName, selectorName });
     else if (stores[storeName]?.initialized)
       throw new UnableToCreateInitializedStoreSelector({ storeName, sliceName, selectorName });
   };
   const validateSelectorSlice = ({ storeName, sliceName, selectorName }) => {
-    if (!sliceName || /[_.]/.test(sliceName))
+    if (!isValidName(sliceName))
       throw new UnableToCreateInvalidNameSliceSelector({ storeName, sliceName, selectorName });
     else if (!!slices[getSliceId({ storeName, sliceName })])
       throw new UnableToCreateInitializedSliceSelector({ storeName, sliceName, selectorName });
@@ -46,7 +47,7 @@ export const getSelectorValidator = ({
       validateSelectorStore({ storeName, sliceName, selectorName });
       validateSelectorSlice({ storeName, sliceName, selectorName });
 
-      if (!selectorName || /[_.]/.test(selectorName))
+      if (!isValidName(selectorName))
         throw new UnableToCreateInvalidNameSelector({ storeName, sliceName, selectorName });
       else if (
         !Array.isArray(funcs) ||

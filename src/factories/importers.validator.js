@@ -20,6 +20,7 @@ import {
   UnableToImportUnregisteredSelector,
 } from '../errors/UnableToImportSelector';
 import { getSliceId, getActionId, getSelectorId } from './ids';
+import { isValidName } from '../utils/strings';
 
 export const getImporterValidator = ({
   stores,
@@ -32,7 +33,7 @@ export const getImporterValidator = ({
 }) => {
   // ImportAction Slice
   const validateImportActionSlice = ({ storeName, sliceName, actionName }) => {
-    if (!sliceName || /[_.]/.test(sliceName))
+    if (!isValidName(sliceName))
       throw new UnableToImportInvalidNameSliceAction({ storeName, sliceName, actionName });
 
     const sliceId = getSliceId({ storeName, sliceName });
@@ -41,7 +42,7 @@ export const getImporterValidator = ({
   };
   // ImportSelector Slice
   const validateImportSelectorSlice = ({ storeName, sliceName, selectorName }) => {
-    if (!sliceName || /[_.]/.test(sliceName))
+    if (!isValidName(sliceName))
       throw new UnableToImportInvalidNameSliceSelector({ storeName, sliceName, selectorName });
 
     const sliceId = getSliceId({ storeName, sliceName });
@@ -51,13 +52,13 @@ export const getImporterValidator = ({
   return {
     // Importer
     validateImporter: ({ storeName }) => {
-      if (!storeName || /[_.]/.test(storeName))
+      if (!isValidName(storeName))
         throw new UnableToCreateInvalidNameStoreImporter({ storeName });
     },
     // ImportAction
     validateImportAction: ({ storeName, sliceName, actionName }) => {
       validateImportActionSlice({ storeName, sliceName, actionName });
-      if (!actionName || /[_.]/.test(actionName))
+      if (!isValidName(actionName))
         throw new UnableToImportInvalidNameAction({ storeName, sliceName, actionName });
 
       const actionId = getActionId({ storeName, sliceName, actionName });
@@ -67,7 +68,7 @@ export const getImporterValidator = ({
     // ImportSelector
     validateImportSelector: ({ storeName, sliceName, selectorName }) => {
       validateImportSelectorSlice({ storeName, sliceName, selectorName });
-      if (!selectorName || /[_.]/.test(selectorName))
+      if (!isValidName(selectorName))
         throw new UnableToImportInvalidNameSelector({ storeName, sliceName, selectorName });
 
       const selectorId = getSelectorId({ storeName, sliceName, selectorName });

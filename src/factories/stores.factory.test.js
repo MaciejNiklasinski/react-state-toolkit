@@ -76,26 +76,31 @@ describe("stores factory", () => {
       reducer: {},
     });
     const {
+      withStore,
       useStoreState,
       useSelector,
       getState,
       getActions,
       getSelectors,
+      getHooks,
     } = createStore({
       storeSlices: { emptySlice },
     });
 
+    expect(typeof withStore).toEqual("function");
     expect(typeof useStoreState).toEqual("function");
     expect(typeof useSelector).toEqual("function");
     expect(typeof getState).toEqual("function");
     expect(typeof getActions).toEqual("function");
     expect(typeof getSelectors).toEqual("function");
+    expect(typeof getHooks).toEqual("function");
 
     expect(stores[DEFAULT_STORE].useStoreState).toEqual(useStoreState);
     expect(stores[DEFAULT_STORE].useSelector).toEqual(useSelector);
     expect(stores[DEFAULT_STORE].getState).toEqual(getState);
     expect(stores[DEFAULT_STORE].getActions).toEqual(getActions);
     expect(stores[DEFAULT_STORE].getSelectors).toEqual(getSelectors);
+    expect(stores[DEFAULT_STORE].getHooks).toEqual(getHooks);
 
     expect(stores[DEFAULT_STORE].initialized).toEqual(true);
     expect(stores[DEFAULT_STORE].renderTriggers).toEqual(new Map());
@@ -120,21 +125,40 @@ describe("stores factory", () => {
       reducer: {},
     });
     const {
+      withStore,
+      useStoreState,
+      useSelector,
+      getState,
+      getActions,
+      getSelectors,
+      getHooks,
+      withNonDefaultStore,
       useNonDefaultStoreState,
       useNonDefaultSelector,
       getNonDefaultState,
       getNonDefaultActions,
       getNonDefaultSelectors,
+      getNonDefaultHooks,
     } = createStore({
       name: storeName,
       storeSlices: { emptySlice },
     });
 
-    expect(typeof useNonDefaultStoreState).toEqual("function");
-    expect(typeof useNonDefaultSelector).toEqual("function");
-    expect(typeof getNonDefaultState).toEqual("function");
-    expect(typeof getNonDefaultActions).toEqual("function");
-    expect(typeof getNonDefaultSelectors).toEqual("function");
+    expect(typeof withStore).toEqual("function");
+    expect(typeof useStoreState).toEqual("function");
+    expect(typeof useSelector).toEqual("function");
+    expect(typeof getState).toEqual("function");
+    expect(typeof getActions).toEqual("function");
+    expect(typeof getSelectors).toEqual("function");
+    expect(typeof getHooks).toEqual("function");
+    
+    expect(withStore).toEqual(withNonDefaultStore);
+    expect(useStoreState).toEqual(useNonDefaultStoreState);
+    expect(useSelector).toEqual(useNonDefaultSelector);
+    expect(getState).toEqual(getNonDefaultState);
+    expect(getActions).toEqual(getNonDefaultActions);
+    expect(getSelectors).toEqual(getNonDefaultSelectors);
+    expect(getHooks).toEqual(getNonDefaultHooks);
 
     expect(stores[storeName].useStoreState).toEqual(useNonDefaultStoreState);
     expect(stores[storeName].useSelector).toEqual(useNonDefaultSelector);

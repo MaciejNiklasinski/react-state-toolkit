@@ -13,6 +13,7 @@ import {
   UnableToCreateExistingAction,
 } from '../errors/UnableToCreateAction';
 import { getSliceId, getActionId } from './ids';
+import { isValidName } from '../utils/strings';
 
 export const getActionValidator = ({
   stores,
@@ -24,13 +25,13 @@ export const getActionValidator = ({
   selectorsImports,
 }) => {
   const validateActionStore = ({ storeName, sliceName, actionName }) => {
-    if (!storeName || /[_.]/.test(storeName))
+    if (!isValidName(storeName))
       throw new UnableToCreateInvalidNameStoreAction({ storeName, sliceName, actionName });
     else if (stores[storeName]?.initialized)
       throw new UnableToCreateInitializedStoreAction({ storeName, sliceName, actionName });
   };
   const validateActionSlice = ({ storeName, sliceName, actionName }) => {
-    if (!sliceName || /[_.]/.test(sliceName))
+    if (!isValidName(sliceName))
       throw new UnableToCreateInvalidNameSliceAction({ storeName, sliceName, actionName });
     else if (sliceName === DEFAULT_SLICE)
       throw new UnableToCreateReservedSliceAction({ storeName, actionName });
@@ -43,7 +44,7 @@ export const getActionValidator = ({
       validateActionStore({ storeName, sliceName, actionName });
       validateActionSlice({ storeName, sliceName, actionName });
 
-      if (!actionName || /[_.]/.test(actionName))
+      if (!isValidName(actionName))
         throw new UnableToCreateInvalidNameAction({ storeName, sliceName, actionName });
       else if (!func || !(func instanceof Function))
         throw new UnableToCreateInvalidFuncAction({ storeName, sliceName, actionName });
