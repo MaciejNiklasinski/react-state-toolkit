@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DEFAULT_STORE } from '../constants/store';
 import { getStoreValidator } from './stores.validator';
+import { insertCapitalized } from '../utils/strings';
 
 export const getStoresFactory = ({
   stores,
@@ -58,7 +59,7 @@ export const getStoresFactory = ({
       };
       stores[name].state = newState;
       stores[name].stateVersion = Symbol();
-      
+
       subscriptions.forEach(({ onStateChange }) => onStateChange(newState));
       renderTriggers.forEach(renderTrigger => {
         const { requiresRender, value, invoke } = renderTrigger;
@@ -109,7 +110,7 @@ export const getStoresFactory = ({
         } else if (selectorHandle.lastStateVersion !== stores[name].stateVersion) {
           selectorHandle.lastSelected = selector(stores[name].state);
           selectorHandle.lastStateVersion = stores[name].stateVersion;
-        }          
+        }
         return selectorHandle?.lastSelected;
       });
 
@@ -199,17 +200,17 @@ export const getStoresFactory = ({
     );
     Object.freeze(stores[name].actions);
 
-    const getStorePropName = propName =>
-      name !== DEFAULT_STORE
-        ? `${propName.slice(0, 3)}${name[0].toUpperCase()}${name.slice(1)}${propName.slice(3)}`
-        : propName;
-
     return Object.freeze({
-      [getStorePropName('useStoreState')]: useStoreState,
-      [getStorePropName('useSelector')]: useSelector,
-      [getStorePropName('getState')]: getState,
-      [getStorePropName('getActions')]: getActions,
-      [getStorePropName('getSelectors')]: getSelectors,
+      useStoreState,
+      useSelector,
+      getState,
+      getActions,
+      getSelectors,
+      [insertCapitalized('useStoreState', 3, name)]: useStoreState,
+      [insertCapitalized('useSelector', 3, name)]: useSelector,
+      [insertCapitalized('getState', 3, name)]: getState,
+      [insertCapitalized('getActions', 3, name)]: getActions,
+      [insertCapitalized('getSelectors', 3, name)]: getSelectors,
     });
   },
 });

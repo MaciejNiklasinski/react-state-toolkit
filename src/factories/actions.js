@@ -3,9 +3,7 @@ import { TYPE_SUFFIXES } from '../constants/actions';
 import { getActionId } from './ids';
 import { getActionValidator } from './actions.validator';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
-
-const toSnakeCase = str => str?.replace(/[A-Z]/g, c => `_${c.toLowerCase()}`)?.trimStart('_') || str;
-const toScreamingSnakeCase = str => toSnakeCase(str)?.toUpperCase();
+import { toScreamingSnakeCase } from '../utils/strings';
 
 export const getActionsFactory = ({
   stores,

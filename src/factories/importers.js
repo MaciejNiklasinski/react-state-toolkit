@@ -1,6 +1,7 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
+import { insertCapitalized } from '../utils/strings';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 import { getImporterValidator } from './importers.validator';
 
@@ -100,14 +101,11 @@ export const getImportersFactory = ({
       }
     };
 
-    const getStorePropName = propName =>
-      storeName !== DEFAULT_STORE
-        ? `${propName.slice(0, 6)}${storeName[0].toUpperCase()}${storeName.slice(1)}${propName.slice(6)}`
-        : propName;
-
     return {
-      [getStorePropName('importAction')]: importAction,
-      [getStorePropName('importSelector')]: importSelector,
+      importAction,
+      importSelector,
+      [insertCapitalized('importAction', 6, storeName)]: importAction,
+      [insertCapitalized('importSelector', 6, storeName)]: importSelector,
     };
   },
 });
