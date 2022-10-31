@@ -57,6 +57,8 @@ export const getStoresFactory = ({
         [action.sliceName]: newSliceState,
       };
       stores[name].state = newState;
+      stores[name].stateVersion = Symbol();
+      
       subscriptions.forEach(({ onStateChange }) => onStateChange(newState));
       renderTriggers.forEach(renderTrigger => {
         const { requiresRender, value, invoke } = renderTrigger;
@@ -102,8 +104,12 @@ export const getStoresFactory = ({
         if (!selectorHandle?.hasInitialSelected) {
           validateUseSelector({ storeName: name, selector });
           selectorHandle.lastSelected = selector(stores[name].state);
+          selectorHandle.lastStateVersion = stores[name].stateVersion;
           selectorHandle.hasInitialSelected = true;
-        }
+        } else if (selectorHandle.lastStateVersion !== stores[name].stateVersion) {
+          selectorHandle.lastSelected = selector(stores[name].state);
+          selectorHandle.lastStateVersion = stores[name].stateVersion;
+        }          
         return selectorHandle?.lastSelected;
       });
 
@@ -123,6 +129,7 @@ export const getStoresFactory = ({
             selectorId,
             key: Symbol(),
             triggers: new Map(),
+            lastStateVersion: null,
             lastSelected: selected
           };
 
@@ -133,6 +140,7 @@ export const getStoresFactory = ({
             });
           const onStateChange = newState => {
             const newSelected = selector(newState);
+            selectorHandle.lastStateVersion = stores[name].stateVersion;
             if (selectorHandle.lastSelected === newSelected) return;
             selectorHandle.lastSelected = newSelected;
             onSelectedChange(newSelected);
