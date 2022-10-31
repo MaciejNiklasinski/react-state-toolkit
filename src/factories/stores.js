@@ -43,6 +43,7 @@ export const getStoresFactory = ({
       sliceName ? stores[name].actions[sliceName] : stores[name].actions;
     const getSelectors = (sliceName = null) =>
       sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
+    const withStore = Component => props => (<Component {...{ ...props, getActions, getSelectors }} />);
 
     const renderTriggers = new Map();
     const subscriptions = new Map();
@@ -201,11 +202,13 @@ export const getStoresFactory = ({
     Object.freeze(stores[name].actions);
 
     return Object.freeze({
+      withStore,
       useStoreState,
       useSelector,
       getState,
       getActions,
       getSelectors,
+      [insertCapitalized('withStore', 4, name)]: withStore,
       [insertCapitalized('useStoreState', 3, name)]: useStoreState,
       [insertCapitalized('useSelector', 3, name)]: useSelector,
       [insertCapitalized('getState', 3, name)]: getState,
