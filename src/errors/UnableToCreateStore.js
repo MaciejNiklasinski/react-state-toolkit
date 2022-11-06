@@ -98,6 +98,28 @@ export class UnableToCreateMissingSelectorStore extends UnableToCreateStore {
   }
 };
 
+export class UnableToCreateCircularSelectorStore extends UnableToCreateStore {
+  constructor({ storeName, circularSelectorId, selectionChain }) {
+    super({ storeName, baseMessageSuffix: `selector ${circularSelectorId} contains circular selection chain: ${[...selectionChain, circularSelectorId].join(" -> ")}` });
+  }
+};
+
+export class UnableToCreatePartialKeepMemoSelectorStore extends UnableToCreateStore {
+  constructor({ storeName, selectorId, nonKeepMemoSelectorId }) {
+    super({ storeName, baseMessageSuffix: `keepMemo selector ${selectorId} is referencing not permanently memoized ${nonKeepMemoSelectorId} selector.` });
+  }
+};
+export class UnableToCreateParameterlessToParameterizedSelectorStore extends UnableToCreateStore {
+  constructor({ storeName, selectorId, parameterizedSelectorId }) {
+    super({ storeName, baseMessageSuffix: `parameterless selector ${selectorId} is referencing parameterized selector ${parameterizedSelectorId}.` });
+  }
+};
+export class UnableToCreateNoParamsMapperSelectorStore extends UnableToCreateStore {
+  constructor({ storeName, selectorId, paramsSignature, noMapperSelectorId, noMapperParamsSignature }) {
+    super({ storeName, baseMessageSuffix: `parameterized selector ${selectorId} with paramsSignature "${paramsSignature}" is referencing ${noMapperSelectorId} with paramsSignature "${noMapperParamsSignature}". To use it provide appropriate paramsMapper function to createSelector() function.` });
+  }
+};
+
 // Store Action Imports
 export class UnableToCreateUnknownSliceActionImportStore extends UnableToCreateStore {
   constructor({ actionId }) {

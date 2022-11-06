@@ -15,6 +15,10 @@ import {
   UnableToCreateSliceRegisteredSelectorStore,
   UnableToCreateImportWrapperSelectorStore,
   UnableToCreateMissingSelectorStore,
+  UnableToCreateCircularSelectorStore,
+  UnableToCreatePartialKeepMemoSelectorStore,
+  UnableToCreateParameterlessToParameterizedSelectorStore,
+  UnableToCreateNoParamsMapperSelectorStore,
   // Store Action Imports
   UnableToCreateUnknownSliceActionImportStore,
   UnableToCreateUnknownActionImportStore,
@@ -22,11 +26,6 @@ import {
   UnableToCreateUnknownSliceSelectorImportStore,
   UnableToCreateUnknownSelectorImportStore,
 } from '../errors/UnableToCreateStore';
-import {
-  // Store useSelector
-  UnableToUseNonSelector,
-  UnableToUseForeignStoreSelector,
-} from '../errors/UnableToUseSelector';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 import { isValidName } from '../utils/strings';
 
@@ -102,6 +101,64 @@ export const getStoreValidator = ({
           throw new UnableToCreateMissingSelectorStore({ storeName, missingSelectorId: __selectorId });
       },
     );
+    const selectorsSlices = Object.keys(stores[storeName].selectors);
+    selectorsSlices.forEach(
+      (sliceName) => Object.values(stores[storeName].selectors[sliceName] || {}).forEach(
+        ({ __selectorId }) => {
+          let validateSelectionChain;
+          validateSelectionChain = (selectorId, selectionChain = [selectorId]) => {
+            selectors[selectorId].referencedSelectorIds.forEach(
+              (funcSelectorId) => {
+                if (selectionChain.includes(funcSelectorId))
+                  throw new UnableToCreateCircularSelectorStore({
+                    storeName,
+                    circularSelectorId: funcSelectorId,
+                    selectionChain
+                  });
+                validateSelectionChain(funcSelectorId, [...selectionChain, funcSelectorId]);
+              }
+            );
+          }
+          validateSelectionChain(__selectorId);
+
+          const {
+            keepMemo,
+            isParameterized,
+            paramsMappers,
+            paramsSignature,
+            referencedSelectorIds
+          } = selectors[__selectorId];
+          referencedSelectorIds.forEach(
+            (funcSelectorId) => {
+              const funcSelector = selectors[funcSelectorId];
+              if (keepMemo && !funcSelector.keepMemo)
+                throw new UnableToCreatePartialKeepMemoSelectorStore({ storeName, selectorId: __selectorId, nonKeepMemoSelectorId: funcSelectorId });
+              else if (!isParameterized && funcSelector.isParameterized)
+                throw new UnableToCreateParameterlessToParameterizedSelectorStore({
+                  storeName,
+                  selectorId: __selectorId,
+                  parameterizedSelectorId: funcSelectorId
+                });
+              else if (
+                !paramsMappers[funcSelectorId]
+                && isParameterized
+                && funcSelector.isParameterized
+                && funcSelector.paramsSignature !== paramsSignature
+              )
+                throw new UnableToCreateNoParamsMapperSelectorStore({
+                  storeName,
+                  selectorId: __selectorId,
+                  paramsSignature,
+                  noMapperSelectorId: funcSelectorId,
+                  noMapperParamsSignature: funcSelector.paramsSignature
+                });
+            }
+          );
+        }
+      )
+    );
+
+
   };
   const validateStoreActionImports = ({ storeName }) =>
     Object.keys(actionsImports[storeName] || {}).forEach(
@@ -138,13 +195,6 @@ export const getStoreValidator = ({
       validateStoreSelectors({ storeName, storeSlices, storeSelectors });
       validateStoreActionImports({ storeName });
       validateStoreSelectorImports({ storeName });
-    },
-    // Store useSelector
-    validateUseSelector: ({ storeName, selector }) => {
-      if (!selector.__selectorId)
-        throw new UnableToUseNonSelector({ storeName });
-      else if (storeName !== selector.__storeName)
-        throw new UnableToUseForeignStoreSelector({ storeName, selectorId: selector.__selectorId });
     },
   };
 };

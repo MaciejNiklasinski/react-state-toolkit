@@ -1,6 +1,7 @@
-import { createElement, useState, useEffect } from 'react';
+import { createElement } from 'react';
 import { DEFAULT_STORE } from '../constants/store';
 import { getStoreValidator } from './stores.validator';
+import { getHooksFactory } from './hooks';
 import { insertCapitalized } from '../utils/strings';
 
 export const getStoresFactory = ({
@@ -24,7 +25,7 @@ export const getStoresFactory = ({
       storeSelectors = Object.values(storeSelectors);
 
     // Create validators
-    const { validateStore, validateUseSelector } = getStoreValidator({
+    const { validateStore } = getStoreValidator({
       stores,
       slices,
       actions,
@@ -36,10 +37,23 @@ export const getStoresFactory = ({
     // Validate store creation
     validateStore({ storeName: name, storeSlices, storeSelectors });
 
+    const {
+      getUseStoreState,
+      getUseSelector,
+      getUseSelectorMemo
+    } = getHooksFactory({
+      stores,
+      slices,
+      actions,
+      actionsByType,
+      actionsImports,
+      selectors,
+      selectorsImports,
+    });
+
     // Store state subscriptions
-    const renderTriggers = new Map();
-    const subscriptions = new Map();
-    const subscriptionsById = new Map();
+    const triggersStack = new Map();
+    const subscriptionsMatrix = new Map();
 
     // Create store functions
     const dispatch = action => {
@@ -48,119 +62,26 @@ export const getStoresFactory = ({
 
       const newSliceState = { ...stores[name].state[action.sliceName] };
       reducer(newSliceState, action);
-      const newState = {
+      const newState = Object.freeze({
         ...stores[name].state,
-        [action.sliceName]: newSliceState,
-      };
+        [action.sliceName]: Object.freeze(newSliceState),
+      });
       stores[name].state = newState;
       stores[name].stateVersion = Symbol();
 
-      subscriptions.forEach(({ onStateChange }) => onStateChange(newState));
-      renderTriggers.forEach(renderTrigger => {
-        const { requiresRender, value, invoke } = renderTrigger;
+      subscriptionsMatrix.forEach(({ onStateChange }) => onStateChange(newState));
+      triggersStack.forEach(renderTrigger => {
+        const { requiresRender, value, setSelected } = renderTrigger;
         if (!requiresRender) return;
         renderTrigger.requiresRender = false;
         renderTrigger.value = null;
-        invoke(value);
+        setSelected(value);
       });
     };
 
-    const useStoreState = () => {
-      let setState;
-      [stores[name].state, setState] = useState(stores[name].state);
-      useEffect(() => {
-        const key = Symbol();
-        const renderTrigger = {
-          key,
-          requiresRender: false,
-          value: null,
-          invoke: newState => setState(newState),
-        };
-        const subscription = {
-          key,
-          onStateChange: newState => {
-            renderTrigger.requiresRender = true;
-            renderTrigger.value = newState
-          },
-        };
-        renderTriggers.set(renderTrigger.key, renderTrigger);
-        subscriptions.set(subscription.key, subscription);
-        return () => {
-          subscriptions.delete(subscription.key);
-          renderTriggers.delete(renderTrigger.key);
-        };
-      }, []); // eslint-disable-line react-hooks/exhaustive-deps
-      return stores[name].state;
-    };
-
-    const useSelector = (selector) => {
-      const [selected, setSelected] = useState(() => {
-        const selectorId = selector.__selectorId;
-        const selectorHandle = selectors[selectorId];
-        if (!selectorHandle?.hasInitialSelected) {
-          validateUseSelector({ storeName: name, selector });
-          selectorHandle.lastSelected = selector(stores[name].state);
-          selectorHandle.lastStateVersion = stores[name].stateVersion;
-          selectorHandle.hasInitialSelected = true;
-        } else if (selectorHandle.lastStateVersion !== stores[name].stateVersion) {
-          selectorHandle.lastSelected = selector(stores[name].state);
-          selectorHandle.lastStateVersion = stores[name].stateVersion;
-        }
-        return selectorHandle?.lastSelected;
-      });
-
-      useEffect(() => {
-        const selectorId = selector.__selectorId;
-        const selectorHandle = selectors[selectorId];
-        const renderTrigger = {
-          key: Symbol(),
-          requiresRender: false,
-          value: null,
-          invoke: newSelected => setSelected(newSelected),
-        };
-
-        let subscription = subscriptionsById.get(selectorId);
-        if (!subscription) {
-          subscription = {
-            selectorId,
-            key: Symbol(),
-            triggers: new Map(),
-            lastStateVersion: null,
-            lastSelected: selected
-          };
-
-          const onSelectedChange = newSelected =>
-            subscription.triggers.forEach((trigger) => {
-              trigger.requiresRender = true;
-              trigger.value = newSelected;
-            });
-          const onStateChange = newState => {
-            const newSelected = selector(newState);
-            selectorHandle.lastStateVersion = stores[name].stateVersion;
-            if (selectorHandle.lastSelected === newSelected) return;
-            selectorHandle.lastSelected = newSelected;
-            onSelectedChange(newSelected);
-          };
-
-          subscription.onSelectedChange = onSelectedChange;
-          subscription.onStateChange = onStateChange;
-          subscriptions.set(subscription.key, subscription);
-          subscriptionsById.set(selectorId, subscription);
-        }
-
-        renderTriggers.set(renderTrigger.key, renderTrigger);
-        subscription.triggers.set(renderTrigger.key, renderTrigger);
-
-        return () => {
-          renderTriggers.delete(renderTrigger.key);
-          subscription.triggers.delete(renderTrigger.key);
-          if (subscription.triggers.size > 0) return;
-          subscriptions.delete(subscription.key);
-          subscriptionsById.delete(subscription.selectorId);
-        };
-      }, []); // eslint-disable-line react-hooks/exhaustive-deps
-      return selected;
-    };
+    const useStoreState = getUseStoreState({ storeName: name });
+    const useSelector = getUseSelector({ storeName: name });
+    const useSelectorMemo = getUseSelectorMemo({ storeName: name });
 
     const getState = (sliceName = null) =>
       sliceName ? stores[name].state[sliceName] : stores[name].state;
@@ -168,7 +89,7 @@ export const getStoresFactory = ({
       sliceName ? stores[name].actions[sliceName] : stores[name].actions;
     const getSelectors = (sliceName = null) =>
       sliceName ? stores[name].selectors[sliceName] : stores[name].selectors;
-    const getHooks = () => ({ useStoreState, useSelector });
+    const getHooks = () => ({ useStoreState, useSelector, useSelectorMemo });
     const withStore = Component => props =>
       createElement(Component, { ...{ ...props, getActions, getSelectors, getHooks } }, null);
 
@@ -187,9 +108,8 @@ export const getStoresFactory = ({
     );
 
     // Create and freeze store
-    stores[name].renderTriggers = renderTriggers;
-    stores[name].subscriptions = subscriptions;
-    stores[name].subscriptionsById = subscriptionsById;
+    stores[name].triggersStack = triggersStack;
+    stores[name].subscriptionsMatrix = subscriptionsMatrix;
     stores[name].dispatch = dispatch;
     stores[name].useStoreState = useStoreState;
     stores[name].useSelector = useSelector;
@@ -197,6 +117,8 @@ export const getStoresFactory = ({
     stores[name].getActions = getActions;
     stores[name].getSelectors = getSelectors;
     stores[name].getHooks = getHooks;
+    stores[name].name = name;
+    stores[name].stateVersion = Symbol();
     stores[name].initialized = true;
 
     Object.freeze(stores[name].reducers);
@@ -210,6 +132,7 @@ export const getStoresFactory = ({
       withStore,
       useStoreState,
       useSelector,
+      useSelectorMemo,
       getState,
       getActions,
       getSelectors,
@@ -221,6 +144,7 @@ export const getStoresFactory = ({
         [insertCapitalized('withStore', 4, name)]: withStore,
         [insertCapitalized('useStoreState', 3, name)]: useStoreState,
         [insertCapitalized('useSelector', 3, name)]: useSelector,
+        [insertCapitalized('useSelectorMemo', 3, name)]: useSelectorMemo,
         [insertCapitalized('getState', 3, name)]: getState,
         [insertCapitalized('getActions', 3, name)]: getActions,
         [insertCapitalized('getSelectors', 3, name)]: getSelectors,

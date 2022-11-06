@@ -75,9 +75,18 @@ export const getImportersFactory = ({
       const selectorId = getSelectorId({ storeName, sliceName, selectorName });
 
       if (stores[storeName]?.initialized) {
-        return Object.freeze({ [selectorName]: selectors[selectorId][selectorName], isReady: () => true });
+        const selectorHandle = selectors[selectorId];
+        return Object.freeze({
+          storeName,
+          sliceName,
+          selectorName,
+          [selectorName]: selectorHandle[selectorName],
+          clearCache: selectorHandle.clearCache,
+          isReady: () => true,
+        });
       } else {
         let selectorFunc = () => { throw new UnableToInvokeUninitializedStoreSelector({ selectorId }); }
+        let clearCacheWrapper = (...params) => { };
         let selectorFuncWrapper = (param) => selectorFunc(param);
         selectorFuncWrapper.__storeName = storeName;
         selectorFuncWrapper.__selectorId = selectorId;
@@ -85,7 +94,9 @@ export const getImportersFactory = ({
 
         let isReady = false;
         const importSelectorFunc = () => {
-          selectorFunc = selectors[selectorId][selectorName];
+          const selectorHandle = selectors[selectorId];
+          selectorFunc = selectorHandle[selectorName];
+          clearCacheWrapper = selectorHandle.clearCache;
           isReady = true;
         };
         if (!selectorsImports[storeName][sliceName][selectorName])
@@ -93,7 +104,14 @@ export const getImportersFactory = ({
         else
           selectorsImports[storeName][sliceName][selectorName].push(importSelectorFunc);
 
-        return Object.freeze({ [selectorName]: selectorFuncWrapper, isReady: () => isReady });
+        return Object.freeze({
+          storeName,
+          sliceName,
+          selectorName,
+          [selectorName]: selectorFuncWrapper,
+          clearCache: clearCacheWrapper,
+          isReady: () => isReady,
+        });
       }
     };
     let importerExport = {

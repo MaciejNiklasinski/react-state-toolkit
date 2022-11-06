@@ -8,11 +8,17 @@ import {
   // Selector
   UnableToCreateInvalidNameSelector,
   UnableToCreateInvalidFuncsSelector,
+  UnableToCreateForeignSelectorLinkedSelector,
+  UnableToCreateSelectorLastFuncSelector,
   UnableToCreateInvalidMemoOnArgsSelector,
-  UnableToCreateExistingSelector
+  UnableToCreateExistingSelector,
+  UnableToCreateParameterlessSignatureSelector,
+  UnableToCreateMissingSignatureParameterizedSelector,
 } from '../errors/UnableToCreateSelector';
-import { getSliceId, getSelectorId } from './ids';
+import { getSliceId, getSelectorId, getParamsId } from './ids';
 import { isValidName } from '../utils/strings';
+
+const noParamsId = getParamsId({ params: [] });
 
 export const getSelectorValidator = ({
   stores,
@@ -43,6 +49,8 @@ export const getSelectorValidator = ({
       selectorName,
       funcs,
       memoOnArgs,
+      isParameterized,
+      paramsSignature,
     }) => {
       validateSelectorStore({ storeName, sliceName, selectorName });
       validateSelectorSlice({ storeName, sliceName, selectorName });
@@ -55,10 +63,33 @@ export const getSelectorValidator = ({
         !funcs.every(func => func instanceof Function)
       )
         throw new UnableToCreateInvalidFuncsSelector({ storeName, sliceName, selectorName });
+
+      const foreignLinkedSelector = funcs.find(
+        (func) => func.__storeName && storeName !== func.__storeName
+      );
+      if (foreignLinkedSelector)
+        throw new UnableToCreateForeignSelectorLinkedSelector({
+          storeName,
+          sliceName,
+          selectorName,
+          foreignSelectorId: foreignLinkedSelector.__selectorId
+        });
+      const lastFunc = funcs[funcs.length - 1];
+      if (lastFunc.__selectorId)
+        throw new UnableToCreateSelectorLastFuncSelector({
+          storeName,
+          sliceName,
+          selectorName,
+          linkedSelectorId: lastFunc.__selectorId
+        });
       else if (funcs.length === 1 && memoOnArgs)
         throw new UnableToCreateInvalidMemoOnArgsSelector({ storeName, sliceName, selectorName });
       else if (selectors[getSelectorId({ storeName, sliceName, selectorName })])
         throw new UnableToCreateExistingSelector({ storeName, sliceName, selectorName });
+      else if (!isParameterized && paramsSignature !== noParamsId)
+        throw new UnableToCreateParameterlessSignatureSelector({ storeName, sliceName, selectorName, paramsSignature });
+      else if (isParameterized && paramsSignature === noParamsId)
+        throw new UnableToCreateMissingSignatureParameterizedSelector({ storeName, sliceName, selectorName });
     },
   };
 };

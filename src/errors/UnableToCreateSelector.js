@@ -72,6 +72,18 @@ export class UnableToCreateInvalidFuncsSelector extends UnableToCreateSelector {
   }
 };
 
+export class UnableToCreateForeignSelectorLinkedSelector extends UnableToCreateSelector {
+  constructor({ storeName, sliceName, selectorName, foreignSelectorId }) {
+    super({ storeName, sliceName, selectorName, baseMessageSuffix: `as it is referencing foreign store selector ${foreignSelectorId}` });
+  }
+};
+
+export class UnableToCreateSelectorLastFuncSelector extends UnableToCreateSelector {
+  constructor({ storeName, sliceName, selectorName, linkedSelectorId }) {
+    super({ storeName, sliceName, selectorName, baseMessageSuffix: `as the last selecting func is referencing selector ${linkedSelectorId} and this is not allowed.` });
+  }
+};
+
 export class UnableToCreateInvalidMemoOnArgsSelector extends UnableToCreateSelector {
   constructor({ storeName, sliceName, selectorName }) {
     super({ storeName, sliceName, selectorName, baseMessageSuffix: "based on only one selecting function when memoOnArgs flag is true." });
@@ -81,5 +93,17 @@ export class UnableToCreateInvalidMemoOnArgsSelector extends UnableToCreateSelec
 export class UnableToCreateExistingSelector extends UnableToCreateSelector {
   constructor({ storeName, sliceName, selectorName }) {
     super({ storeName, sliceName, selectorName, baseMessageSuffix: "selector already exists." });
+  }
+};
+
+export class UnableToCreateParameterlessSignatureSelector extends UnableToCreateSelector {
+  constructor({ storeName, sliceName, selectorName, paramsSignature }) {
+    super({ storeName, sliceName, selectorName, baseMessageSuffix: `paramsSignature ${paramsSignature} is not valid for the parameterless selector (isParameterized: false)` });
+  }
+};
+
+export class UnableToCreateMissingSignatureParameterizedSelector extends UnableToCreateSelector {
+  constructor({ storeName, sliceName, selectorName }) {
+    super({ storeName, sliceName, selectorName, baseMessageSuffix: `as paramsSignature is required for parameterized (isParameterized: true) selectors` });
   }
 };
