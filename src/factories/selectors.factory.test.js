@@ -85,11 +85,25 @@ describe("selector factory", () => {
     expect(selector.sliceName).toEqual(sliceName);
     expect(selector.selectorName).toEqual(selectorName);
     expect(typeof selector[selector.selectorName]).toEqual("function");
+    expect(typeof selector.clearCache).toEqual("function");
+    expect(selector[selector.selectorName].__storeName).toEqual(DEFAULT_STORE);
     expect(selector[selector.selectorName].__selectorId).toEqual(selectorId);
 
-    expect(typeof stores[DEFAULT_STORE].selectors[sliceName][selectorName]).toEqual("function");
-    expect(stores[DEFAULT_STORE].selectors[sliceName][selectorName].__selectorId).toEqual(selectorId);
-    expect(selectors[selectorId]).toEqual(selector);
+    expect(stores[DEFAULT_STORE].selectors[sliceName][selectorName]).toEqual(selector[selector.selectorName]);
+
+    expect(selectors[selectorId].storeName).toEqual(DEFAULT_STORE);
+    expect(selectors[selectorId].sliceName).toEqual(sliceName);
+    expect(selectors[selectorId].selectorId).toEqual(selectorId);
+    expect(selectors[selectorId].selectorName).toEqual(selectorName);
+    expect(selectors[selectorId].memoOnArgs).toEqual(false);
+    expect(selectors[selectorId].keepMemo).toEqual(false);
+    expect(selectors[selectorId].isParameterized).toEqual(false);
+    expect(selectors[selectorId].paramsSignature).toEqual("0");
+    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
+    expect(typeof selectors[selectorId].clearCache).toEqual("function");
+    expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
   test("Should be able to create non-default store valid slice selector.", () => {
@@ -110,11 +124,25 @@ describe("selector factory", () => {
     expect(selector.sliceName).toEqual(sliceName);
     expect(selector.selectorName).toEqual(selectorName);
     expect(typeof selector[selector.selectorName]).toEqual("function");
+    expect(typeof selector.clearCache).toEqual("function");
+    expect(selector[selector.selectorName].__storeName).toEqual(storeName);
     expect(selector[selector.selectorName].__selectorId).toEqual(selectorId);
 
-    expect(typeof stores[storeName].selectors[sliceName][selectorName]).toEqual("function");
-    expect(stores[storeName].selectors[sliceName][selectorName].__selectorId).toEqual(selectorId);
-    expect(selectors[selectorId]).toEqual(selector);
+    expect(stores[storeName].selectors[sliceName][selectorName]).toEqual(selector[selector.selectorName]);
+
+    expect(selectors[selectorId].storeName).toEqual(storeName);
+    expect(selectors[selectorId].sliceName).toEqual(sliceName);
+    expect(selectors[selectorId].selectorId).toEqual(selectorId);
+    expect(selectors[selectorId].selectorName).toEqual(selectorName);
+    expect(selectors[selectorId].memoOnArgs).toEqual(false);
+    expect(selectors[selectorId].keepMemo).toEqual(false);
+    expect(selectors[selectorId].isParameterized).toEqual(false);
+    expect(selectors[selectorId].paramsSignature).toEqual("0");
+    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
+    expect(typeof selectors[selectorId].clearCache).toEqual("function");
+    expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
   test("Should be able to create default store valid store selector.", () => {
@@ -131,11 +159,25 @@ describe("selector factory", () => {
     expect(selector.sliceName).toEqual(DEFAULT_SLICE);
     expect(selector.selectorName).toEqual(selectorName);
     expect(typeof selector[selector.selectorName]).toEqual("function");
+    expect(typeof selector.clearCache).toEqual("function");
+    expect(selector[selector.selectorName].__storeName).toEqual(DEFAULT_STORE);
     expect(selector[selector.selectorName].__selectorId).toEqual(selectorId);
 
-    expect(typeof stores[DEFAULT_STORE].selectors[DEFAULT_SLICE][selectorName]).toEqual("function");
-    expect(stores[DEFAULT_STORE].selectors[DEFAULT_SLICE][selectorName].__selectorId).toEqual(selectorId);
-    expect(selectors[selectorId]).toEqual(selector);
+    expect(stores[DEFAULT_STORE].selectors[DEFAULT_SLICE][selectorName]).toEqual(selector[selector.selectorName]);
+
+    expect(selectors[selectorId].storeName).toEqual(DEFAULT_STORE);
+    expect(selectors[selectorId].sliceName).toEqual(DEFAULT_SLICE);
+    expect(selectors[selectorId].selectorId).toEqual(selectorId);
+    expect(selectors[selectorId].selectorName).toEqual(selectorName);
+    expect(selectors[selectorId].memoOnArgs).toEqual(false);
+    expect(selectors[selectorId].keepMemo).toEqual(false);
+    expect(selectors[selectorId].isParameterized).toEqual(false);
+    expect(selectors[selectorId].paramsSignature).toEqual("0");
+    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
+    expect(typeof selectors[selectorId].clearCache).toEqual("function");
+    expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
   test("Should be able to create non-default store valid store selector.", () => {
@@ -154,11 +196,25 @@ describe("selector factory", () => {
     expect(selector.sliceName).toEqual(DEFAULT_SLICE);
     expect(selector.selectorName).toEqual(selectorName);
     expect(typeof selector[selector.selectorName]).toEqual("function");
+    expect(typeof selector.clearCache).toEqual("function");
+    expect(selector[selector.selectorName].__storeName).toEqual(storeName);
     expect(selector[selector.selectorName].__selectorId).toEqual(selectorId);
 
-    expect(typeof stores[storeName].selectors[DEFAULT_SLICE][selectorName]).toEqual("function");
-    expect(stores[storeName].selectors[DEFAULT_SLICE][selectorName].__selectorId).toEqual(selectorId);
-    expect(selectors[selectorId]).toEqual(selector);
+    expect(stores[storeName].selectors[DEFAULT_SLICE][selectorName]).toEqual(selector[selector.selectorName]);
+
+    expect(selectors[selectorId].storeName).toEqual(storeName);
+    expect(selectors[selectorId].sliceName).toEqual(DEFAULT_SLICE);
+    expect(selectors[selectorId].selectorId).toEqual(selectorId);
+    expect(selectors[selectorId].selectorName).toEqual(selectorName);
+    expect(selectors[selectorId].memoOnArgs).toEqual(false);
+    expect(selectors[selectorId].keepMemo).toEqual(false);
+    expect(selectors[selectorId].isParameterized).toEqual(false);
+    expect(selectors[selectorId].paramsSignature).toEqual("0");
+    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
+    expect(typeof selectors[selectorId].clearCache).toEqual("function");
+    expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
   test("Should be able to create selector with already suffixed name.", () => {

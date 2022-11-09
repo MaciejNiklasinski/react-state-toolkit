@@ -213,9 +213,8 @@ describe("store useStoreState", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -281,9 +280,8 @@ describe("store useStoreState", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(valueSelector(getOtherState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -345,9 +343,8 @@ describe("store useStoreState", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(0);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(childRenders).toEqual(1);
@@ -407,9 +404,8 @@ describe("store useSelector", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -463,9 +459,8 @@ describe("store useSelector", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(isFalsyValueSelector(getState())).toEqual(true);
     expect(appRenders).toEqual(1);
@@ -526,9 +521,8 @@ describe("store useSelector", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     expect(valueSelector(getState())).toEqual(0);
     expect(appRenders).toEqual(1);
@@ -596,9 +590,8 @@ describe("store useSelector", () => {
 
     render(<App />);
 
-    expect(stores[DEFAULT_STORE].renderTriggers.size).toEqual(2);
-    expect(stores[DEFAULT_STORE].subscriptions.size).toEqual(1);
-    expect(stores[DEFAULT_STORE].subscriptionsById.size).toEqual(1);
+    expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(2);
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
     const state = getState();
     expect(state[sliceName].value).toEqual(0);

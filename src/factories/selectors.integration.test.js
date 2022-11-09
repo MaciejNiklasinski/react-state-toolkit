@@ -84,7 +84,7 @@ describe("single func selector", () => {
       reducer: {},
       sliceSelectors: [validSelector],
       initialState: { value: 0 }
-    });    
+    });
     let error;
     try { validSelector(); }
     catch (err) { error = err; }
@@ -169,7 +169,7 @@ describe("multi func selector", () => {
         obj1: { value: 1 },
         obj2: { value: 2 },
       },
-    });    
+    });
     let error;
     try { validSelector(); }
     catch (err) { error = err; }
@@ -276,7 +276,7 @@ describe("multi func selector", () => {
     expect(reselectedValue).toEqual({ value1: 1, value2: 2 });
   });
 
-  test("Should reselect memoized obj value when args selectors results not change and memoOnArgs is true.", () => {
+  test("Should reselect memoized obj value when args selectors results not change and memoOnArgs && keep memo are true.", () => {
     const sliceName = "testSlice";
     const { validSelector } = createSelector({
       sliceName,
@@ -286,7 +286,8 @@ describe("multi func selector", () => {
         (state) => state[sliceName].obj2.value,
         (value1, value2) => ({ value1, value2 })
       ],
-      memoOnArgs: true
+      memoOnArgs: true,
+      keepMemo: true,
     });
     const { setObj1ValueAction, SET_OBJ1_VALUE_ACTION } = createAction({
       sliceName,
@@ -334,7 +335,7 @@ describe("multi func selector", () => {
     const argPostChangeReselectedSelectedValue = validSelector(argPostChangeReselectedState);
     expect(argUpdatedChangedSelectedValue === argPostChangeReselectedSelectedValue).toEqual(true);
     expect(argPostChangeReselectedSelectedValue).toEqual({ value1: 2, value2: 2 });
-    
+
     const argSubsequentReselectedState = store.getState();
     const argSubsequentReselectedSelectedValue = validSelector(argSubsequentReselectedState);
     expect(argUpdatedChangedSelectedValue === argSubsequentReselectedSelectedValue).toEqual(true);
@@ -357,7 +358,8 @@ describe("multi func selector", () => {
         (state) => state[sliceName].obj2.value,
         (value1, value2) => ({ value1, value2 })
       ],
-      memoOnArgs: true
+      memoOnArgs: true,
+      keepMemo: true,
     });
     const { validCombinedSelector } = createSelector({
       sliceName,
@@ -366,10 +368,11 @@ describe("multi func selector", () => {
         validSelector,
         (state) => state[sliceName].obj3.value,
         ({ value1, value2 }, value3) => {
-          return { value1, value2, value3 }; 
+          return { value1, value2, value3 };
         }
       ],
-      memoOnArgs: true
+      memoOnArgs: true,
+      keepMemo: true,
     });
     const { setObj1ValueAction, SET_OBJ1_VALUE_ACTION } = createAction({
       sliceName,
@@ -406,7 +409,6 @@ describe("multi func selector", () => {
     expect(selectedValue).toEqual({ value1: 1, value2: 2, value3: 3 });
 
     const reselectedValue = validCombinedSelector(state);
-    const reselectedValue2 = validCombinedSelector(state);
     expect(selectedValue === reselectedValue).toEqual(true);
     expect(reselectedValue).toEqual({ value1: 1, value2: 2, value3: 3 });
 
@@ -421,7 +423,7 @@ describe("multi func selector", () => {
     const argUpdatedChangedState = store.getState();
     const argUpdatedChangedSelectedValue = validCombinedSelector(argUpdatedChangedState);
     expect(selectedValue === argUpdatedChangedSelectedValue).toEqual(false);
-    expect(argUpdatedChangedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 3 });    
+    expect(argUpdatedChangedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 3 });
 
     setObj1ValueAction(2);
     const argPostChangeReselectedState = store.getState();
@@ -444,7 +446,7 @@ describe("multi func selector", () => {
     const argOtherValueChangedReselectedSelectedValue = validCombinedSelector(argOtherValueChangedReselectedState);
     expect(argOtherValueChangeSelectedValue === argOtherValueChangedReselectedSelectedValue).toEqual(true);
     expect(argOtherValueChangedReselectedSelectedValue).toEqual({ value1: 2, value2: 2, value3: 4 });
-  
+
     setObj1ValueAction(2);
     setObj3ValueAction(4);
     const argSubsequentUpdatedNotChangedState = store.getState();

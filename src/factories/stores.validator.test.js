@@ -16,6 +16,10 @@ import {
   UnableToCreateSliceRegisteredSelectorStore,
   UnableToCreateImportWrapperSelectorStore,
   UnableToCreateMissingSelectorStore,
+  UnableToCreateCircularSelectorStore,
+  UnableToCreatePartialKeepMemoSelectorStore,
+  UnableToCreateParameterlessToParameterizedSelectorStore,
+  UnableToCreateNoParamsMapperSelectorStore,
   // Store Import Action
   UnableToCreateUnknownSliceActionImportStore,
   UnableToCreateUnknownActionImportStore,
@@ -308,6 +312,432 @@ describe("stores validator", () => {
     expect(error).toEqual(new UnableToCreateMissingSelectorStore({ storeName: DEFAULT_STORE, missingSelectorId: missingStoreSelector.__selectorId }));
   });
 
+  test("Should throw correct error when attempting to create store with selector referencing itself directly - circular selection chain (A -> A)", () => {
+    const sliceName = "testSlice";
+    const { value1Selector } = createSelector({
+      sliceName,
+      name: "value1Selector",
+      funcs: [(state) => value1]
+    });
+
+    const { importSelector } = createImporter({});
+    const { circular1Selector: circular1SelectorImportWrapper } = importSelector(sliceName, "circular1Selector");
+
+    const { circular1Selector } = createSelector({ // A -> A
+      sliceName,
+      name: "circular1Selector",
+      funcs: [
+        circular1SelectorImportWrapper,
+        value1Selector,
+        (circular1, value1) => `${circular1}_${value1}`
+      ]
+    });
+
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        value1Selector,
+        circular1Selector,
+      },
+      initialState: {
+        value1: 1,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateCircularSelectorStore({
+      storeName: DEFAULT_STORE,
+      circularSelectorId: circular1Selector.__selectorId,
+      selectionChain: [circular1Selector.__selectorId]
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with selector referencing itself through referenced selector - circular selection chain (A -> B -> A)", () => {
+    const sliceName = "testSlice";
+    const { importSelector } = createImporter({});
+    const { circular1Selector: circular1SelectorImportWrapper } = importSelector(sliceName, "circular1Selector");
+
+    const { value1Selector } = createSelector({
+      sliceName,
+      name: "value1Selector",
+      funcs: [(state) => value1]
+    });
+    const { value2Selector } = createSelector({
+      sliceName,
+      name: "value2Selector",
+      funcs: [(state) => value2]
+    });
+
+    const { combined1Selector } = createSelector({ // B -> A
+      sliceName,
+      name: "combined1Selector",
+      funcs: [
+        circular1SelectorImportWrapper,
+        value2Selector,
+        (circular1, value2) => `${circular1}_${value2}`
+      ]
+    });
+
+    const { circular1Selector } = createSelector({ // A -> B
+      sliceName,
+      name: "circular1Selector",
+      funcs: [
+        combined1Selector,
+        value1Selector,
+        (combined1, value1) => `${combined1}_${value1}`
+      ]
+    });
+
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        value1Selector,
+        value2Selector,
+        combined1Selector,
+        circular1Selector,
+      },
+      initialState: {
+        value1: 1,
+        value2: 2,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateCircularSelectorStore({
+      storeName: DEFAULT_STORE,
+      circularSelectorId: combined1Selector.__selectorId,
+      selectionChain: [
+        combined1Selector.__selectorId,
+        circular1Selector.__selectorId,
+      ]
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with selector referencing itself through multiple referenced selector - circular selection chain (A -> B -> C -> A)", () => {
+    const sliceName = "testSlice";
+    const { importSelector } = createImporter({});
+    const { circular1Selector: circular1SelectorImportWrapper } = importSelector(sliceName, "circular1Selector");
+
+    const { value1Selector } = createSelector({
+      sliceName,
+      name: "value1Selector",
+      funcs: [(state) => value1],
+    });
+    const { value2Selector } = createSelector({
+      sliceName,
+      name: "value2Selector",
+      funcs: [(state) => value2]
+    });
+
+    const { combined1Selector } = createSelector({ // C -> A
+      sliceName,
+      name: "combined1Selector",
+      funcs: [
+        circular1SelectorImportWrapper,
+        value1Selector,
+        (circular1, value1) => `${circular1}_${value1}`
+      ]
+    });
+    const { combined2Selector } = createSelector({ // B -> C
+      sliceName,
+      name: "combined2Selector",
+      funcs: [
+        combined1Selector,
+        value2Selector,
+        (combined1, value2) => `${combined1}_${value2}`
+      ]
+    });
+
+    const { circular1Selector } = createSelector({ // A -> B
+      sliceName,
+      name: "circular1Selector",
+      funcs: [
+        combined2Selector,
+        value1Selector,
+        (combined2, value1) => `${combined2}_${value1}`
+      ]
+    });
+
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        value1Selector,
+        value2Selector,
+        combined1Selector,
+        combined2Selector,
+        circular1Selector,
+      },
+      initialState: {
+        value1: 1,
+        value2: 2,
+        value3: 3,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateCircularSelectorStore({
+      storeName: DEFAULT_STORE,
+      circularSelectorId: combined1Selector.__selectorId,
+      selectionChain: [
+        combined1Selector.__selectorId,
+        circular1Selector.__selectorId,
+        combined2Selector.__selectorId,
+      ]
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with selector referencing itself through multiple referenced selector - circular selection chain (A -> B -> C -> D -> A)", () => {
+    const sliceName = "testSlice";
+    const { importSelector } = createImporter({});
+    const { circular1Selector: circular1SelectorImportWrapper } = importSelector(sliceName, "circular1Selector");
+
+    const { value1Selector } = createSelector({
+      sliceName,
+      name: "value1Selector",
+      funcs: [(state) => value1],
+    });
+    const { value2Selector } = createSelector({
+      sliceName,
+      name: "value2Selector",
+      funcs: [(state) => value2]
+    });
+
+    const { combined1Selector } = createSelector({ // D -> A
+      sliceName,
+      name: "combined1Selector",
+      funcs: [
+        circular1SelectorImportWrapper,
+        value1Selector,
+        (circular1, value1) => `${circular1}_${value1}`
+      ]
+    });
+    const { combined2Selector } = createSelector({ // C -> D
+      sliceName,
+      name: "combined2Selector",
+      funcs: [
+        combined1Selector,
+        value2Selector,
+        (combined1, value2) => `${combined1}_${value2}`
+      ]
+    });
+    const { combined3Selector } = createSelector({ // B -> C
+      sliceName,
+      name: "combined3Selector",
+      funcs: [
+        combined2Selector,
+        value1Selector,
+        (combined2, value1) => `${combined2}_${value1}`
+      ]
+    });
+
+    const { circular1Selector } = createSelector({ // A -> B
+      sliceName,
+      name: "circular1Selector",
+      funcs: [
+        combined3Selector,
+        value1Selector,
+        (combined3, value1) => `${combined3}_${value1}`
+      ]
+    });
+
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        value1Selector,
+        value2Selector,
+        combined1Selector,
+        combined2Selector,
+        combined3Selector,
+        circular1Selector,
+      },
+      initialState: {
+        value1: 1,
+        value2: 2,
+        value3: 3,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateCircularSelectorStore({
+      storeName: DEFAULT_STORE,
+      circularSelectorId: combined1Selector.__selectorId,
+      selectionChain: [
+        combined1Selector.__selectorId,
+        circular1Selector.__selectorId,
+        combined3Selector.__selectorId,
+        combined2Selector.__selectorId,
+      ]
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with keepMemo true selector referencing keepMemo false selector", () => {
+    const sliceName = "testSlice";
+    const { validSelector } = createSelector({
+      sliceName,
+      name: "valid",
+      funcs: [
+        (state) => state[sliceName].obj1.value,
+        (state) => state[sliceName].obj2.value,
+        (value1, value2) => ({ value1, value2 })
+      ],
+    });
+    const { validCombinedSelector } = createSelector({
+      sliceName,
+      name: "validCombined",
+      funcs: [
+        validSelector,
+        (state) => state[sliceName].obj3.value,
+        ({ value1, value2 }, value3) => {
+          return { value1, value2, value3 };
+        }
+      ],
+      keepMemo: true,
+    });
+
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        validSelector,
+        validCombinedSelector,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreatePartialKeepMemoSelectorStore({
+      storeName: DEFAULT_STORE,
+      selectorId: validCombinedSelector.__selectorId,
+      nonKeepMemoSelectorId: validSelector.__selectorId
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with parameterless selector referencing parameterized", () => {
+    const sliceName = "testSlice";
+    const { parameterizedSelector } = createSelector({
+      sliceName,
+      name: "parameterizedSelector",
+      funcs: [(state, { getParams }) => {
+        const [fieldName] = getParams();
+        return state[fieldName];
+      }],
+      isParameterized: true,
+      paramsSignature: "fieldName",
+    });
+    const { parameterlessSelector } = createSelector({
+      sliceName,
+      name: "parameterlessSelector",
+      funcs: [
+        parameterizedSelector,
+        (arg) => arg
+      ],
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        parameterlessSelector,
+        parameterizedSelector,
+      },
+      initialState: {
+        value1: 1,
+        value2: 2,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateParameterlessToParameterizedSelectorStore({
+      storeName: DEFAULT_STORE,
+      selectorId: parameterlessSelector.__selectorId,
+      parameterizedSelectorId: parameterizedSelector.__selectorId
+    }));
+  });
+
+  test("Should throw correct error when attempting to create store with parameterized selector referencing selector with different paramsSignature and no appropriate paramsMapper", () => {
+    const sliceName = "testSlice";
+    const { otherParameterizedSelector } = createSelector({
+      sliceName,
+      name: "otherParameterizedSelector",
+      funcs: [(state, { getParams }) => {
+        const [fieldName] = getParams();
+        return state[fieldName];
+      }],
+      isParameterized: true,
+      paramsSignature: "fieldName",
+    });
+    const { parameterizedSelector } = createSelector({
+      sliceName,
+      name: "parameterizedSelector",
+      funcs: [
+        otherParameterizedSelector,
+        (arg, { getParams }) => {
+          const [multiplier] = getParams();
+          return arg * multiplier;
+        }],
+      isParameterized: true,
+      paramsSignature: "multiplier",
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: {
+        otherParameterizedSelector,
+        parameterizedSelector,
+      },
+      initialState: {
+        value1: 1,
+        value2: 2,
+      }
+    });
+    let error;
+    try {
+      createStore({
+        storeSlices: { slice },
+        storeSelectors: {}
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateNoParamsMapperSelectorStore({
+      storeName: DEFAULT_STORE,
+      selectorId: parameterizedSelector.__selectorId,
+      paramsSignature: selectors[parameterizedSelector.__selectorId].paramsSignature,
+      noMapperSelectorId: otherParameterizedSelector.__selectorId,
+      noMapperParamsSignature: selectors[otherParameterizedSelector.__selectorId].paramsSignature,
+    }));
+  });
+
   test("Should throw correct error when attempting to create store with unknown slice action import", () => {
     const { importAction } = createImporter({});
     const importSliceName = "importSlice";
@@ -392,78 +822,5 @@ describe("stores validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateUnknownSelectorImportStore({ selectorId: importSelectorId }));
-  });
-});
-
-describe("useSelector validator", () => {
-  test("Should throw correct error when attempting to useSelector with non-selector func", () => {
-    const sliceName = "testSlice";
-    const slice = createSlice({
-      name: sliceName,
-      reducer: {},
-    });
-    const {
-      useSelector,
-      getState,
-    } = createStore({
-      storeSlices: { slice }
-    });
-
-    const App = () => {
-      const state = useSelector((state) => state);
-      return (
-        <div>
-          <div>{`${!!state}`}</div>
-          <button onClick={() => setValueAction(1)}>setValue</button>
-        </div>
-      );
-    };
-    let error;
-    try { render(<App />); }
-    catch (err) { error = err; }
-    expect(error).toEqual(new UnableToUseNonSelector({ storeName: DEFAULT_STORE }))
-  });
-
-  test("Should throw correct error when attempting to useSelector with foreign store selector func", () => {
-    const foreignStoreName = "foreignStore";
-    const foreignSliceName = "foreignSlice";
-    const foreignSelectorName = "foreignSelector";
-    const { foreignSelector } = createSelector({
-      storeName: foreignStoreName,
-      sliceName: foreignSliceName,
-      name: foreignSelectorName,
-      funcs: [(state) => state[foreignSliceName].value]
-    });
-    const foreignSelectorId = getSelectorId({
-      storeName: foreignStoreName,
-      sliceName: foreignSliceName,
-      selectorName: foreignSelectorName
-    });
-
-    const sliceName = "testSlice";
-    const slice = createSlice({
-      name: sliceName,
-      reducer: {},
-    });
-    const {
-      useSelector,
-      getState,
-    } = createStore({
-      storeSlices: { slice }
-    });
-
-    const App = () => {
-      const state = useSelector(foreignSelector);
-      return (
-        <div>
-          <div>{`${!!state}`}</div>
-          <button onClick={() => setValueAction(1)}>setValue</button>
-        </div>
-      );
-    };
-    let error;
-    try { render(<App />); }
-    catch (err) { error = err; }
-    expect(error).toEqual(new UnableToUseForeignStoreSelector({ storeName: DEFAULT_STORE, selectorId: foreignSelectorId }))
   });
 });
