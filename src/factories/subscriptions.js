@@ -316,7 +316,8 @@ export const getSubscriptionsFactory = ({
     // I guess throw error for now cause if it would happen on every rerender for multiple useSelector subscriptions
     // keep serializing params into paramsId would probably have significant performance hit
     if (hookHandle.paramsId === paramsId)
-      throw new Error(`Params have changed but paramsId: haven't. Are all selector params serializable? ${paramsId}`);
+      throw new Error(`Params have changed but paramsId: haven't. Are all selector params serializable? ${paramsId}.`);
+    else hookHandle.paramsId = paramsId;
 
     const { associatedSubscriptions: lastAssociatedSubscriptions } = hookHandle.subscription;
     const storeHandle = stores[storeName];
