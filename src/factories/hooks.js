@@ -40,8 +40,14 @@ export const getHooksFactory = ({
   const useMount = (onMount = () => { }) =>
     useEffect(() => onMount(), []);
 
-  const useUnmount = (onUnmount = () => { }) =>
-    useEffect(() => () => onUnmount(), []);
+  const useUnmount = (onUnmount = () => { }) => {
+    const ref = useRef(false);
+    useMount(() => () => {
+      if (!ref.current)
+        ref.current = true;
+      else onUnmount();
+    });
+  };
 
   const useObj = (factory = () => ({})) => {
     const ref = useRef();
@@ -93,18 +99,17 @@ export const getHooksFactory = ({
       })
     );
 
-    const { subscription } = hookHandle;
     let selected;
-    ([selected, hookHandle.setSelected] = useState(subscription.lastSelected));
+    ([selected, hookHandle.setSelected] = useState(hookHandle.subscription.lastSelected));
 
     // This should handle unsubscribe when unmounting component
-    useUnmount(() => { !isFirstRender && hookHandle.unsubscribe(); });
+    useUnmount(hookHandle.unsubscribe);
     return selected;
   };
 
   const getUseSelector = ({ storeName }) => (selector, ...params) => {
     // This should create initial subscription
-    const [hookHandle, isFirstRender, reset] = useFirstRender(
+    const [hookHandle, isFirstRender] = useFirstRender(
       () => createHookSubscription({
         storeName,
         selectorId: selector.__selectorId,
@@ -114,9 +119,8 @@ export const getHooksFactory = ({
       })
     );
 
-    const { subscription } = hookHandle;
     let selected;
-    ([selected, hookHandle.setSelected] = useState(subscription.lastSelected));
+    ([selected, hookHandle.setSelected] = useState(hookHandle.subscription.lastSelected));
 
     // This should handle changing subscription should for new params
     useEffect(() => {
@@ -127,12 +131,13 @@ export const getHooksFactory = ({
         selectorStoreName: selector.__storeName,
         params,
         hookHandle,
-        validateSubscription: validateUseSelectorMemo,
+        validateSubscription: validateUseSelector,
       });
-    }, params); // eslint-disable-line react-hooks/exhaustive-deps // TODO can I pass params instead of [...params] ???
+      hookHandle.setSelected(hookHandle.subscription.lastSelected);
+    }, params);
 
     // This should handle unsubscribe when unmounting component
-    useUnmount(() => { !isFirstRender && hookHandle.unsubscribe(); });
+    useUnmount(hookHandle.unsubscribe);
     return selected;
   };
 
@@ -161,10 +166,10 @@ export const getHooksFactory = ({
         isCacheOnly: true,
         validateSubscription: validateUseSelectorMemo
       });
-    }, params); // eslint-disable-line react-hooks/exhaustive-deps // TODO can I pass params instead of [...params] ???
+    }, params);
 
     // This should handle unsubscribe when unmounting component
-    useUnmount(() => { !isFirstRender && hookHandle.unsubscribe(); });
+    useUnmount(hookHandle.unsubscribe);
   };
 
   return {

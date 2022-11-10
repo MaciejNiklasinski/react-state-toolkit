@@ -318,7 +318,7 @@ export const getSubscriptionsFactory = ({
     if (hookHandle.paramsId === paramsId)
       throw new Error(`Params have changed but paramsId: haven't. Are all selector params serializable? ${paramsId}`);
 
-    const { associatedSubscriptions: lastAssociatedSubscriptions } = hookHandle;
+    const { associatedSubscriptions: lastAssociatedSubscriptions } = hookHandle.subscription;
     const storeHandle = stores[storeName];
 
     const subscription = ensureSubscriptionAvailability({
@@ -327,7 +327,7 @@ export const getSubscriptionsFactory = ({
       subscriptionId,
       paramsId,
       params,
-      storeHandle,
+      storeName,
       hookHandle,
       validateSubscription,
       isCacheOnly,
