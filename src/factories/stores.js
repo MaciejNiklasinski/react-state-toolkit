@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { DEFAULT_STORE } from '../constants/store';
+import { DEFAULT_STORE, STATUS } from '../constants/store';
 import { getStoreValidator } from './stores.validator';
 import { getHooksFactory } from './hooks';
 import { insertCapitalized } from '../utils/strings';
@@ -61,16 +61,24 @@ export const getStoresFactory = ({
       const reducer = stores[name].reducers[action.sliceName][action.type];
       if (!reducer || action instanceof Promise) return;
 
+      stores[name].status = STATUS.REDUCING;
       const newSliceState = { ...stores[name].state[action.sliceName] };
-      reducer(newSliceState, action);
+      try { reducer(newSliceState, action); }
+      catch (error) {
+        stores[name].status = STATUS.READY;
+        throw error;
+      }
       const newState = Object.freeze({
         ...stores[name].state,
         [action.sliceName]: Object.freeze(newSliceState),
       });
       stores[name].state = newState;
       stores[name].stateVersion = Symbol();
-      
+
+      stores[name].status = STATUS.SELECTING;
       subscriptionsMatrix.forEach(({ onStateChange }) => onStateChange(newState));
+
+      stores[name].status = STATUS.RENDERING;
       triggersStack.forEach(renderTrigger => {
         const { requiresRender, value, setSelected } = renderTrigger;
         if (!requiresRender) return;
@@ -78,6 +86,7 @@ export const getStoresFactory = ({
         renderTrigger.value = null;
         setSelected(value);
       });
+      stores[name].status = STATUS.READY;
     };
 
     const useStoreState = getUseStoreState({ storeName: name, isStrictDevMode });

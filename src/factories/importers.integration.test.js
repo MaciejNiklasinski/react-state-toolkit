@@ -3,14 +3,14 @@ import {
   // Importer Store
   UnableToCreateInvalidNameStoreImporter,
 } from "../errors/UnableToCreateImporter";
-import { 
+import {
   // Importer Action Invocation
   UnableToInvokeUninitializedStoreAction,
 } from "../errors/UnableToInvokeUninitializedStoreAction";
 import {
   // Importer Selector Invocation
   UnableToInvokeUninitializedStoreSelector,
-} from "../errors/UnableToInvokeUninitializedStoreSelector";
+} from "../errors/UnableToInvokeSelector";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
@@ -242,7 +242,7 @@ describe("importer action", () => {
         }
       },
       initialState: { value: 0 }
-    });    
+    });
     const { getState } = createStore({
       storeSlices: { slice },
     });
@@ -406,7 +406,7 @@ describe("importer selector", () => {
     catch (err) { error = err };
     expect(error).toEqual(new UnableToInvokeUninitializedStoreSelector({ selectorId }));
   });
-  
+
   test("Should be able to invoke imported slice selector after store creation.", () => {
     const { importSelector } = createImporter({});
     const sliceName = "testSlice";
