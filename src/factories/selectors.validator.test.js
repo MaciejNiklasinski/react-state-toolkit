@@ -9,8 +9,12 @@ import {
   // Selector
   UnableToCreateInvalidNameSelector,
   UnableToCreateInvalidFuncsSelector,
+  UnableToCreateForeignSelectorLinkedSelector,
+  UnableToCreateSelectorLastFuncSelector,
   UnableToCreateInvalidMemoOnArgsSelector,
-  UnableToCreateExistingSelector
+  UnableToCreateExistingSelector,
+  UnableToCreateParameterlessSignatureSelector,
+  UnableToCreateMissingSignatureParameterizedSelector,
 } from "../errors/UnableToCreateSelector";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
@@ -305,6 +309,60 @@ describe("selectors validator", () => {
     expect(error).toEqual(new UnableToCreateInvalidFuncsSelector({ storeName: DEFAULT_STORE, sliceName, selectorName }));
   });
 
+  test("Should throw correct error when attempting to create selector referencing foreign store selector.", () => {
+    const { foreignSelector } = createSelector({
+      storeName: "foreign",
+      sliceName: "foreignSlice",
+      name: "foreignSelector",
+      funcs: [(state) => state],
+    });
+    const sliceName = "testSlice";
+    const name = `valid`;
+    const selectorName = `${name}Selector`;
+    const funcs = [
+      foreignSelector,
+      (arg) => arg
+    ];
+    let error;
+    try {
+      createSelector({
+        sliceName,
+        name,
+        funcs,
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateForeignSelectorLinkedSelector({
+      storeName: DEFAULT_STORE,
+      sliceName, selectorName,
+      foreignSelectorId: foreignSelector.__selectorId
+    }));
+  });
+
+  test("Should throw correct error when attempting to create selector referencing selector as a last selecting func.", () => {
+    const sliceName = "testSlice";
+    const name = `valid`;
+    const selectorName = `${name}Selector`;
+    const { otherSelector } = createSelector({
+      sliceName,
+      name: "otherSelector",
+      funcs: [(state) => state],
+    });
+    let error;
+    try {
+      createSelector({
+        sliceName,
+        name,
+        funcs: [otherSelector],
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateSelectorLastFuncSelector({
+      storeName: DEFAULT_STORE,
+      sliceName,
+      selectorName,
+      linkedSelectorId: otherSelector.__selectorId
+    }));
+  });
+
   test("Should throw correct error when attempting to create selector with invalid funcs.", () => {
     const sliceName = "testSlice";
     const name = `valid`;
@@ -322,7 +380,7 @@ describe("selectors validator", () => {
     expect(error).toEqual(new UnableToCreateInvalidMemoOnArgsSelector({ storeName: DEFAULT_STORE, sliceName, selectorName }));
   });
 
-  test("Should be able to create valid slice selector.", () => {
+  test("Should throw correct error when attempting to create already existing selector.", () => {
     const sliceName = "testSlice";
     const name = "valid";
     const selectorName = `${name}Selector`;
@@ -341,5 +399,49 @@ describe("selectors validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateExistingSelector({ storeName: DEFAULT_STORE, sliceName, selectorName }));
+  });
+
+  test("Should throw correct error when attempting to create parameterless selector with specified paramsSignature.", () => {
+    const sliceName = "testSlice";
+    const name = "valid";
+    const selectorName = `${name}Selector`;
+    const paramsSignature = "userId";
+    const funcs = [(state) => state];
+    let error;
+    try {
+      createSelector({
+        sliceName,
+        name,
+        funcs,
+        paramsSignature,
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateParameterlessSignatureSelector({
+      storeName: DEFAULT_STORE,
+      sliceName,
+      selectorName,
+      paramsSignature
+    }));
+  });
+
+  test("Should throw correct error when attempting to create parameterized selector without specifying paramsSignature.", () => {
+    const sliceName = "testSlice";
+    const name = "valid";
+    const selectorName = `${name}Selector`;
+    const funcs = [(state) => state];
+    let error;
+    try {
+      createSelector({
+        sliceName,
+        name,
+        funcs,
+        isParameterized: true,
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateMissingSignatureParameterizedSelector({
+      storeName: DEFAULT_STORE,
+      sliceName,
+      selectorName
+    }));
   });
 });

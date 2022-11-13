@@ -63,10 +63,12 @@ export const createStore = ({
   name = DEFAULT_STORE,
   storeSlices = {},
   storeSelectors = {},
+  isStrictDevMode = false,
 } = {}) => storesFactory.createStore({
   name,
   storeSlices,
   storeSelectors,
+  isStrictDevMode
 });
 
 export const createSlice = ({
@@ -115,12 +117,20 @@ export const createSelector = ({
   name,
   funcs = [],
   memoOnArgs = false,
+  keepMemo = false,
+  isParameterized = false,
+  paramsSignature = undefined,
+  paramsMappers = {}
 } = {}) => selectorsFactory.createSelector({
   storeName,
   sliceName,
   name,
   funcs,
   memoOnArgs,
+  keepMemo,
+  isParameterized,
+  paramsSignature,
+  paramsMappers
 });
 
 export const createImporter = ({

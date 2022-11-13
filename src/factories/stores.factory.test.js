@@ -103,9 +103,8 @@ describe("stores factory", () => {
     expect(stores[DEFAULT_STORE].getHooks).toEqual(getHooks);
 
     expect(stores[DEFAULT_STORE].initialized).toEqual(true);
-    expect(stores[DEFAULT_STORE].renderTriggers).toEqual(new Map());
-    expect(stores[DEFAULT_STORE].subscriptions).toEqual(new Map());
-    expect(stores[DEFAULT_STORE].subscriptionsById).toEqual(new Map());
+    expect(stores[DEFAULT_STORE].triggersStack).toEqual(new Map());
+    expect(stores[DEFAULT_STORE].subscriptionsMatrix).toEqual(new Map());
     expect(typeof stores[DEFAULT_STORE].dispatch).toEqual("function");
     expect(stores[DEFAULT_STORE].actions).toEqual({});
     expect(stores[DEFAULT_STORE].selectors).toEqual({});
@@ -151,7 +150,7 @@ describe("stores factory", () => {
     expect(typeof getActions).toEqual("function");
     expect(typeof getSelectors).toEqual("function");
     expect(typeof getHooks).toEqual("function");
-    
+
     expect(withStore).toEqual(withNonDefaultStore);
     expect(useStoreState).toEqual(useNonDefaultStoreState);
     expect(useSelector).toEqual(useNonDefaultSelector);
@@ -167,9 +166,8 @@ describe("stores factory", () => {
     expect(stores[storeName].getSelectors).toEqual(getNonDefaultSelectors);
 
     expect(stores[storeName].initialized).toEqual(true);
-    expect(stores[storeName].renderTriggers).toEqual(new Map());
-    expect(stores[storeName].subscriptions).toEqual(new Map());
-    expect(stores[storeName].subscriptionsById).toEqual(new Map());
+    expect(stores[storeName].triggersStack).toEqual(new Map());
+    expect(stores[storeName].subscriptionsMatrix).toEqual(new Map());
     expect(typeof stores[storeName].dispatch).toEqual("function");
     expect(stores[storeName].actions).toEqual({});
     expect(stores[storeName].selectors).toEqual({});

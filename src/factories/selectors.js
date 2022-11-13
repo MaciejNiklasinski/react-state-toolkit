@@ -1,7 +1,9 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
+import { NO_PARAMS_SIGNATURE } from '../constants/selectors';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
-import { getSelectorId } from './ids';
+import { getParamsId, getSelectorId, getSubscriptionIds } from './ids';
 import { getSelectorValidator } from './selectors.validator';
+import { getSubscriptionsFactory } from './subscriptions';
 import { suffixIfRequired } from '../utils/strings';
 
 export const getSelectorsFactory = ({
@@ -19,8 +21,13 @@ export const getSelectorsFactory = ({
     name,
     funcs = [],
     memoOnArgs = false,
+    keepMemo = false,
+    isParameterized = false,
+    paramsSignature = NO_PARAMS_SIGNATURE,
+    paramsMappers = {}
   }) => {
     const suffixedName = suffixIfRequired(name, "Selector");
+
     const { validateSelector } = getSelectorValidator({
       stores,
       slices,
@@ -36,6 +43,17 @@ export const getSelectorsFactory = ({
       selectorName: suffixedName,
       funcs,
       memoOnArgs,
+      isParameterized,
+      paramsSignature,
+    });
+    const { createMemoSubscription } = getSubscriptionsFactory({
+      stores,
+      slices,
+      actions,
+      actionsByType,
+      actionsImports,
+      selectors,
+      selectorsImports,
     });
 
     if (!stores[storeName]) stores[storeName] = {};
@@ -43,58 +61,108 @@ export const getSelectorsFactory = ({
     if (!stores[storeName].selectors[sliceName])
       stores[storeName].selectors[sliceName] = {};
 
-    let lastArgs = [];
-    let lastResult;
-    funcs = [...funcs];
-
-    const storeArg = Object.freeze({
-      getSelectors: () => stores[storeName].getSelectors()
-    });
-
-    // selector func
-    // function taking state and returning selected value
-    const func = funcs.length === 1
-      ? state => funcs[0](state, storeArg)
-      : state => funcs.reduce(
-        (args, selectFunc, index) => {
-          if (index < funcs.length - 1) {
-            args.push(selectFunc(state, storeArg));
-            return args;
-          } else if (!memoOnArgs) {
-            return selectFunc(...args, storeArg);
-          } else if (args.some((arg, i) => arg !== lastArgs[i])) {
-            lastResult = selectFunc(...args, storeArg);
-            lastArgs = args;
-          }
-          return lastResult;
-        }, []);
-
     const selectorId = getSelectorId({
       storeName,
       sliceName,
       selectorName: suffixedName,
     });
-    func.__storeName = storeName;
-    func.__selectorId = selectorId;
-    stores[storeName].selectors[sliceName][suffixedName] = func;
-    
-    let safeFunc;
-    const funcWrapper = (state) => {
-      if (safeFunc) return safeFunc(state);
-      else if (!stores[storeName].initialized)
-        throw new UnableToInvokeUninitializedStoreSelector({ selectorId });
-      safeFunc = func;
-      return safeFunc(state);
-    };
-    funcWrapper.__storeName = storeName;
-    funcWrapper.__selectorId = selectorId;
 
-    selectors[selectorId] = {
+    paramsMappers = Object.entries(paramsMappers).reduce(
+      (acc, [paramsSignature, paramsMapper]) => {
+        acc[paramsSignature] = paramsMapper;
+        return acc;
+      },
+      isParameterized
+        ? { [NO_PARAMS_SIGNATURE]: () => [], [paramsSignature]: (params) => params }
+        : { [NO_PARAMS_SIGNATURE]: () => [] }
+    );
+
+    let selectorHandle;
+    selectorHandle = {
       storeName,
       sliceName,
       selectorName: suffixedName,
-      [suffixedName]: funcWrapper,
+      selectorId,
+      memoOnArgs,
+      keepMemo,
+      isParameterized,
+      paramsSignature,
+      paramsMappers,
+      referencedSelectorIds: funcs.filter(
+        ({ __selectorId }) => !!__selectorId
+      ).map(
+        ({ __selectorId }) => __selectorId
+      ),
+      funcs: [...funcs],
+      clearCache: (...params) => {
+        const { subscriptionId } = getSubscriptionIds({ selectorId, params });
+        const subscription = stores[storeName].subscriptionsMatrix.get(subscriptionId);
+        if (!subscription[subscriptionId]) return;
+        subscription.lastArgs = [];
+        subscription.lastSelected = null;
+      },
     };
-    return Object.freeze({ ...selectors[selectorId] });
+    selectors[selectorId] = selectorHandle;
+
+    const getStoreArg = (params) => Object.freeze({
+      getParams: () => [...params],
+    });
+
+    const selectValueFunc = (state, ...params) => {
+      const storeArg = getStoreArg(params);
+      if (selectorHandle.funcs.length > 1)
+        return selectorHandle.funcs.reduce(
+          (args, selectFunc, index, arr) => {
+            if (index === arr.length - 1) {
+              return selectFunc(...args, storeArg);
+            } else if (selectFunc.__selectorId) {
+              const selectFuncSelectorHandle = selectors[selectFunc.__selectorId];
+              const paramsMapper = paramsMappers[selectFuncSelectorHandle.paramsSignature];
+              const mappedParams = paramsMapper(params);
+              args.push(selectFunc(state, ...mappedParams));
+              return args;
+            } else {
+              args.push(selectFunc(state, storeArg));
+              return args;
+            }
+          }, []);
+      else return selectorHandle.funcs[0](state, storeArg);
+    };
+
+    const selectSubscriptionValueFunc = (state, ...params) => {
+      const { subscriptionId } = getSubscriptionIds({ selectorId, params });
+      let subscription = stores[storeName].subscriptionsMatrix.get(subscriptionId);
+      if (!subscription)
+        ({ subscription } = createMemoSubscription({
+          storeName,
+          selectorId,
+          params,
+          isCacheOnly: true,
+          validateSubscription: () => { }, // No validation
+        }));
+      return subscription.selectFunc(state);
+    };
+
+    let validatedFunc;
+    const exportFunc = (state, ...params) => {
+      if (validatedFunc) return validatedFunc(state, ...params);
+      else if (!stores[storeName].initialized)
+        throw new UnableToInvokeUninitializedStoreSelector({ selectorId });
+      validatedFunc = keepMemo ? selectSubscriptionValueFunc : selectValueFunc;
+      return validatedFunc(state, ...params);
+    };
+    stores[storeName].selectors[sliceName][suffixedName] = exportFunc;
+    selectorHandle[suffixedName] = exportFunc;
+    exportFunc.__storeName = storeName;
+    exportFunc.__selectorId = selectorId;
+
+    // Selector export
+    return Object.freeze({
+      storeName,
+      sliceName,
+      selectorName: suffixedName,
+      [suffixedName]: exportFunc,
+      clearCache: selectorHandle.clearCache,
+    });
   },
 });

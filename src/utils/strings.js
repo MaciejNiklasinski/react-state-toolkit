@@ -18,3 +18,20 @@ export const suffixIfRequired = (str, suffix) => {
     return str + suffix;
   else return str;
 };
+
+export const toOrdinal = (number) => {
+  const numberStr = `${number}`;
+  const { length } = numberStr;
+  const lastChar = numberStr[length - 1];
+  const penultimateChar = length > 1 && numberStr[length - 2];
+  if (penultimateChar === "1")
+    return numberStr + "th";
+  else if (lastChar === "1")
+    return numberStr + "st";
+  else if (lastChar === "2")
+    return numberStr + "nd";
+  else if (lastChar === "3")
+    return numberStr + "rd";
+  else
+    return numberStr + "th";
+};
