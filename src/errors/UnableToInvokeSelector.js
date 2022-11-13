@@ -1,4 +1,4 @@
-export class UnableToInvokeSelector extends Error { }
+export class UnableToInvokeSelector extends Error { };
 
 export class UnableToInvokeUninitializedStoreSelector extends UnableToInvokeSelector {
   constructor({ selectorId }) {

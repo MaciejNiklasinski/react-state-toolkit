@@ -213,7 +213,6 @@ describe("multi func selector", () => {
       storeSlices: { slice }
     });
 
-
     const App = () => {
       const value = useSelector(validSelector);
       return (<div>{`${value}`}</div>);
