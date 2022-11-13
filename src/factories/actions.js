@@ -101,7 +101,7 @@ export const getActionsFactory = ({
       const RESOLVED = Symbol(`${name}.${TYPE_SUFFIXES.RESOLVED}`);
       const type = { PENDING, REJECTED, RESOLVED };
 
-      const action = async params => {
+      const action = params => {
         const { getState, getActions, getSelectors, status } = stores[storeName];
         if (status === STATUS.REDUCING)
           throw new UnableToInvokeReducingStoreAction({ actionId });

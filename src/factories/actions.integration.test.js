@@ -547,7 +547,7 @@ describe("async action", () => {
     test("Should throw error when executed from inside action handler func.", async () => {
       const sliceName = "testSlice";
       const name = "validAsync";
-      const otherName = "otherValidSync";
+      const otherName = "otherValidAsync";
       const actionName = `${name}Action`;
       const otherActionName = `${otherName}Action`;
       const actionId = getActionId({ storeName: DEFAULT_STORE, sliceName, actionName });
@@ -563,9 +563,9 @@ describe("async action", () => {
         ),
       });
       const {
-        otherValidSyncAction,
-        OTHER_VALID_SYNC_ACTION
-      } = createAction({
+        otherValidAsyncAction,
+        OTHER_VALID_ASYNC_ACTION
+      } = createAsyncAction({
         sliceName,
         name: otherName,
         func: () => ({}),
@@ -573,9 +573,9 @@ describe("async action", () => {
       const slice = createSlice({
         name: sliceName,
         reducer: {
-          [OTHER_VALID_SYNC_ACTION]: (state, action) => { },
+          [OTHER_VALID_ASYNC_ACTION.RESOLVED]: (state, action) => { },
           [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => {
-            otherValidSyncAction();
+            otherValidAsyncAction();
           },
         },
       });
@@ -584,6 +584,49 @@ describe("async action", () => {
       try { await validAsyncAction(); }
       catch (err) { error = err; }
       expect(error).toEqual(new UnableToInvokeReducingStoreAction({ actionId: otherActionId }));
+    });
+
+    test("Should throw error when executed from inside selector func.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const actionName = `${name}Action`;
+      const actionId = getActionId({ storeName: DEFAULT_STORE, sliceName, actionName });
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve) => setTimeout(() => resolve({}), 10)
+        ),
+      });
+      const { valueSelector } = createSelector({
+        sliceName,
+        name: "valueSelector",
+        funcs: [(state) => validAsyncAction() && state[sliceName].value]
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => { }
+        },
+        sliceSelectors: [valueSelector],
+        initialState: { value: 0 }
+      });
+      const {
+        useSelector
+      } = createStore({ storeSlices: [slice] });
+
+      const App = () => {
+        const value = useSelector(valueSelector);
+        return (<div>{`${value}`}</div>);
+      };
+
+      let error;
+      try { render(<App />); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new UnableToInvokeSelectingStoreAction({ actionId }));
     });
   });
 
