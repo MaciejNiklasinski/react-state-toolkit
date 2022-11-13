@@ -1,6 +1,9 @@
-import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
+import { DEFAULT_STORE, DEFAULT_SLICE, STATUS } from '../constants/store';
 import { NO_PARAMS_SIGNATURE } from '../constants/selectors';
-import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
+import {
+  UnableToInvokeUninitializedStoreSelector,
+  UnableToInvokeSelectingStoreSelector,
+} from '../errors/UnableToInvokeSelector';
 import { getParamsId, getSelectorId, getSubscriptionIds } from './ids';
 import { getSelectorValidator } from './selectors.validator';
 import { getSubscriptionsFactory } from './subscriptions';
@@ -77,8 +80,7 @@ export const getSelectorsFactory = ({
         : { [NO_PARAMS_SIGNATURE]: () => [] }
     );
 
-    let selectorHandle;
-    selectorHandle = {
+    const selectorHandle = {
       storeName,
       sliceName,
       selectorName: suffixedName,
@@ -110,7 +112,9 @@ export const getSelectorsFactory = ({
 
     const selectValueFunc = (state, ...params) => {
       const storeArg = getStoreArg(params);
-      if (selectorHandle.funcs.length > 1)
+      if (stores[storeName].status === STATUS.SELECTING)
+        throw new UnableToInvokeSelectingStoreSelector({ selectorId });
+      else if (selectorHandle.funcs.length > 1)
         return selectorHandle.funcs.reduce(
           (args, selectFunc, index, arr) => {
             if (index === arr.length - 1) {
@@ -130,6 +134,8 @@ export const getSelectorsFactory = ({
     };
 
     const selectSubscriptionValueFunc = (state, ...params) => {
+      if (stores[storeName].status === STATUS.SELECTING)
+        throw new UnableToInvokeSelectingStoreSelector({ selectorId });
       const { subscriptionId } = getSubscriptionIds({ selectorId, params });
       let subscription = stores[storeName].subscriptionsMatrix.get(subscriptionId);
       if (!subscription)

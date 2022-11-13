@@ -1,6 +1,6 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
 import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
-import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
+import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeSelector';
 import { insertCapitalized, suffixIfRequired } from '../utils/strings';
 import { getActionId, getSelectorId, getSliceId } from './ids';
 import { getImporterValidator } from './importers.validator';
