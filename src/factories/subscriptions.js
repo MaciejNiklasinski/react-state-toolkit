@@ -221,7 +221,7 @@ export const getSubscriptionsFactory = ({
       const { triggersStack, subscriptionsMatrix } = storeHandle;
       const { id, subscription } = hookHandle;
       subscription.associatedSubscriptions.forEach(
-        (associatedSubscription, index) => {
+        (associatedSubscription) => {
           associatedSubscription.holders.delete(id);
           if (associatedSubscription.triggers.size || associatedSubscription.holders.size) return;
           subscriptionsMatrix.delete(associatedSubscription.id);
@@ -240,22 +240,35 @@ export const getSubscriptionsFactory = ({
   const createHookResubscriber = ({
     storeHandle,
     hookHandle,
-    lastAssociatedSubscriptions,
+    lastSubscription,
     isCacheOnly,
   }) => () => {
     const { subscriptionsMatrix } = storeHandle;
-    const { id, associatedSubscriptions } = hookHandle;
+    const {
+      id,
+      subscriptionId,
+      subscription: { associatedSubscriptions }
+    } = hookHandle;
 
-    lastAssociatedSubscriptions.forEach(
-      (subscription, index) => {
-        if (associatedSubscriptions.has(subscription.id)) return;
-
-        if (!index && !isCacheOnly) subscription.triggers.delete(id);
-        else subscription.holders.delete(id);
+    lastSubscription.associatedSubscriptions.forEach(
+      (subscription) => {
+        if (
+          subscription.id === subscriptionId ||
+          associatedSubscriptions.has(subscription.id)
+        ) return;
+        subscription.holders.delete(id);
 
         if (subscription.keepMemo || subscription.triggers.size || subscription.holders.size) return;
         subscriptionsMatrix.delete(subscription.id);
       });
+
+    if (!isCacheOnly)
+      lastSubscription.triggers.delete(id);
+    else
+      lastSubscription.holders.delete(id);
+
+    if (lastSubscription.keepMemo || lastSubscription.triggers.size || lastSubscription.holders.size) return;
+    subscriptionsMatrix.delete(lastSubscription.id);
   };
 
   const createHookSubscription = ({
@@ -277,8 +290,6 @@ export const getSubscriptionsFactory = ({
       requiresRender: false,
       value: null,
       setSelected: null,
-      unsubscribeList: new Map(),
-      subscriptionsChain: null,
       unsubscribe: null,
     };
 
@@ -317,9 +328,12 @@ export const getSubscriptionsFactory = ({
     // keep serializing params into paramsId would probably have significant performance hit
     if (hookHandle.paramsId === paramsId)
       throw new Error(`Params have changed but paramsId: haven't. Are all selector params serializable? ${paramsId}.`);
-    else hookHandle.paramsId = paramsId;
+    else {
+      hookHandle.subscriptionId = subscriptionId;
+      hookHandle.paramsId = paramsId;
+    }
 
-    const { associatedSubscriptions: lastAssociatedSubscriptions } = hookHandle.subscription;
+    const { subscription: lastSubscription } = hookHandle;
     const storeHandle = stores[storeName];
 
     const subscription = ensureSubscriptionAvailability({
@@ -336,7 +350,7 @@ export const getSubscriptionsFactory = ({
 
     hookHandle.subscription = subscription;
     hookHandle.unsubscribe = createHookUnsubscriber({ storeHandle, hookHandle });
-    const unsubscribeLast = createHookResubscriber({ storeHandle, hookHandle, lastAssociatedSubscriptions });
+    const unsubscribeLast = createHookResubscriber({ storeHandle, hookHandle, lastSubscription });
     unsubscribeLast();
     return hookHandle;
   };
