@@ -1,8 +1,12 @@
-import { DEFAULT_STORE } from '../constants/store';
+import { DEFAULT_STORE, STATUS } from '../constants/store';
 import { TYPE_SUFFIXES } from '../constants/actions';
 import { getActionId } from './ids';
 import { getActionValidator } from './actions.validator';
-import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
+import {
+  UnableToInvokeUninitializedStoreAction,
+  UnableToInvokeReducingStoreAction,
+  UnableToInvokeSelectingStoreAction,
+} from '../errors/UnableToInvokeAction';
 import { suffixIfRequired, toScreamingSnakeCase } from '../utils/strings';
 
 export const getActionsFactory = ({
@@ -39,7 +43,11 @@ export const getActionsFactory = ({
 
     const type = Symbol(name);
     const action = params => {
-      const { getState, getActions, getSelectors } = stores[storeName];
+      const { getState, getActions, getSelectors, status } = stores[storeName];
+      if (status === STATUS.REDUCING)
+        throw new UnableToInvokeReducingStoreAction({ actionId });
+      else if (status === STATUS.SELECTING)
+        throw new UnableToInvokeSelectingStoreAction({ actionId });
       const payload = func(params, { getState, getActions, getSelectors });
       const result = { sliceName, params, type, payload };
       stores[storeName].dispatch(result);
@@ -102,7 +110,11 @@ export const getActionsFactory = ({
     const type = { PENDING, REJECTED, RESOLVED };
 
     const action = async params => {
-      const { getState, getActions, getSelectors } = stores[storeName];
+      const { getState, getActions, getSelectors, status } = stores[storeName];
+      if (status === STATUS.REDUCING)
+        throw new UnableToInvokeReducingStoreAction({ actionId });
+      else if (status === STATUS.SELECTING)
+        throw new UnableToInvokeSelectingStoreAction({ actionId });
       stores[storeName].dispatch({ sliceName, params, type: PENDING });
       return new Promise(async (resolve, reject) => {
         let result;
@@ -119,7 +131,7 @@ export const getActionsFactory = ({
 
         try { stores[storeName].dispatch(result); }
         catch (error) { reject(error); }
-        
+
         if (result.error && result.rethrow)
           reject(result.error)
         else resolve(result);

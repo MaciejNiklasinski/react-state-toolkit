@@ -6,7 +6,7 @@ import {
 import {
   // Importer Action Invocation
   UnableToInvokeUninitializedStoreAction,
-} from "../errors/UnableToInvokeUninitializedStoreAction";
+} from "../errors/UnableToInvokeAction";
 import {
   // Importer Selector Invocation
   UnableToInvokeUninitializedStoreSelector,

@@ -1,5 +1,5 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
-import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeUninitializedStoreAction';
+import { UnableToInvokeUninitializedStoreAction } from '../errors/UnableToInvokeAction';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeSelector';
 import { insertCapitalized, suffixIfRequired } from '../utils/strings';
 import { getActionId, getSelectorId, getSliceId } from './ids';
