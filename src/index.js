@@ -63,10 +63,12 @@ export const createStore = ({
   name = DEFAULT_STORE,
   storeSlices = {},
   storeSelectors = {},
+  isStrictDevMode = false,
 } = {}) => storesFactory.createStore({
   name,
   storeSlices,
   storeSelectors,
+  isStrictDevMode
 });
 
 export const createSlice = ({

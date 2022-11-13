@@ -17,6 +17,7 @@ export const getStoresFactory = ({
     name = DEFAULT_STORE,
     storeSlices = {},
     storeSelectors = {},
+    isStrictDevMode = false,
   }) => {
     // Normalize store creations arguments
     if (storeSlices && typeof storeSlices === "object")
@@ -68,7 +69,7 @@ export const getStoresFactory = ({
       });
       stores[name].state = newState;
       stores[name].stateVersion = Symbol();
-
+      
       subscriptionsMatrix.forEach(({ onStateChange }) => onStateChange(newState));
       triggersStack.forEach(renderTrigger => {
         const { requiresRender, value, setSelected } = renderTrigger;
@@ -79,9 +80,9 @@ export const getStoresFactory = ({
       });
     };
 
-    const useStoreState = getUseStoreState({ storeName: name });
-    const useSelector = getUseSelector({ storeName: name });
-    const useSelectorMemo = getUseSelectorMemo({ storeName: name });
+    const useStoreState = getUseStoreState({ storeName: name, isStrictDevMode });
+    const useSelector = getUseSelector({ storeName: name, isStrictDevMode });
+    const useSelectorMemo = getUseSelectorMemo({ storeName: name, isStrictDevMode });
 
     const getState = (sliceName = null) =>
       sliceName ? stores[name].state[sliceName] : stores[name].state;
