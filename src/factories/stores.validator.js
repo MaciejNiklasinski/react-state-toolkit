@@ -140,7 +140,7 @@ export const getStoreValidator = ({
                   parameterizedSelectorId: funcSelectorId
                 });
               else if (
-                !paramsMappers[funcSelectorId]
+                !paramsMappers[funcSelector.paramsSignature]
                 && isParameterized
                 && funcSelector.isParameterized
                 && funcSelector.paramsSignature !== paramsSignature

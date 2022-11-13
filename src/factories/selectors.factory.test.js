@@ -1,4 +1,5 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from "../constants/store";
+import { NO_PARAMS_SIGNATURE } from "../constants/selectors";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
@@ -98,8 +99,8 @@ describe("selector factory", () => {
     expect(selectors[selectorId].memoOnArgs).toEqual(false);
     expect(selectors[selectorId].keepMemo).toEqual(false);
     expect(selectors[selectorId].isParameterized).toEqual(false);
-    expect(selectors[selectorId].paramsSignature).toEqual("0");
-    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].paramsSignature).toEqual(NO_PARAMS_SIGNATURE);
+    expect(typeof selectors[selectorId].paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
@@ -137,8 +138,8 @@ describe("selector factory", () => {
     expect(selectors[selectorId].memoOnArgs).toEqual(false);
     expect(selectors[selectorId].keepMemo).toEqual(false);
     expect(selectors[selectorId].isParameterized).toEqual(false);
-    expect(selectors[selectorId].paramsSignature).toEqual("0");
-    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].paramsSignature).toEqual(NO_PARAMS_SIGNATURE);
+    expect(typeof selectors[selectorId].paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
@@ -172,8 +173,8 @@ describe("selector factory", () => {
     expect(selectors[selectorId].memoOnArgs).toEqual(false);
     expect(selectors[selectorId].keepMemo).toEqual(false);
     expect(selectors[selectorId].isParameterized).toEqual(false);
-    expect(selectors[selectorId].paramsSignature).toEqual("0");
-    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].paramsSignature).toEqual(NO_PARAMS_SIGNATURE);
+    expect(typeof selectors[selectorId].paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
@@ -209,8 +210,8 @@ describe("selector factory", () => {
     expect(selectors[selectorId].memoOnArgs).toEqual(false);
     expect(selectors[selectorId].keepMemo).toEqual(false);
     expect(selectors[selectorId].isParameterized).toEqual(false);
-    expect(selectors[selectorId].paramsSignature).toEqual("0");
-    expect(typeof selectors[selectorId].paramsMappers["0"]).toEqual("function");
+    expect(selectors[selectorId].paramsSignature).toEqual(NO_PARAMS_SIGNATURE);
+    expect(typeof selectors[selectorId].paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);

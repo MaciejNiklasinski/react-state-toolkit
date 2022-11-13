@@ -1,3 +1,4 @@
+import { NO_PARAMS_SIGNATURE } from '../constants/selectors';
 import {
   // Selector Store
   UnableToCreateInvalidNameStoreSelector,
@@ -17,8 +18,6 @@ import {
 } from '../errors/UnableToCreateSelector';
 import { getSliceId, getSelectorId, getParamsId } from './ids';
 import { isValidName } from '../utils/strings';
-
-const noParamsId = getParamsId({ params: [] });
 
 export const getSelectorValidator = ({
   stores,
@@ -86,9 +85,9 @@ export const getSelectorValidator = ({
         throw new UnableToCreateInvalidMemoOnArgsSelector({ storeName, sliceName, selectorName });
       else if (selectors[getSelectorId({ storeName, sliceName, selectorName })])
         throw new UnableToCreateExistingSelector({ storeName, sliceName, selectorName });
-      else if (!isParameterized && paramsSignature !== noParamsId)
+      else if (!isParameterized && paramsSignature !== NO_PARAMS_SIGNATURE)
         throw new UnableToCreateParameterlessSignatureSelector({ storeName, sliceName, selectorName, paramsSignature });
-      else if (isParameterized && paramsSignature === noParamsId)
+      else if (isParameterized && paramsSignature === NO_PARAMS_SIGNATURE)
         throw new UnableToCreateMissingSignatureParameterizedSelector({ storeName, sliceName, selectorName });
     },
   };

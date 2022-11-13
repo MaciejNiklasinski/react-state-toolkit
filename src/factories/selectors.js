@@ -1,11 +1,10 @@
 import { DEFAULT_STORE, DEFAULT_SLICE } from '../constants/store';
+import { NO_PARAMS_SIGNATURE } from '../constants/selectors';
 import { UnableToInvokeUninitializedStoreSelector } from '../errors/UnableToInvokeUninitializedStoreSelector';
 import { getParamsId, getSelectorId, getSubscriptionIds } from './ids';
 import { getSelectorValidator } from './selectors.validator';
 import { getSubscriptionsFactory } from './subscriptions';
 import { suffixIfRequired } from '../utils/strings';
-
-const noParamsId = getParamsId({ params: [] });
 
 export const getSelectorsFactory = ({
   stores,
@@ -24,7 +23,7 @@ export const getSelectorsFactory = ({
     memoOnArgs = false,
     keepMemo = false,
     isParameterized = false,
-    paramsSignature = noParamsId,
+    paramsSignature = NO_PARAMS_SIGNATURE,
     paramsMappers = {}
   }) => {
     const suffixedName = suffixIfRequired(name, "Selector");
@@ -71,9 +70,11 @@ export const getSelectorsFactory = ({
     paramsMappers = Object.entries(paramsMappers).reduce(
       (acc, [paramsSignature, paramsMapper]) => {
         acc[paramsSignature] = paramsMapper;
-        return acc[paramsSignature];
+        return acc;
       },
-      { [getParamsId({ selectorId, params: [] })]: () => [] }
+      isParameterized
+        ? { [NO_PARAMS_SIGNATURE]: () => [], [paramsSignature]: (params) => params }
+        : { [NO_PARAMS_SIGNATURE]: () => [] }
     );
 
     let selectorHandle;

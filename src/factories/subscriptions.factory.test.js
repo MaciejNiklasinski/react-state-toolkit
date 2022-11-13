@@ -1,4 +1,5 @@
 import { DEFAULT_STORE } from "../constants/store";
+import { NO_PARAMS_SIGNATURE } from "../constants/selectors";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
@@ -146,7 +147,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -222,7 +223,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -335,7 +336,7 @@ describe("useSelector", () => {
       expect(otherSubscription.paramsId).toEqual(paramsId);
       expect(otherSubscription.params).toEqual(params);
 
-      expect(typeof otherSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof otherSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(otherSubscription.memoOnArgs).toEqual(false);
       expect(otherSubscription.keepMemo).toEqual(false);
       expect(typeof otherSubscription.arg.getParams).toEqual("function");
@@ -364,7 +365,7 @@ describe("useSelector", () => {
       const { subscription: nextSubscription } = nextHookHandle;
       expect(nextSubscription).toEqual(subscription);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -459,7 +460,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -481,7 +482,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -587,7 +588,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -606,7 +607,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -722,7 +723,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -759,7 +760,7 @@ describe("useSelector", () => {
       expect(associatedSubscription.paramsId).toEqual(paramsId);
       expect(associatedSubscription.params).toEqual(params);
 
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -869,7 +870,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -888,7 +889,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -999,7 +1000,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1027,7 +1028,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -1052,7 +1053,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -1177,7 +1178,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1201,7 +1202,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -1233,7 +1234,7 @@ describe("useSelector", () => {
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
       expect(associatedSubscriptionHookHandle.subscription).toEqual(associatedSubscription);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -1363,7 +1364,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1394,7 +1395,7 @@ describe("useSelector", () => {
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
       expect(associated2ndSubscriptionHookHandle.subscription).toEqual(associated2ndSubscription);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -1414,7 +1415,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -1547,7 +1548,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1570,7 +1571,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -1592,7 +1593,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -1721,7 +1722,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1745,7 +1746,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated3rdSubscription = subscription.associatedSubscriptions.get(associated3rdSubscriptionId);
-      expect(typeof associated3rdSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated3rdSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated3rdSubscription.memoOnArgs).toEqual(false);
       expect(associated3rdSubscription.keepMemo).toEqual(false);
       expect(typeof associated3rdSubscription.arg.getParams).toEqual("function");
@@ -1776,7 +1777,7 @@ describe("useSelector", () => {
       expect(typeof associated3rdSubscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -1801,7 +1802,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -1943,7 +1944,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -1967,7 +1968,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated3rdSubscription = subscription.associatedSubscriptions.get(associated3rdSubscriptionId);
-      expect(typeof associated3rdSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated3rdSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated3rdSubscription.memoOnArgs).toEqual(false);
       expect(associated3rdSubscription.keepMemo).toEqual(false);
       expect(typeof associated3rdSubscription.arg.getParams).toEqual("function");
@@ -1993,7 +1994,7 @@ describe("useSelector", () => {
       expect(typeof associated3rdSubscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -2025,7 +2026,7 @@ describe("useSelector", () => {
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
       expect(associatedSubscriptionHookHandle.subscription).toEqual(associatedSubscription);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -2172,7 +2173,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -2196,7 +2197,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated3rdSubscription = subscription.associatedSubscriptions.get(associated3rdSubscriptionId);
-      expect(typeof associated3rdSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated3rdSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated3rdSubscription.memoOnArgs).toEqual(false);
       expect(associated3rdSubscription.keepMemo).toEqual(false);
       expect(typeof associated3rdSubscription.arg.getParams).toEqual("function");
@@ -2229,7 +2230,7 @@ describe("useSelector", () => {
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
       expect(associated2ndSubscriptionHookHandle.subscription).toEqual(associated2ndSubscription);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -2249,7 +2250,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -2401,7 +2402,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -2432,7 +2433,7 @@ describe("useSelector", () => {
 
       const associated3rdSubscription = subscription.associatedSubscriptions.get(associated3rdSubscriptionId);
       expect(associated3rdSubscriptionHookHandle.subscription).toEqual(associated3rdSubscription);
-      expect(typeof associated3rdSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated3rdSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated3rdSubscription.memoOnArgs).toEqual(false);
       expect(associated3rdSubscription.keepMemo).toEqual(false);
       expect(typeof associated3rdSubscription.arg.getParams).toEqual("function");
@@ -2454,7 +2455,7 @@ describe("useSelector", () => {
       expect(typeof associated3rdSubscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -2475,7 +2476,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -2629,7 +2630,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -2652,7 +2653,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associated3rdSubscription = subscription.associatedSubscriptions.get(associated3rdSubscriptionId);
-      expect(typeof associated3rdSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated3rdSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated3rdSubscription.memoOnArgs).toEqual(false);
       expect(associated3rdSubscription.keepMemo).toEqual(false);
       expect(typeof associated3rdSubscription.arg.getParams).toEqual("function");
@@ -2676,7 +2677,7 @@ describe("useSelector", () => {
       expect(typeof associated3rdSubscription.selectFunc).toEqual("function");
 
       const associated2ndSubscription = subscription.associatedSubscriptions.get(associated2ndSubscriptionId);
-      expect(typeof associated2ndSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associated2ndSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associated2ndSubscription.memoOnArgs).toEqual(false);
       expect(associated2ndSubscription.keepMemo).toEqual(false);
       expect(typeof associated2ndSubscription.arg.getParams).toEqual("function");
@@ -2698,7 +2699,7 @@ describe("useSelector", () => {
       expect(typeof associated2ndSubscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[paramsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -2734,7 +2735,6 @@ describe("useSelector", () => {
 
   describe("parameterized selector subscriptions factory", () => {
     test("Should be able to create new selector subscription", () => {
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: [] });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -2791,7 +2791,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -2814,7 +2814,6 @@ describe("useSelector", () => {
     });
 
     test("Should be able to create already subscribed selector subscription with the same param", () => {
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: [] });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -2879,7 +2878,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -2908,7 +2907,6 @@ describe("useSelector", () => {
     });
 
     test("Should be able to create already subscribed selector subscription with different param", () => {
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: [] });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -2977,7 +2975,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3011,7 +3009,7 @@ describe("useSelector", () => {
       expect(otherSubscription.paramsId).toEqual(otherParamsId);
       expect(otherSubscription.params).toEqual(otherParams);
 
-      expect(typeof otherSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof otherSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(otherSubscription.memoOnArgs).toEqual(false);
       expect(otherSubscription.keepMemo).toEqual(false);
       expect(typeof otherSubscription.arg.getParams).toEqual("function");
@@ -3040,7 +3038,6 @@ describe("useSelector", () => {
     });
 
     test("Should be able to recreate subscription with different param when subscription is not held by other hooks", () => {
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: [] });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3109,7 +3106,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(newParamsId);
       expect(subscription.params).toEqual(newParams);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3132,7 +3129,6 @@ describe("useSelector", () => {
     });
 
     test("Should be able to recreate subscription with different param when subscription is held by other hooks", () => {
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: [] });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3209,7 +3205,7 @@ describe("useSelector", () => {
       expect(originalParamSubscription.paramsId).toEqual(paramsId);
       expect(originalParamSubscription.params).toEqual(params);
 
-      expect(typeof originalParamSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof originalParamSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(originalParamSubscription.memoOnArgs).toEqual(false);
       expect(originalParamSubscription.keepMemo).toEqual(false);
       expect(typeof originalParamSubscription.arg.getParams).toEqual("function");
@@ -3241,7 +3237,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(newParamsId);
       expect(subscription.params).toEqual(newParams);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3271,7 +3267,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with new associated parameterless subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3337,7 +3332,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3359,7 +3354,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -3390,7 +3385,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with existing associated parameterless subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3469,7 +3463,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3488,7 +3482,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -3608,7 +3602,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3645,7 +3639,7 @@ describe("useSelector", () => {
       expect(associatedSubscription.paramsId).toEqual(noParamsId);
       expect(associatedSubscription.params).toEqual(noParams);
 
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -3680,7 +3674,6 @@ describe("useSelector", () => {
 
     test("Should be able to create already subscribed associated parameterless selector subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3759,7 +3752,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3778,7 +3771,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -3809,7 +3802,6 @@ describe("useSelector", () => {
 
     test("Should be able to recreate selector subscription with associated parameterless subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const params = ["user1"];
       const sliceName = "testSlice";
       const selectorName = "userSelector";
@@ -3895,7 +3887,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(newParamsId);
       expect(subscription.params).toEqual(newParams);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -3914,7 +3906,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
       expect(typeof associatedSubscription.arg.getParams).toEqual("function");
@@ -3941,7 +3933,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with new associated parameterized (matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4020,7 +4011,7 @@ describe("useSelector", () => {
       expect(subscription.params).toEqual(params);
 
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -4041,7 +4032,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4072,7 +4063,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with existing associated parameterized (matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4162,7 +4152,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -4182,7 +4172,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4214,7 +4204,6 @@ describe("useSelector", () => {
 
     test("Should be able to create already subscribed selector subscription with existing associated parameterized (matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4314,7 +4303,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -4352,7 +4341,7 @@ describe("useSelector", () => {
       expect(associatedSubscription.paramsId).toEqual(paramsId);
       expect(associatedSubscription.params).toEqual(params);
 
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4388,7 +4377,6 @@ describe("useSelector", () => {
 
     test("Should be able to create already subscribed associated parameterized (matching-signature) selector subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4478,7 +4466,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -4498,7 +4486,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4530,7 +4518,6 @@ describe("useSelector", () => {
 
     test("Should be able to recreate selector subscription with associated parameterized (matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4628,7 +4615,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(newParamsId);
       expect(subscription.params).toEqual(newParams);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -4649,7 +4636,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const newAssociatedSubscription = subscription.associatedSubscriptions.get(newAssociatedSubscriptionId);
-      expect(typeof newAssociatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof newAssociatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof newAssociatedSubscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(newAssociatedSubscription.memoOnArgs).toEqual(false);
       expect(newAssociatedSubscription.keepMemo).toEqual(false);
@@ -4678,7 +4665,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with new associated parameterized (non-matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4760,7 +4746,7 @@ describe("useSelector", () => {
       expect(subscription.params).toEqual(params);
 
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
       expect(typeof subscription.arg.getParams).toEqual("function");
@@ -4781,7 +4767,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[associatedSelectorParamsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4812,7 +4798,6 @@ describe("useSelector", () => {
 
     test("Should be able to create new selector subscription with existing associated parameterized (non-matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -4905,7 +4890,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -4925,7 +4910,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[associatedSelectorParamsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -4957,7 +4942,6 @@ describe("useSelector", () => {
 
     test("Should be able to create already subscribed selector subscription with existing associated parameterized (non-matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -5060,7 +5044,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -5098,7 +5082,7 @@ describe("useSelector", () => {
       expect(associatedSubscription.paramsId).toEqual(associatedSubscriptionParamsId);
       expect(associatedSubscription.params).toEqual(associatedSelectorParams);
 
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[associatedSelectorParamsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -5134,7 +5118,6 @@ describe("useSelector", () => {
 
     test("Should be able to create already subscribed associated parameterized (non-matching-signature) selector subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -5230,7 +5213,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(paramsId);
       expect(subscription.params).toEqual(params);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -5250,7 +5233,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       const associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId)
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[associatedSelectorParamsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
@@ -5282,7 +5265,6 @@ describe("useSelector", () => {
 
     test("Should be able to recreate selector subscription with associated parameterized (non-matching-signature) subscription", () => {
       const noParams = [];
-      const { paramsId: noParamsId } = getSubscriptionIds({ selectorId: "", params: noParams });
       const paramsSignature = "userId/active";
       const params = ["user1", true];
       const sliceName = "testSlice";
@@ -5385,7 +5367,7 @@ describe("useSelector", () => {
       expect(subscription.paramsId).toEqual(newParamsId);
       expect(subscription.params).toEqual(newParams);
 
-      expect(typeof subscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof subscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof subscription.paramsMappers[paramsSignature]).toEqual("function");
       expect(subscription.memoOnArgs).toEqual(false);
       expect(subscription.keepMemo).toEqual(false);
@@ -5405,7 +5387,7 @@ describe("useSelector", () => {
       expect(typeof subscription.selectFunc).toEqual("function");
 
       associatedSubscription = subscription.associatedSubscriptions.get(associatedSubscriptionId);
-      expect(typeof associatedSubscription.paramsMappers[noParamsId]).toEqual("function");
+      expect(typeof associatedSubscription.paramsMappers[NO_PARAMS_SIGNATURE]).toEqual("function");
       expect(typeof associatedSubscription.paramsMappers[associatedSelectorParamsSignature]).toEqual("function");
       expect(associatedSubscription.memoOnArgs).toEqual(false);
       expect(associatedSubscription.keepMemo).toEqual(false);
