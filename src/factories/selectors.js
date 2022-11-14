@@ -27,6 +27,17 @@ export const getSelectorsFactory = ({
     selectors,
     selectorsImports,
   });
+  const { createMemoSubscription } = getSubscriptionsFactory({
+    stores,
+    slices,
+    actions,
+    actionsByType,
+    actionsImports,
+    selectors,
+    selectorsImports,
+  });
+  const noParamsMapper = () => [];
+  const equivalentParamsMapper = (params) => params;
   return {
     createSelector: ({
       storeName = DEFAULT_STORE,
@@ -49,15 +60,6 @@ export const getSelectorsFactory = ({
         isParameterized,
         paramsSignature,
       });
-      const { createMemoSubscription } = getSubscriptionsFactory({
-        stores,
-        slices,
-        actions,
-        actionsByType,
-        actionsImports,
-        selectors,
-        selectorsImports,
-      });
 
       if (!stores[storeName]) stores[storeName] = {};
       if (!stores[storeName].selectors) stores[storeName].selectors = {};
@@ -76,8 +78,8 @@ export const getSelectorsFactory = ({
           return acc;
         },
         isParameterized
-          ? { [NO_PARAMS_SIGNATURE]: () => [], [paramsSignature]: (params) => params }
-          : { [NO_PARAMS_SIGNATURE]: () => [] }
+          ? { [NO_PARAMS_SIGNATURE]: noParamsMapper, [paramsSignature]: equivalentParamsMapper }
+          : { [NO_PARAMS_SIGNATURE]: noParamsMapper }
       );
 
       const selectorHandle = {

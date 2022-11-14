@@ -1,4 +1,4 @@
-import { DEFAULT_STORE, DEFAULT_SLICE } from "../constants/store";
+import { DEFAULT_STORE, DEFAULT_SLICE, STATUS } from "../constants/store";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
 import { getActionsFactory } from "./actions";
@@ -103,6 +103,7 @@ describe("stores factory", () => {
     expect(stores[DEFAULT_STORE].getHooks).toEqual(getHooks);
 
     expect(stores[DEFAULT_STORE].initialized).toEqual(true);
+    expect(stores[DEFAULT_STORE].status).toEqual(STATUS.READY);
     expect(stores[DEFAULT_STORE].triggersStack).toEqual(new Map());
     expect(stores[DEFAULT_STORE].subscriptionsMatrix).toEqual(new Map());
     expect(typeof stores[DEFAULT_STORE].dispatch).toEqual("function");
@@ -166,6 +167,7 @@ describe("stores factory", () => {
     expect(stores[storeName].getSelectors).toEqual(getNonDefaultSelectors);
 
     expect(stores[storeName].initialized).toEqual(true);
+    expect(stores[storeName].status).toEqual(STATUS.READY);
     expect(stores[storeName].triggersStack).toEqual(new Map());
     expect(stores[storeName].subscriptionsMatrix).toEqual(new Map());
     expect(typeof stores[storeName].dispatch).toEqual("function");
