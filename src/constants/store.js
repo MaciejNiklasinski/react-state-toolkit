@@ -4,3 +4,10 @@ export const SLICES = {
   SERVICE: 'service',
   NAVIGATION: 'navigation',
 };
+
+export const STATUS = {
+  READY: "READY",
+  REDUCING: "REDUCING",
+  SELECTING: "SELECTING",
+  RENDERING: "RENDERING",
+};

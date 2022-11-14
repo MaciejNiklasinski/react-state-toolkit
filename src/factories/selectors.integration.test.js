@@ -1,3 +1,4 @@
+import { render } from '@testing-library/react'
 import { DEFAULT_STORE, DEFAULT_SLICE } from "../constants/store";
 import { getStoresFactory } from "./stores";
 import { getSlicesFactory } from "./slices";
@@ -5,7 +6,10 @@ import { getActionsFactory } from "./actions";
 import { getSelectorsFactory } from "./selectors";
 import { getImportersFactory } from "./importers";
 import { getSelectorId } from "./ids";
-import { UnableToInvokeUninitializedStoreSelector } from "../errors/UnableToInvokeUninitializedStoreSelector";
+import {
+  UnableToInvokeUninitializedStoreSelector,
+  UnableToInvokeSelectingStoreSelector,
+} from "../errors/UnableToInvokeSelector";
 
 let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
 let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
@@ -174,6 +178,50 @@ describe("multi func selector", () => {
     try { validSelector(); }
     catch (err) { error = err; }
     expect(error).toEqual(new UnableToInvokeUninitializedStoreSelector({ selectorId }));
+  });
+
+  test("Should throw correct error when associated selector has been executed directly inside selecting func of referencing it selector.", () => {
+    const sliceName = "testSlice";
+    const { obj1Selector } = createSelector({
+      sliceName,
+      name: "obj1Selector",
+      funcs: [(state) => state[sliceName].obj1]
+    });
+    const { validSelector } = createSelector({
+      sliceName,
+      name: "valid",
+      funcs: [
+        (state) => {
+          return obj1Selector(state);
+        },
+        (state) => state[sliceName].obj2,
+        (obj1, obj2) => obj1.value + obj2.value,
+      ]
+    });
+    const slice = createSlice({
+      name: sliceName,
+      reducer: {},
+      sliceSelectors: [validSelector, obj1Selector],
+      initialState: {
+        obj1: { value: 1 },
+        obj2: { value: 2 },
+      },
+    });
+    const {
+      useSelector
+    } = createStore({
+      storeSlices: { slice }
+    });
+
+    const App = () => {
+      const value = useSelector(validSelector);
+      return (<div>{`${value}`}</div>);
+    };
+
+    let error;
+    try { render(<App />); }
+    catch (err) { error = err; }
+    expect(error).toEqual(new UnableToInvokeSelectingStoreSelector({ selectorId: obj1Selector.__selectorId }));
   });
 
   test("Should be able to select value from initial state.", () => {

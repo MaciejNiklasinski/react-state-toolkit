@@ -1,4 +1,4 @@
-import { DEFAULT_STORE } from "../constants/store";
+import { DEFAULT_STORE, STATUS } from "../constants/store";
 import { getSubscriptionIds } from "./ids";
 
 export const getSubscriptionsFactory = ({
@@ -194,10 +194,14 @@ export const getSubscriptionsFactory = ({
       selectorId, funcs: [(state) => state]
     };
 
-    const subscription = subscriptionsMatrix.get(subscriptionId);
+    let subscription = subscriptionsMatrix.get(subscriptionId);
     if (!subscription) {
       validateSubscription({ storeName, selectorStoreName, selectorId });
-      return createSubscriptionHandle({
+      // Change value of store status only on top level of the recursive chain call.
+      const isRecursiveCall = !!associatedSubscriptionsChain;
+      const lastStatus = storeHandle.status;
+      if (!isRecursiveCall) storeHandle.status = STATUS.SELECTING;
+      subscription = createSubscriptionHandle({
         isCacheOnly,
         storeHandle,
         selectorHandle,
@@ -208,6 +212,8 @@ export const getSubscriptionsFactory = ({
         associatedSubscriptionsChain,
         validateSubscription,
       });
+      if (!isRecursiveCall) storeHandle.status = lastStatus;
+      return subscription;
     } else return addToSubscription({
       hookHandle,
       subscription,
