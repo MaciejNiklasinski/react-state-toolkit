@@ -87,7 +87,7 @@ export const getHooksFactory = ({
 
   const usePrev = (value) => {
     const ref = useRef();
-    useEffect(() => (ref.current = value), [value]);
+    useEffect(() => { ref.current = value; }, [value]);
     return ref.current;
   };
 
@@ -265,6 +265,8 @@ export const getHooksFactory = ({
   return {
     useMount,
     useUnmount,
+    useSingleUnmountInStrictMode,
+    useSingleEffectInStrictMode,
     useObj,
     useSymbol,
     useFirstRender,
