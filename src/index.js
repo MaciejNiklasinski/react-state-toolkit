@@ -5,6 +5,7 @@ import { getSlicesFactory } from "./factories/slices";
 import { getActionsFactory } from "./factories/actions";
 import { getSelectorsFactory } from "./factories/selectors";
 import { getImportersFactory } from "./factories/importers";
+import { getHooksFactory } from "./factories/hooks";
 
 const stores = {};
 const slices = {};
@@ -50,6 +51,15 @@ const selectorsFactory = getSelectorsFactory({
   selectorsImports,
 });
 const importersFactory = getImportersFactory({
+  stores,
+  slices,
+  actions,
+  actionsByType,
+  actionsImports,
+  selectors,
+  selectorsImports,
+});
+const hooksFactory = getHooksFactory({
   stores,
   slices,
   actions,
@@ -136,3 +146,13 @@ export const createSelector = ({
 export const createImporter = ({
   storeName = DEFAULT_STORE,
 } = {}) => importersFactory.createImporter({ storeName });
+
+export const useMount = hooksFactory.useMount;
+export const useUnmount = hooksFactory.useUnmount;
+export const useSingleUnmountInStrictMode = hooksFactory.useSingleUnmountInStrictMode;
+export const useSingleEffectInStrictMode = hooksFactory.useSingleEffectInStrictMode;
+export const useObj = hooksFactory.useObj;
+export const useSymbol = hooksFactory.useSymbol;
+export const useFirstRender = hooksFactory.useFirstRender;
+export const usePrev = hooksFactory.usePrev;
+export const usePrevState = hooksFactory.usePrevState;

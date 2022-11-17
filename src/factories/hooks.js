@@ -265,6 +265,8 @@ export const getHooksFactory = ({
   return {
     useMount,
     useUnmount,
+    useSingleUnmountInStrictMode,
+    useSingleEffectInStrictMode,
     useObj,
     useSymbol,
     useFirstRender,
