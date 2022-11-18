@@ -9,6 +9,7 @@ import {
   // Selector
   UnableToCreateInvalidNameSelector,
   UnableToCreateInvalidFuncsSelector,
+  UnableToCreateInvalidCompareFuncSelector,
   UnableToCreateForeignSelectorLinkedSelector,
   UnableToCreateSelectorLastFuncSelector,
   UnableToCreateInvalidMemoOnArgsSelector,
@@ -307,6 +308,22 @@ describe("selectors validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateInvalidFuncsSelector({ storeName: DEFAULT_STORE, sliceName, selectorName }));
+  });
+
+  test("Should throw correct error when attempting to create selector with invalid compare func.", () => {
+    const sliceName = "testSlice";
+    const name = `valid1`;
+    const selectorName = `${name}Selector`;
+    let error;
+    try {
+      createSelector({
+        sliceName,
+        name,
+        funcs: [(state) => state],
+        compareFunc: null
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateInvalidCompareFuncSelector({ storeName: DEFAULT_STORE, sliceName, selectorName }));
   });
 
   test("Should throw correct error when attempting to create selector referencing foreign store selector.", () => {

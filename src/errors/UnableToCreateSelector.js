@@ -72,6 +72,12 @@ export class UnableToCreateInvalidFuncsSelector extends UnableToCreateSelector {
   }
 };
 
+export class UnableToCreateInvalidCompareFuncSelector extends UnableToCreateSelector {
+  constructor({ storeName, sliceName, selectorName }) {
+    super({ storeName, sliceName, selectorName, baseMessageSuffix: "compareFunc must be a function taking two arguments and returning bool representing equality between them." });
+  }
+};
+
 export class UnableToCreateForeignSelectorLinkedSelector extends UnableToCreateSelector {
   constructor({ storeName, sliceName, selectorName, foreignSelectorId }) {
     super({ storeName, sliceName, selectorName, baseMessageSuffix: `as it is referencing foreign store selector ${foreignSelectorId}` });

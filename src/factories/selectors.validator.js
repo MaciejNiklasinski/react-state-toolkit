@@ -9,6 +9,7 @@ import {
   // Selector
   UnableToCreateInvalidNameSelector,
   UnableToCreateInvalidFuncsSelector,
+  UnableToCreateInvalidCompareFuncSelector,
   UnableToCreateForeignSelectorLinkedSelector,
   UnableToCreateSelectorLastFuncSelector,
   UnableToCreateInvalidMemoOnArgsSelector,
@@ -47,6 +48,7 @@ export const getSelectorValidator = ({
       sliceName,
       selectorName,
       funcs,
+      compareFunc,
       memoOnArgs,
       isParameterized,
       paramsSignature,
@@ -62,6 +64,8 @@ export const getSelectorValidator = ({
         !funcs.every(func => func instanceof Function)
       )
         throw new UnableToCreateInvalidFuncsSelector({ storeName, sliceName, selectorName });
+      else if (!(compareFunc instanceof Function))
+        throw new UnableToCreateInvalidCompareFuncSelector({ storeName, sliceName, selectorName });
 
       const foreignLinkedSelector = funcs.find(
         (func) => func.__storeName && storeName !== func.__storeName

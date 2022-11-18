@@ -104,6 +104,7 @@ describe("selector factory", () => {
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(typeof selectors[selectorId].compareFunc).toEqual("function");
     expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
@@ -143,6 +144,7 @@ describe("selector factory", () => {
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(typeof selectors[selectorId].compareFunc).toEqual("function");
     expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
@@ -178,6 +180,7 @@ describe("selector factory", () => {
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(typeof selectors[selectorId].compareFunc).toEqual("function");
     expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 
@@ -215,6 +218,7 @@ describe("selector factory", () => {
     expect(selectors[selectorId].referencedSelectorIds).toEqual([]);
     expect(typeof selectors[selectorId].clearCache).toEqual("function");
     expect(Array.isArray(selectors[selectorId].funcs)).toEqual(true);
+    expect(typeof selectors[selectorId].compareFunc).toEqual("function");
     expect(selectors[selectorId].funcs.length).toEqual(1);
   });
 

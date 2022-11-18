@@ -44,6 +44,7 @@ export const getSelectorsFactory = ({
       sliceName = DEFAULT_SLICE,
       name,
       funcs = [],
+      compareFunc = (a, b) => a === b,
       memoOnArgs = false,
       keepMemo = false,
       isParameterized = false,
@@ -56,6 +57,7 @@ export const getSelectorsFactory = ({
         sliceName,
         selectorName: suffixedName,
         funcs,
+        compareFunc,
         memoOnArgs,
         isParameterized,
         paramsSignature,
@@ -98,6 +100,7 @@ export const getSelectorsFactory = ({
           ({ __selectorId }) => __selectorId
         ),
         funcs: [...funcs],
+        compareFunc,
         clearCache: (...params) => {
           const { subscriptionId } = getSubscriptionIds({ selectorId, params });
           const subscription = stores[storeName].subscriptionsMatrix.get(subscriptionId);

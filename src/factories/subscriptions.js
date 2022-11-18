@@ -48,6 +48,8 @@ export const getSubscriptionsFactory = ({
       associatedSubscriptions,
       funcs: [],
       lastArgs: [],
+      compareArgs: [],
+      compareFunc: selectorHandle.compareFunc || (() => false),
       lastSelected: null,
       lastStateVersion: null,
       onSelectedChange: newSelected =>
@@ -58,7 +60,7 @@ export const getSubscriptionsFactory = ({
       onStateChange: newState => {
         const currentSelected = subscription.lastSelected;
         const newSelected = subscription.selectFunc(newState, params, subscription, paramsId);
-        if (currentSelected === newSelected) return;
+        if (subscription.compareFunc(currentSelected, newSelected)) return;
         subscription.onSelectedChange(newSelected);
       }
     };
@@ -69,8 +71,7 @@ export const getSubscriptionsFactory = ({
       associatedSubscriptionsChain.forEach(
         (associatedSubscriptions) => associatedSubscriptions.set(subscription.id, subscription)
       );
-      associatedSubscriptionsChain = [...associatedSubscriptionsChain, associatedSubscriptions]; // replace instead of push
-      //associatedSubscriptionsChain.push(associatedSubscriptions); // replace instead of push
+      associatedSubscriptionsChain = [...associatedSubscriptionsChain, associatedSubscriptions];
     }
 
     // TODO refactor this if else block into separate function
@@ -80,14 +81,17 @@ export const getSubscriptionsFactory = ({
           subscription.lastSelected = selectFunc(...subscription.lastArgs, subscription.arg);
           subscription.lastStateVersion = storeHandle.stateVersion;
           subscription.funcs.push((...args) => selectFunc(...args, subscription.arg));
+          subscription.compareArgs.push(subscription.compareFunc);
         } else if (!selectFunc.__selectorId) {
           const selected = selectFunc(storeHandle.state, subscription.arg);
           subscription.lastArgs.push(selected);
           subscription.funcs.push((state) => selectFunc(state, subscription.arg));
+          subscription.compareArgs.push((a, b) => a === b);
         } else {
           const funcSelectorId = selectFunc.__selectorId;
           const { storeName, subscriptionsMatrix } = storeHandle;
           const funcSelectorHandle = selectors[selectFunc.__selectorId];
+          subscription.compareArgs.push(funcSelectorHandle.compareFunc || ((a, b) => a === b));
           const funcParamsMapper = subscription.paramsMappers[funcSelectorHandle.paramsSignature];
           const funcParams = funcParamsMapper(params);
           const {
@@ -122,7 +126,9 @@ export const getSubscriptionsFactory = ({
               return args;
             } else if (!subscription.memoOnArgs) {
               subscription.lastSelected = selectFunc(...args);
-            } else if (args.some((arg, i) => arg !== subscription.lastArgs[i])) {
+            } else if (
+              args.some((arg, i) => !subscription.compareArgs[i](arg, subscription.lastArgs[i]))
+            ) {
               subscription.lastSelected = selectFunc(...args);
               subscription.lastArgs = args;
             }
