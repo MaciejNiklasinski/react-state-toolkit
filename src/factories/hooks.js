@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getHooksValidator } from "./hooks.validator";
 import { getSubscriptionsFactory } from "./subscriptions";
 
@@ -92,12 +92,8 @@ export const getHooksFactory = ({
   };
 
   const usePrevState = (initialState) => {
-    const [state, setState] = useState(initialState);
-    const prevState = usePrev(state);
-    return useMemo(
-      () => [prevState, state, setState],
-      [prevState, state, setState]
-    );
+    const [{ lastState, state }, setState] = useState({ state: initialState });
+    return [lastState, state, (newState) => setState({ lastState: state, state: newState })];
   };
 
   const getUseStoreState = ({ storeName, isStrictDevMode }) => isStrictDevMode ? () => {

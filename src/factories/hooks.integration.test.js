@@ -13,7 +13,7 @@ import { getSelectorId } from "./ids";
 let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
 let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 let useMount, useUnmount, useSingleUnmountInStrictMode, useSingleEffectInStrictMode, useObj, useSymbol,
-  useFirstRender, usePrev, usePrevState, getUseStoreState, getUseSelector, getUseSelectorMemo;
+  useFirstRender, usePrev, usePrevState;
 const reset = () => {
   stores = {};
   slices = {};
@@ -81,9 +81,6 @@ const reset = () => {
     useFirstRender,
     usePrev,
     usePrevState,
-    getUseStoreState,
-    getUseSelector,
-    getUseSelectorMemo,
   } = getHooksFactory({
     stores,
     slices,
@@ -334,6 +331,10 @@ test("usePrev returns correct value", () => {
   expect(rendersCount).toEqual(3);
   expect(prevValue).toEqual(0);
   expect(value).toEqual(1);
+  userEvent.click(increaseOtherValue);
+  expect(rendersCount).toEqual(4);
+  expect(prevValue).toEqual(1);
+  expect(value).toEqual(1);
 });
 
 test("usePrevState returns correct values", () => {
@@ -360,13 +361,21 @@ test("usePrevState returns correct values", () => {
   const increaseOtherValue = screen.getByText("increaseOtherValue");
   userEvent.click(increaseOtherValue);
   expect(rendersCount).toEqual(2);
-  expect(prevValue).toEqual(0);
+  expect(prevValue).toEqual(undefined);
   expect(value).toEqual(0);
   const increaseValue = screen.getByText("increaseValue");
   userEvent.click(increaseValue);
   expect(rendersCount).toEqual(3);
   expect(prevValue).toEqual(0);
   expect(value).toEqual(1);
+  userEvent.click(increaseOtherValue);
+  expect(rendersCount).toEqual(4);
+  expect(prevValue).toEqual(0);
+  expect(value).toEqual(1);
+  userEvent.click(increaseValue);
+  expect(rendersCount).toEqual(5);
+  expect(prevValue).toEqual(1);
+  expect(value).toEqual(2);
 });
 
 describe("useStoreState", () => {
