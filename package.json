@@ -1,7 +1,7 @@
 {
   "name": "react-state-toolkit",
   "version": "0.0.16",
-  "description": "React global store based exclusively on build-in React hooks, useState and useEffect.",
+  "description": "React global store based exclusively on React build-in hooks useEffect, useMemo, useRef and useState.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "types": "./lib/esm/index.d.ts",
