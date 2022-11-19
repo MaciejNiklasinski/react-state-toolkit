@@ -1,6 +1,6 @@
 <h2>Description:</h2>
 
-React global store based exclusively on build-in React hooks, useState and useEffect. General structure inspired by @reduxjs/toolkit.
+React global store based exclusively on React build-in hooks useEffect, useMemo, useRef and useState. General structure inspired by @reduxjs/toolkit.
 
 <h2>Installation:</h2>
 
