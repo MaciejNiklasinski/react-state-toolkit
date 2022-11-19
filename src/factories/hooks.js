@@ -92,12 +92,8 @@ export const getHooksFactory = ({
   };
 
   const usePrevState = (initialState) => {
-    const [state, setState] = useState(initialState);
-    const prevState = usePrev(state);
-    return useMemo(
-      () => [prevState, state, setState],
-      [prevState, state, setState]
-    );
+    const [{ lastState, state }, setState] = useState({ state: initialState });
+    return [lastState, state, (newState) => setState({ lastState: state, state: newState })];
   };
 
   const getUseStoreState = ({ storeName, isStrictDevMode }) => isStrictDevMode ? () => {
@@ -151,23 +147,22 @@ export const getHooksFactory = ({
     let selected;
     ([selected, hookHandle.setSelected] = useState(hookHandle.subscription.lastSelected));
 
-    // This should handle changing subscription should for new params
-    useSingleEffectInStrictMode(() => {
-      if (isFirstRender) return;
-      recreateHookSubscription({
-        storeName,
-        selectorId: selector.__selectorId,
-        selectorStoreName: selector.__storeName,
-        params,
-        hookHandle,
-        validateSubscription: validateUseSelector,
-      });
-      hookHandle.setSelected(hookHandle.subscription.lastSelected);
-    }, params);
+    // This should handle changing subscription for new params
+    useMemo(() => !isFirstRender && recreateHookSubscription({
+      storeName,
+      selectorId: selector.__selectorId,
+      selectorStoreName: selector.__storeName,
+      params,
+      hookHandle,
+      validateSubscription: validateUseSelector,
+    }), params);
 
     // This should handle unsubscribe when unmounting component
     useSingleUnmountInStrictMode(hookHandle.unsubscribe);
-    return selected;
+
+    // Return subscription lastSelected which might be different to useState selected
+    // if subscription has been recreated on params change 
+    return hookHandle.subscription.lastSelected;
   } : (selector, ...params) => {
     // This should create initial subscription
     const [hookHandle, isFirstRender] = useFirstRender(
@@ -183,23 +178,22 @@ export const getHooksFactory = ({
     let selected;
     ([selected, hookHandle.setSelected] = useState(hookHandle.subscription.lastSelected));
 
-    // This should handle changing subscription should for new params
-    useEffect(() => {
-      if (isFirstRender) return;
-      recreateHookSubscription({
-        storeName,
-        selectorId: selector.__selectorId,
-        selectorStoreName: selector.__storeName,
-        params,
-        hookHandle,
-        validateSubscription: validateUseSelector,
-      });
-      hookHandle.setSelected(hookHandle.subscription.lastSelected);
-    }, params);
+    // This should handle changing subscription for new params
+    useMemo(() => !isFirstRender && recreateHookSubscription({
+      storeName,
+      selectorId: selector.__selectorId,
+      selectorStoreName: selector.__storeName,
+      params,
+      hookHandle,
+      validateSubscription: validateUseSelector,
+    }), params);
 
     // This should handle unsubscribe when unmounting component
     useUnmount(hookHandle.unsubscribe);
-    return selected;
+
+    // Return subscription lastSelected which might be different to useState selected
+    // if subscription has been recreated on params change 
+    return hookHandle.subscription.lastSelected;
   };
 
   const getUseSelectorMemo = ({ storeName, isStrictDevMode }) => isStrictDevMode ? (selector, ...params) => {
@@ -215,19 +209,16 @@ export const getHooksFactory = ({
       })
     );
 
-    // This should handle changing subscription should for new params
-    useSingleEffectInStrictMode(() => {
-      if (isFirstRender) return;
-      recreateHookSubscription({
-        storeName,
-        selectorId: selector.__selectorId,
-        selectorStoreName: selector.__storeName,
-        params,
-        hookHandle,
-        isCacheOnly: true,
-        validateSubscription: validateUseSelectorMemo
-      });
-    }, params);
+    // This should handle changing subscription for new params
+    useMemo(() => !isFirstRender && recreateHookSubscription({
+      storeName,
+      selectorId: selector.__selectorId,
+      selectorStoreName: selector.__storeName,
+      params,
+      hookHandle,
+      isCacheOnly: true,
+      validateSubscription: validateUseSelectorMemo
+    }), params);
 
     // This should handle unsubscribe when unmounting component
     useSingleUnmountInStrictMode(hookHandle.unsubscribe);
@@ -244,19 +235,16 @@ export const getHooksFactory = ({
       })
     );
 
-    // This should handle changing subscription should for new params
-    useEffect(() => {
-      if (isFirstRender) return;
-      recreateHookSubscription({
-        storeName,
-        selectorId: selector.__selectorId,
-        selectorStoreName: selector.__storeName,
-        params,
-        hookHandle,
-        isCacheOnly: true,
-        validateSubscription: validateUseSelectorMemo
-      });
-    }, params);
+    // This should handle changing subscription for new params
+    useMemo(() => !isFirstRender && recreateHookSubscription({
+      storeName,
+      selectorId: selector.__selectorId,
+      selectorStoreName: selector.__storeName,
+      params,
+      hookHandle,
+      isCacheOnly: true,
+      validateSubscription: validateUseSelectorMemo
+    }), params);
 
     // This should handle unsubscribe when unmounting component
     useUnmount(hookHandle.unsubscribe);
