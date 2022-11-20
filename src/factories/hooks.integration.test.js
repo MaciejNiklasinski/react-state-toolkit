@@ -1134,6 +1134,9 @@ describe("useSelector", () => {
 
       render(<App />);
 
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(3);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(3);
+
       expect(childValue).toEqual(0);
       expect(showChild).toEqual(true);
 
@@ -1141,6 +1144,9 @@ describe("useSelector", () => {
       userEvent.click(setShowChildToFalse);
       expect(childValue).toEqual(0);
       expect(showChild).toEqual(false);
+
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(2);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(2);
 
       const setValueTo1 = screen.getByText("setValueTo1");
       userEvent.click(setValueTo1);
@@ -1151,6 +1157,9 @@ describe("useSelector", () => {
 
       expect(childValue).toEqual(1);
       expect(showChild).toEqual(true);
+
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(3);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(3);
 
       const setValueTo2 = screen.getByText("setValueTo2");
       userEvent.click(setValueTo2);
@@ -1909,6 +1918,9 @@ describe("useSelector", () => {
 
       render(<App />);
 
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(3);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(4);
+
       const initialRenderChildUser = childUser;
 
       expect(user).toBe(initialState.users[0]);
@@ -1921,6 +1933,9 @@ describe("useSelector", () => {
       expect(childUser).toBe(initialState.users[1]);
       expect(showChild).toEqual(false);
 
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(2);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(3);
+
       const setUser1 = screen.getByText("setUser1");
       userEvent.click(setUser1);
       expect(childUser).toBe(initialState.users[1]);
@@ -1931,6 +1946,9 @@ describe("useSelector", () => {
       expect(childUser).not.toBe(initialState.users[1]);
       expect(childUser).toEqual(initialState.users[1]);
       expect(showChild).toEqual(true);
+
+      expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(3);
+      expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(4);
 
       const setUser2 = screen.getByText("setUser2");
       userEvent.click(setUser2);
