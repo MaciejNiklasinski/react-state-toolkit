@@ -10,6 +10,9 @@ import {
   // Action
   UnableToCreateInvalidNameAction,
   UnableToCreateInvalidFuncAction,
+  UnableToCreateInvalidOnResolvedAction,
+  UnableToCreateInvalidOnRejectedAction,
+  UnableToCreateInvalidOnSettledAction,
   UnableToCreateExistingAction,
 } from '../errors/UnableToCreateAction';
 import { getSliceId, getActionId } from './ids';
@@ -40,7 +43,15 @@ export const getActionValidator = ({
   };
   return {
     // Actions
-    validateAction: ({ storeName, sliceName, actionName, func }) => {
+    validateAction: ({
+      storeName,
+      sliceName,
+      actionName,
+      func,
+      continueWithOnResolved = () => null,
+      continueWithOnRejected = () => null,
+      continueWithOnSettled = () => null,
+    }) => {
       validateActionStore({ storeName, sliceName, actionName });
       validateActionSlice({ storeName, sliceName, actionName });
 
@@ -48,6 +59,12 @@ export const getActionValidator = ({
         throw new UnableToCreateInvalidNameAction({ storeName, sliceName, actionName });
       else if (!func || !(func instanceof Function))
         throw new UnableToCreateInvalidFuncAction({ storeName, sliceName, actionName });
+      else if (!(continueWithOnResolved instanceof Function))
+        throw new UnableToCreateInvalidOnResolvedAction({ storeName, sliceName, actionName });
+      else if (!(continueWithOnRejected instanceof Function))
+        throw new UnableToCreateInvalidOnRejectedAction({ storeName, sliceName, actionName });
+      else if (!(continueWithOnSettled instanceof Function))
+        throw new UnableToCreateInvalidOnSettledAction({ storeName, sliceName, actionName });
       else if (actions[getActionId({ storeName, sliceName, actionName })])
         throw new UnableToCreateExistingAction({ storeName, sliceName, actionName });
     },

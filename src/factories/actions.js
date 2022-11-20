@@ -87,9 +87,20 @@ export const getActionsFactory = ({
       name,
       func,
       rethrow = true,
+      continueWithOnResolved = () => null,
+      continueWithOnRejected = () => null,
+      continueWithOnSettled = () => null,
     }) => {
       const suffixedName = suffixIfRequired(name, "Action");
-      validateAction({ storeName, sliceName, actionName: suffixedName, func });
+      validateAction({
+        storeName,
+        sliceName,
+        actionName: suffixedName,
+        func,
+        continueWithOnResolved,
+        continueWithOnRejected,
+        continueWithOnSettled,
+      });
 
       if (!stores[storeName]) stores[storeName] = {};
       if (!stores[storeName].actions) stores[storeName].actions = {};
@@ -123,6 +134,19 @@ export const getActionsFactory = ({
 
           try { stores[storeName].dispatch(result); }
           catch (error) { reject(error); }
+
+          if (!result.error) try {
+            const onResolved = continueWithOnResolved(param);
+            result.onResolved = onResolved instanceof Promise ? await onResolved : onResolved;
+          } catch (error) { result.onResolved = { error }; }
+          else try {
+            const onRejected = continueWithOnRejected(param);
+            result.onRejected = onRejected instanceof Promise ? await onRejected : onRejected;
+          } catch (error) { result.onRejected = { error }; }
+          try {
+            const onSettled = continueWithOnSettled(param);
+            result.onSettled = onSettled instanceof Promise ? await onSettled : onSettled;
+          } catch (error) { result.onSettled = { error }; }
 
           if (result.error && result.rethrow)
             reject(result.error)
