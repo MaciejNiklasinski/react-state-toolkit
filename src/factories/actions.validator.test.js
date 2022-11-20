@@ -10,6 +10,9 @@ import {
   // Action
   UnableToCreateInvalidNameAction,
   UnableToCreateInvalidFuncAction,
+  UnableToCreateInvalidOnResolvedAction,
+  UnableToCreateInvalidOnRejectedAction,
+  UnableToCreateInvalidOnSettledAction,
   UnableToCreateExistingAction,
 } from "../errors/UnableToCreateAction";
 import { getStoresFactory } from "./stores";
@@ -590,6 +593,57 @@ describe("async action validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateInvalidFuncAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
+  });
+
+  test("Should throw correct error when attempting to create async action with invalid continueWithOnResolved.", () => {
+    const sliceName = "testSlice";
+    const name = "validAsync";
+    const actionName = `${name}Action`;
+
+    let error;
+    try {
+      createAsyncAction({
+        sliceName,
+        name,
+        func: () => ({}),
+        continueWithOnResolved: [() => { }]
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateInvalidOnResolvedAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
+  });
+
+  test("Should throw correct error when attempting to create async action with invalid continueWithOnRejected.", () => {
+    const sliceName = "testSlice";
+    const name = "validAsync";
+    const actionName = `${name}Action`;
+
+    let error;
+    try {
+      createAsyncAction({
+        sliceName,
+        name,
+        func: () => ({}),
+        continueWithOnRejected: [() => { }]
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateInvalidOnRejectedAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
+  });
+
+  test("Should throw correct error when attempting to create async action with invalid continueWithOnSettled.", () => {
+    const sliceName = "testSlice";
+    const name = "validAsync";
+    const actionName = `${name}Action`;
+
+    let error;
+    try {
+      createAsyncAction({
+        sliceName,
+        name,
+        func: () => ({}),
+        continueWithOnSettled: [() => { }]
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateInvalidOnSettledAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
   });
 
   test("Should throw correct error when attempting to create existing async action.", () => {
