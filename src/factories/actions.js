@@ -43,14 +43,14 @@ export const getActionsFactory = ({
         stores[storeName].actions[sliceName] = {};
 
       const type = Symbol(name);
-      const action = params => {
+      const action = param => {
         const { getState, getActions, getSelectors, status } = stores[storeName];
         if (status === STATUS.REDUCING)
           throw new UnableToInvokeReducingStoreAction({ actionId });
         else if (status === STATUS.SELECTING)
           throw new UnableToInvokeSelectingStoreAction({ actionId });
-        const payload = func(params, { getState, getActions, getSelectors });
-        const result = { sliceName, params, type, payload };
+        const payload = func(param, { getState, getActions, getSelectors });
+        const result = { sliceName, param, type, payload };
         stores[storeName].dispatch(result);
         return result;
       };
@@ -70,10 +70,10 @@ export const getActionsFactory = ({
         [toScreamingSnakeCase(suffixedName)]: type,
       });
       actionsByType[type] = actions[actionId];
-      const safeAction = (...params) => {
+      const safeAction = (param) => {
         if (!stores[storeName]?.initialized)
           throw new UnableToInvokeUninitializedStoreAction({ actionId });
-        return action(...params);
+        return action(param);
       };
       return {
         ...actions[actionId],
@@ -101,24 +101,24 @@ export const getActionsFactory = ({
       const RESOLVED = Symbol(`${name}.${TYPE_SUFFIXES.RESOLVED}`);
       const type = { PENDING, REJECTED, RESOLVED };
 
-      const action = params => {
+      const action = param => {
         const { getState, getActions, getSelectors, status } = stores[storeName];
         if (status === STATUS.REDUCING)
           throw new UnableToInvokeReducingStoreAction({ actionId });
         else if (status === STATUS.SELECTING)
           throw new UnableToInvokeSelectingStoreAction({ actionId });
-        stores[storeName].dispatch({ sliceName, params, type: PENDING });
+        stores[storeName].dispatch({ sliceName, param, type: PENDING });
         return new Promise(async (resolve, reject) => {
           let result;
           try {
-            const payload = await func(params, {
+            const payload = await func(param, {
               getState,
               getActions,
               getSelectors,
             });
-            result = { sliceName, params, type: RESOLVED, payload };
+            result = { sliceName, param, type: RESOLVED, payload };
           } catch (error) {
-            result = { sliceName, params, type: REJECTED, error, rethrow };
+            result = { sliceName, param, type: REJECTED, error, rethrow };
           }
 
           try { stores[storeName].dispatch(result); }
@@ -146,10 +146,10 @@ export const getActionsFactory = ({
       actionsByType[PENDING] = actions[actionId];
       actionsByType[REJECTED] = actions[actionId];
       actionsByType[RESOLVED] = actions[actionId];
-      const safeAction = (...params) => {
+      const safeAction = (param) => {
         if (!stores[storeName]?.initialized)
           throw new UnableToInvokeUninitializedStoreAction({ actionId });
-        return action(...params);
+        return action(param);
       };
       return {
         ...actions[actionId],
