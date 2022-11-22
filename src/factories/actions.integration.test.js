@@ -2747,9 +2747,9 @@ describe("async action", () => {
       expect(action.param).toEqual("param");
       expect(action.payload).toEqual("param");
       expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
-      expect(action.onResolved).toEqual("continueWithOnResolved");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
       expect(action.onRejected).toEqual(undefined);
-      expect(action.onSettled).toEqual("continueWithOnSettled");
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
 
       const resolvedState = store.getState();
       const { [sliceName]: resolvedSliceState } = resolvedState;
@@ -2972,9 +2972,9 @@ describe("async action", () => {
       expect(action.param).toEqual("Resolved");
       expect(action.payload).toEqual("Resolved");
       expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
-      expect(action.onResolved).toEqual("continueWithOnResolved");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
       expect(action.onRejected).toEqual(undefined);
-      expect(action.onSettled).toEqual("continueWithOnSettled");
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
 
       const resolvedState = store.getState();
       const { [sliceName]: resolvedSliceState } = resolvedState;
@@ -3048,9 +3048,9 @@ describe("async action", () => {
       expect(action.param).toEqual("param");
       expect(action.payload).toEqual("param");
       expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
-      expect(action.onResolved).toEqual("continueWithOnResolved");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
       expect(action.onRejected).toEqual(undefined);
-      expect(action.onSettled).toEqual("continueWithOnSettled");
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
 
       const resolvedState = store.getState();
       const { [sliceName]: resolvedSliceState } = resolvedState;
@@ -3324,9 +3324,9 @@ describe("async action", () => {
       expect(action.param).toEqual("Resolved");
       expect(action.payload).toEqual("Resolved");
       expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
-      expect(action.onResolved).toEqual("continueWithOnResolved");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
       expect(action.onRejected).toEqual(undefined);
-      expect(action.onSettled).toEqual("continueWithOnSettled");
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
 
       const resolvedState = store.getState();
       const { [sliceName]: resolvedSliceState } = resolvedState;

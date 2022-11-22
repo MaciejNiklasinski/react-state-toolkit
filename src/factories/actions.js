@@ -136,16 +136,28 @@ export const getActionsFactory = ({
           catch (error) { reject(error); }
 
           if (!result.error) try {
-            const onResolved = continueWithOnResolved(param);
-            result.onResolved = onResolved instanceof Promise ? await onResolved : onResolved;
+            const onResolvedResult = continueWithOnResolved(param);
+            result.onResolved = {
+              result: onResolvedResult instanceof Promise
+                ? await onResolvedResult
+                : onResolvedResult
+            };
           } catch (error) { result.onResolved = { error }; }
           else try {
-            const onRejected = continueWithOnRejected(param);
-            result.onRejected = onRejected instanceof Promise ? await onRejected : onRejected;
+            const onRejectedResult = continueWithOnRejected(param);
+            result.onRejected = {
+              result: onRejectedResult instanceof Promise
+                ? await onRejectedResult
+                : onRejectedResult
+            };
           } catch (error) { result.onRejected = { error }; }
           try {
-            const onSettled = continueWithOnSettled(param);
-            result.onSettled = onSettled instanceof Promise ? await onSettled : onSettled;
+            const onSettledResult = continueWithOnSettled(param);
+            result.onSettled = {
+              result: onSettledResult instanceof Promise
+                ? await onSettledResult
+                : onSettledResult
+            };
           } catch (error) { result.onSettled = { error }; }
 
           if (result.error && result.rethrow)
