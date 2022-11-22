@@ -10,6 +10,7 @@ import {
   // Action
   UnableToCreateInvalidNameAction,
   UnableToCreateInvalidFuncAction,
+  UnableToCreateInvalidPrecedeWithAction,
   UnableToCreateInvalidOnResolvedAction,
   UnableToCreateInvalidOnRejectedAction,
   UnableToCreateInvalidOnSettledAction,
@@ -48,6 +49,7 @@ export const getActionValidator = ({
       sliceName,
       actionName,
       func,
+      precedeWith = () => null,
       continueWithOnResolved = () => null,
       continueWithOnRejected = () => null,
       continueWithOnSettled = () => null,
@@ -59,6 +61,8 @@ export const getActionValidator = ({
         throw new UnableToCreateInvalidNameAction({ storeName, sliceName, actionName });
       else if (!func || !(func instanceof Function))
         throw new UnableToCreateInvalidFuncAction({ storeName, sliceName, actionName });
+      else if (!(precedeWith instanceof Function))
+        throw new UnableToCreateInvalidPrecedeWithAction({ storeName, sliceName, actionName });
       else if (!(continueWithOnResolved instanceof Function))
         throw new UnableToCreateInvalidOnResolvedAction({ storeName, sliceName, actionName });
       else if (!(continueWithOnRejected instanceof Function))

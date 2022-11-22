@@ -114,11 +114,21 @@ export const createAsyncAction = ({
   sliceName,
   name,
   func,
+  rethrow,
+  precedeWith,
+  continueWithOnResolved,
+  continueWithOnRejected,
+  continueWithOnSettled,
 } = {}) => actionsFactory.createAsyncAction({
   storeName,
   sliceName,
   name,
   func,
+  rethrow,
+  precedeWith,
+  continueWithOnResolved,
+  continueWithOnRejected,
+  continueWithOnSettled,
 });
 
 export const createSelector = ({

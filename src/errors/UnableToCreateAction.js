@@ -79,6 +79,12 @@ export class UnableToCreateInvalidFuncAction extends UnableToCreateAction {
   }
 };
 
+export class UnableToCreateInvalidPrecedeWithAction extends UnableToCreateAction {
+  constructor({ storeName, sliceName, actionName }) {
+    super({ storeName, sliceName, actionName, baseMessageSuffix: "precedeWith must be a function." });
+  }
+};
+
 export class UnableToCreateInvalidOnResolvedAction extends UnableToCreateAction {
   constructor({ storeName, sliceName, actionName }) {
     super({ storeName, sliceName, actionName, baseMessageSuffix: "continueWithOnResolved must be a function." });
