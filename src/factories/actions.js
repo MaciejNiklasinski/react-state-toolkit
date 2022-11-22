@@ -43,14 +43,14 @@ export const getActionsFactory = ({
         stores[storeName].actions[sliceName] = {};
 
       const type = Symbol(name);
-      const action = params => {
+      const action = param => {
         const { getState, getActions, getSelectors, status } = stores[storeName];
         if (status === STATUS.REDUCING)
           throw new UnableToInvokeReducingStoreAction({ actionId });
         else if (status === STATUS.SELECTING)
           throw new UnableToInvokeSelectingStoreAction({ actionId });
-        const payload = func(params, { getState, getActions, getSelectors });
-        const result = { sliceName, params, type, payload };
+        const payload = func(param, { getState, getActions, getSelectors });
+        const result = { sliceName, param, type, payload };
         stores[storeName].dispatch(result);
         return result;
       };
@@ -70,10 +70,10 @@ export const getActionsFactory = ({
         [toScreamingSnakeCase(suffixedName)]: type,
       });
       actionsByType[type] = actions[actionId];
-      const safeAction = (...params) => {
+      const safeAction = (param) => {
         if (!stores[storeName]?.initialized)
           throw new UnableToInvokeUninitializedStoreAction({ actionId });
-        return action(...params);
+        return action(param);
       };
       return {
         ...actions[actionId],
@@ -87,9 +87,22 @@ export const getActionsFactory = ({
       name,
       func,
       rethrow = true,
+      precedeWith = () => null,
+      continueWithOnResolved = () => null,
+      continueWithOnRejected = () => null,
+      continueWithOnSettled = () => null,
     }) => {
       const suffixedName = suffixIfRequired(name, "Action");
-      validateAction({ storeName, sliceName, actionName: suffixedName, func });
+      validateAction({
+        storeName,
+        sliceName,
+        actionName: suffixedName,
+        func,
+        precedeWith,
+        continueWithOnResolved,
+        continueWithOnRejected,
+        continueWithOnSettled,
+      });
 
       if (!stores[storeName]) stores[storeName] = {};
       if (!stores[storeName].actions) stores[storeName].actions = {};
@@ -101,32 +114,71 @@ export const getActionsFactory = ({
       const RESOLVED = Symbol(`${name}.${TYPE_SUFFIXES.RESOLVED}`);
       const type = { PENDING, REJECTED, RESOLVED };
 
-      const action = params => {
+      const action = param => {
         const { getState, getActions, getSelectors, status } = stores[storeName];
         if (status === STATUS.REDUCING)
           throw new UnableToInvokeReducingStoreAction({ actionId });
         else if (status === STATUS.SELECTING)
           throw new UnableToInvokeSelectingStoreAction({ actionId });
-        stores[storeName].dispatch({ sliceName, params, type: PENDING });
         return new Promise(async (resolve, reject) => {
-          let result;
+          const pendingAction = { sliceName, param, type: PENDING };
+          const settledAction = { sliceName, param };
           try {
-            const payload = await func(params, {
+            const onPrecedeResult = precedeWith(param);
+            settledAction.onPrecede = pendingAction.onPrecede = {
+              result: onPrecedeResult instanceof Promise
+                ? await onPrecedeResult : onPrecedeResult
+            };
+          } catch (error) { settledAction.onPrecede = { error }; }
+
+          try { stores[storeName].dispatch(pendingAction); }
+          catch (error) { reject(error); }
+
+          try {
+            const payload = await func(param, {
               getState,
               getActions,
               getSelectors,
             });
-            result = { sliceName, params, type: RESOLVED, payload };
+            settledAction.type = RESOLVED;
+            settledAction.payload = payload;
           } catch (error) {
-            result = { sliceName, params, type: REJECTED, error, rethrow };
+            settledAction.type = REJECTED;
+            settledAction.error = error;
+            settledAction.rethrow = rethrow;
           }
 
-          try { stores[storeName].dispatch(result); }
+          try { stores[storeName].dispatch(settledAction); }
           catch (error) { reject(error); }
 
-          if (result.error && result.rethrow)
-            reject(result.error)
-          else resolve(result);
+          if (!settledAction.error) try {
+            const onResolvedResult = continueWithOnResolved(param);
+            settledAction.onResolved = {
+              result: onResolvedResult instanceof Promise
+                ? await onResolvedResult
+                : onResolvedResult
+            };
+          } catch (error) { settledAction.onResolved = { error }; }
+          else try {
+            const onRejectedResult = continueWithOnRejected(param);
+            settledAction.onRejected = {
+              result: onRejectedResult instanceof Promise
+                ? await onRejectedResult
+                : onRejectedResult
+            };
+          } catch (error) { settledAction.onRejected = { error }; }
+          try {
+            const onSettledResult = continueWithOnSettled(param);
+            settledAction.onSettled = {
+              result: onSettledResult instanceof Promise
+                ? await onSettledResult
+                : onSettledResult
+            };
+          } catch (error) { settledAction.onSettled = { error }; }
+
+          if (settledAction.error && settledAction.rethrow)
+            reject(settledAction.error)
+          else resolve(settledAction);
         });
       };
       stores[storeName].actions[sliceName][suffixedName] = action;
@@ -146,10 +198,10 @@ export const getActionsFactory = ({
       actionsByType[PENDING] = actions[actionId];
       actionsByType[REJECTED] = actions[actionId];
       actionsByType[RESOLVED] = actions[actionId];
-      const safeAction = (...params) => {
+      const safeAction = (param) => {
         if (!stores[storeName]?.initialized)
           throw new UnableToInvokeUninitializedStoreAction({ actionId });
-        return action(...params);
+        return action(param);
       };
       return {
         ...actions[actionId],
