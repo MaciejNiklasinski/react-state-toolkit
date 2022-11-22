@@ -2689,4 +2689,1123 @@ describe("async action", () => {
       expect(executionOrder).toEqual([VALID_ASYNC_ACTION.PENDING, VALID_ASYNC_ACTION.REJECTED, "settled"]);
     });
   });
+
+  describe("Can execute appropriately with sync continueWith function", () => {
+    test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: () => {
+          executionOrder.push("onPrecede");
+          return "onPrecede";
+        },
+        continueWithOnResolved: () => {
+          executionOrder.push("continueWithOnResolved");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: () => {
+          executionOrder.push("continueWithOnRejected");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: () => {
+          executionOrder.push("continueWithOnSettled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(false);
+      expect(oldSliceState === pendingSliceState).toEqual(false);
+      expect(pendingSliceState.value).toEqual("Pending");
+
+      const action = await promise;
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("param");
+      expect(action.payload).toEqual("param");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.result).toEqual("onPrecede");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(pendingState === resolvedState).toEqual(true);
+      expect(pendingSliceState === resolvedSliceState).toEqual(true);
+      expect(executionOrder).toEqual(["onPrecede", VALID_ASYNC_ACTION.PENDING, "continueWithOnResolved", "continueWithOnSettled", "settled"]);
+    });
+
+    test("Should correctly update when action with PENDING action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error()), 0)
+        ),
+        precedeWith: () => {
+          executionOrder.push("onPrecede");
+          return "onPrecede";
+        },
+        continueWithOnResolved: () => {
+          executionOrder.push("continueWithOnResolved");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: () => {
+          executionOrder.push("continueWithOnRejected");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: () => {
+          executionOrder.push("continueWithOnSettled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(false);
+      expect(oldSliceState === pendingSliceState).toEqual(false);
+      expect(pendingSliceState.value).toEqual("Pending");
+      let error;
+      try { await promise; }
+      catch (err) { error = err; }
+      finally { executionOrder.push("settled"); }
+      expect(error).toEqual(new Error());
+      const newState = store.getState();
+      const { [sliceName]: newSliceState } = newState;
+      expect(pendingState === newState).toEqual(true);
+      expect(pendingSliceState === newSliceState).toEqual(true);
+      expect(executionOrder).toEqual(["onPrecede", VALID_ASYNC_ACTION.PENDING, "continueWithOnRejected", "continueWithOnSettled", "settled"]);
+    });
+
+    test("Should correctly update when action with REJECTED action handlers got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: () => {
+          executionOrder.push("onPrecede");
+          return "onPrecede";
+        },
+        continueWithOnResolved: () => {
+          executionOrder.push("continueWithOnResolved");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: () => {
+          executionOrder.push("continueWithOnRejected");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: () => {
+          executionOrder.push("continueWithOnSettled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.REJECTED);
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      executionOrder.push("settled");
+      expect(error).toEqual(new Error("Rejected"));
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(false);
+      expect(oldSliceState === rejectedSliceState).toEqual(false);
+      expect(rejectedSliceState.value).toEqual(error.message);
+      expect(executionOrder).toEqual(["onPrecede", VALID_ASYNC_ACTION.REJECTED, "continueWithOnRejected", "continueWithOnSettled", "settled"]);
+    });
+
+    test("Should not update when action without REJECTED action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: () => {
+          executionOrder.push("onPrecede");
+          return "onPrecede";
+        },
+        continueWithOnResolved: () => {
+          executionOrder.push("continueWithOnResolved");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: () => {
+          executionOrder.push("continueWithOnRejected");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: () => {
+          executionOrder.push("continueWithOnSettled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {},
+        noHandlerTypes: [VALID_ASYNC_ACTION],
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new Error("Rejected"));
+      executionOrder.push("settled");
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(true);
+      expect(oldSliceState === rejectedSliceState).toEqual(true);
+      expect(executionOrder).toEqual(["onPrecede", "continueWithOnRejected", "continueWithOnSettled", "settled"]);
+    });
+
+    test("Should correctly update when action with RESOLVED action handlers got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: () => {
+          executionOrder.push("onPrecede");
+          return "onPrecede";
+        },
+        continueWithOnResolved: () => {
+          executionOrder.push("continueWithOnResolved");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: () => {
+          executionOrder.push("continueWithOnRejected");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: () => {
+          executionOrder.push("continueWithOnSettled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.RESOLVED);
+            state.value = action.payload;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const action = await validAsyncAction("Resolved");
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("Resolved");
+      expect(action.payload).toEqual("Resolved");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.result).toEqual("onPrecede");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(oldState === resolvedState).toEqual(false);
+      expect(oldSliceState === resolvedSliceState).toEqual(false);
+      expect(resolvedSliceState.value).toEqual("Resolved");
+      expect(executionOrder).toEqual(["onPrecede", VALID_ASYNC_ACTION.RESOLVED, "continueWithOnResolved", "continueWithOnSettled", "settled"]);
+    });
+  });
+
+  describe("Can execute appropriately with async precedeWith/continueWith function resolving without error", () => {
+    test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          return "onPrecede";
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(true);
+      expect(oldSliceState === pendingSliceState).toEqual(true);
+      expect(pendingSliceState.value).toEqual("Not yet executed");
+
+      const action = await promise;
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("param");
+      expect(action.payload).toEqual("param");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.result).toEqual("onPrecede");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(pendingState === resolvedState).toEqual(false);
+      expect(pendingSliceState === resolvedSliceState).toEqual(false);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.PENDING,
+        "continueWithOnResolved - pending",
+        "continueWithOnResolved - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with PENDING action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error()), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          return "onPrecede";
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(true);
+      expect(oldSliceState === pendingSliceState).toEqual(true);
+      expect(pendingSliceState.value).toEqual("Not yet executed");
+      let error;
+      try { await promise; }
+      catch (err) { error = err; }
+      finally { executionOrder.push("settled"); }
+      expect(error).toEqual(new Error());
+      const newState = store.getState();
+      const { [sliceName]: newSliceState } = newState;
+      expect(pendingState === newState).toEqual(false);
+      expect(pendingSliceState === newSliceState).toEqual(false);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.PENDING,
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with REJECTED action handlers got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          return "onPrecede";
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.REJECTED);
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      executionOrder.push("settled");
+      expect(error).toEqual(new Error("Rejected"));
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(false);
+      expect(oldSliceState === rejectedSliceState).toEqual(false);
+      expect(rejectedSliceState.value).toEqual(error.message);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.REJECTED,
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should not update when action without REJECTED action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          return "onPrecede";
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {},
+        noHandlerTypes: [VALID_ASYNC_ACTION],
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new Error("Rejected"));
+      executionOrder.push("settled");
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(true);
+      expect(oldSliceState === rejectedSliceState).toEqual(true);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with RESOLVED action handlers got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          return "onPrecede";
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          return "continueWithOnResolved";
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          return "continueWithOnRejected";
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          return "continueWithOnSettled";
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.RESOLVED);
+            state.value = action.payload;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const action = await validAsyncAction("Resolved");
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("Resolved");
+      expect(action.payload).toEqual("Resolved");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.result).toEqual("onPrecede");
+      expect(action.onResolved.result).toEqual("continueWithOnResolved");
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.result).toEqual("continueWithOnSettled");
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(oldState === resolvedState).toEqual(false);
+      expect(oldSliceState === resolvedSliceState).toEqual(false);
+      expect(resolvedSliceState.value).toEqual("Resolved");
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.RESOLVED,
+        "continueWithOnResolved - pending",
+        "continueWithOnResolved - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+  });
+
+  describe("Can execute appropriately with async continueWith function resolving with error", () => {
+    test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          throw new Error("onPrecede");
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          throw new Error("continueWithOnResolved");
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          throw new Error("continueWithOnRejected");
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          throw new Error("continueWithOnSettled");
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(true);
+      expect(oldSliceState === pendingSliceState).toEqual(true);
+      expect(pendingSliceState.value).toEqual("Not yet executed");
+
+      const action = await promise;
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("param");
+      expect(action.payload).toEqual("param");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.error).toEqual(new Error("onPrecede"));
+      expect(action.onResolved.error).toEqual(new Error("continueWithOnResolved"));
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.error).toEqual(new Error("continueWithOnSettled"));
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(pendingState === resolvedState).toEqual(false);
+      expect(pendingSliceState === resolvedSliceState).toEqual(false);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.PENDING,
+        "continueWithOnResolved - pending",
+        "continueWithOnResolved - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with PENDING action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error()), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          throw new Error("onPrecede");
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          throw new Error("continueWithOnResolved");
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          throw new Error("continueWithOnRejected");
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          throw new Error("continueWithOnSettled");
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.PENDING]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.PENDING);
+            state.value = "Pending";
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const promise = validAsyncAction("param");
+      const pendingState = store.getState();
+      const { [sliceName]: pendingSliceState } = pendingState;
+      expect(oldState === pendingState).toEqual(true);
+      expect(oldSliceState === pendingSliceState).toEqual(true);
+      expect(pendingSliceState.value).toEqual("Not yet executed");
+      let error;
+      try { await promise; }
+      catch (err) { error = err; }
+      finally { executionOrder.push("settled"); }
+      expect(error).toEqual(new Error());
+      const newState = store.getState();
+      const { [sliceName]: newSliceState } = newState;
+      expect(pendingState === newState).toEqual(false);
+      expect(pendingSliceState === newSliceState).toEqual(false);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.PENDING,
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with REJECTED action handlers got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          throw new Error("onPrecede");
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          throw new Error("continueWithOnResolved");
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          throw new Error("continueWithOnRejected");
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          throw new Error("continueWithOnSettled");
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.REJECTED);
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      executionOrder.push("settled");
+      expect(error).toEqual(new Error("Rejected"));
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(false);
+      expect(oldSliceState === rejectedSliceState).toEqual(false);
+      expect(rejectedSliceState.value).toEqual(error.message);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.REJECTED,
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should not update when action without REJECTED action handler got executed with error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Rejected")), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          throw new Error("onPrecede");
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          throw new Error("continueWithOnResolved");
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          throw new Error("continueWithOnRejected");
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          throw new Error("continueWithOnSettled");
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {},
+        noHandlerTypes: [VALID_ASYNC_ACTION],
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      let error;
+      try { await validAsyncAction(); }
+      catch (err) { error = err; }
+      expect(error).toEqual(new Error("Rejected"));
+      executionOrder.push("settled");
+      const rejectedState = store.getState();
+      const { [sliceName]: rejectedSliceState } = rejectedState;
+      expect(oldState === rejectedState).toEqual(true);
+      expect(oldSliceState === rejectedSliceState).toEqual(true);
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        "continueWithOnRejected - pending",
+        "continueWithOnRejected - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+
+    test("Should correctly update when action with RESOLVED action handlers got executed without error.", async () => {
+      const executionOrder = [];
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: async () => {
+          executionOrder.push("onPrecede - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("onPrecede - settled");
+          throw new Error("onPrecede");
+        },
+        continueWithOnResolved: async () => {
+          executionOrder.push("continueWithOnResolved - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnResolved - settled");
+          throw new Error("continueWithOnResolved");
+        },
+        continueWithOnRejected: async () => {
+          executionOrder.push("continueWithOnRejected - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnRejected - settled");
+          throw new Error("continueWithOnRejected");
+        },
+        continueWithOnSettled: async () => {
+          executionOrder.push("continueWithOnSettled - pending");
+          await new Promise((resolve) => resolve(), 0);
+          executionOrder.push("continueWithOnSettled - settled");
+          throw new Error("continueWithOnSettled");
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => {
+            executionOrder.push(VALID_ASYNC_ACTION.RESOLVED);
+            state.value = action.payload;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const oldState = store.getState();
+      const { [sliceName]: oldSliceState } = oldState;
+      const action = await validAsyncAction("Resolved");
+      executionOrder.push("settled");
+
+      expect(action.sliceName).toEqual(sliceName);
+      expect(action.param).toEqual("Resolved");
+      expect(action.payload).toEqual("Resolved");
+      expect(action.type).toEqual(VALID_ASYNC_ACTION.RESOLVED);
+      expect(action.onPrecede.error).toEqual(new Error("onPrecede"));
+      expect(action.onResolved.error).toEqual(new Error("continueWithOnResolved"));
+      expect(action.onRejected).toEqual(undefined);
+      expect(action.onSettled.error).toEqual(new Error("continueWithOnSettled"));
+
+      const resolvedState = store.getState();
+      const { [sliceName]: resolvedSliceState } = resolvedState;
+      expect(oldState === resolvedState).toEqual(false);
+      expect(oldSliceState === resolvedSliceState).toEqual(false);
+      expect(resolvedSliceState.value).toEqual("Resolved");
+      expect(executionOrder).toEqual([
+        "onPrecede - pending",
+        "onPrecede - settled",
+        VALID_ASYNC_ACTION.RESOLVED,
+        "continueWithOnResolved - pending",
+        "continueWithOnResolved - settled",
+        "continueWithOnSettled - pending",
+        "continueWithOnSettled - settled",
+        "settled"
+      ]);
+    });
+  });
 });
