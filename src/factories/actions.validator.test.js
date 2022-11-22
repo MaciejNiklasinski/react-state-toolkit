@@ -10,6 +10,7 @@ import {
   // Action
   UnableToCreateInvalidNameAction,
   UnableToCreateInvalidFuncAction,
+  UnableToCreateInvalidPrecedeWithAction,
   UnableToCreateInvalidOnResolvedAction,
   UnableToCreateInvalidOnRejectedAction,
   UnableToCreateInvalidOnSettledAction,
@@ -593,6 +594,23 @@ describe("async action validator", () => {
       });
     } catch (err) { error = err; }
     expect(error).toEqual(new UnableToCreateInvalidFuncAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
+  });
+
+  test("Should throw correct error when attempting to create async action with invalid precedeWith.", () => {
+    const sliceName = "testSlice";
+    const name = "validAsync";
+    const actionName = `${name}Action`;
+
+    let error;
+    try {
+      createAsyncAction({
+        sliceName,
+        name,
+        func: () => ({}),
+        precedeWith: [() => { }]
+      });
+    } catch (err) { error = err; }
+    expect(error).toEqual(new UnableToCreateInvalidPrecedeWithAction({ storeName: DEFAULT_STORE, sliceName, actionName }));
   });
 
   test("Should throw correct error when attempting to create async action with invalid continueWithOnResolved.", () => {
