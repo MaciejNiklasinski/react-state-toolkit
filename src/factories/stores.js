@@ -41,7 +41,9 @@ export const getStoresFactory = ({
 
       const {
         getUseStoreState,
+        getUsePrevStoreState,
         getUseSelector,
+        getUsePrevSelector,
         getUseSelectorMemo
       } = getHooksFactory({
         stores,
@@ -91,7 +93,9 @@ export const getStoresFactory = ({
       };
 
       const useStoreState = getUseStoreState({ storeName: name, isStrictDevMode });
+      const usePrevStoreState = getUsePrevStoreState({ storeName: name, isStrictDevMode });
       const useSelector = getUseSelector({ storeName: name, isStrictDevMode });
+      const usePrevSelector = getUsePrevSelector({ storeName: name, isStrictDevMode });
       const useSelectorMemo = getUseSelectorMemo({ storeName: name, isStrictDevMode });
 
       const getState = (sliceName = null) =>
@@ -122,8 +126,11 @@ export const getStoresFactory = ({
       stores[name].triggersStack = triggersStack;
       stores[name].subscriptionsMatrix = subscriptionsMatrix;
       stores[name].dispatch = dispatch;
+      stores[name].withStore = withStore;
       stores[name].useStoreState = useStoreState;
+      stores[name].usePrevStoreState = usePrevStoreState;
       stores[name].useSelector = useSelector;
+      stores[name].usePrevSelector = usePrevSelector;
       stores[name].getState = getState;
       stores[name].getActions = getActions;
       stores[name].getSelectors = getSelectors;
@@ -143,7 +150,9 @@ export const getStoresFactory = ({
       let storeExport = {
         withStore,
         useStoreState,
+        usePrevStoreState,
         useSelector,
+        usePrevSelector,
         useSelectorMemo,
         getState,
         getActions,
@@ -155,7 +164,9 @@ export const getStoresFactory = ({
           ...storeExport,
           [insertCapitalized('withStore', 4, name)]: withStore,
           [insertCapitalized('useStoreState', 3, name)]: useStoreState,
+          [insertCapitalized('usePrevStoreState', 3, name)]: usePrevStoreState,
           [insertCapitalized('useSelector', 3, name)]: useSelector,
+          [insertCapitalized('usePrevSelector', 3, name)]: usePrevSelector,
           [insertCapitalized('useSelectorMemo', 3, name)]: useSelectorMemo,
           [insertCapitalized('getState', 3, name)]: getState,
           [insertCapitalized('getActions', 3, name)]: getActions,
