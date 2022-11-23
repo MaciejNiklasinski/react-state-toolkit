@@ -138,9 +138,8 @@ export const getSubscriptionsFactory = ({
       subscription.lastStateVersion = storeHandle.stateVersion;
       subscription.funcs.push((state) => selectFunc(state, subscription.arg));
       subscription.selectFunc = (state) => {
-        if (subscription.lastStateVersion !== storeHandle.stateVersion) {
+        if (subscription.lastStateVersion !== storeHandle.stateVersion)
           subscription.lastSelected = subscription.funcs[0](state);
-        }
         subscription.lastStateVersion = storeHandle.stateVersion;
         return subscription.lastSelected;
       };
