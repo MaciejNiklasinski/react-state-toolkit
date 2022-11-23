@@ -77,8 +77,10 @@ describe("stores factory", () => {
     });
     const {
       withStore,
+      usePrevStoreState,
       useStoreState,
       useSelector,
+      usePrevSelector,
       getState,
       getActions,
       getSelectors,
@@ -89,14 +91,19 @@ describe("stores factory", () => {
 
     expect(typeof withStore).toEqual("function");
     expect(typeof useStoreState).toEqual("function");
+    expect(typeof usePrevStoreState).toEqual("function");
     expect(typeof useSelector).toEqual("function");
+    expect(typeof usePrevSelector).toEqual("function");
     expect(typeof getState).toEqual("function");
     expect(typeof getActions).toEqual("function");
     expect(typeof getSelectors).toEqual("function");
     expect(typeof getHooks).toEqual("function");
 
+    expect(stores[DEFAULT_STORE].withStore).toEqual(withStore);
     expect(stores[DEFAULT_STORE].useStoreState).toEqual(useStoreState);
+    expect(stores[DEFAULT_STORE].usePrevStoreState).toEqual(usePrevStoreState);
     expect(stores[DEFAULT_STORE].useSelector).toEqual(useSelector);
+    expect(stores[DEFAULT_STORE].usePrevSelector).toEqual(usePrevSelector);
     expect(stores[DEFAULT_STORE].getState).toEqual(getState);
     expect(stores[DEFAULT_STORE].getActions).toEqual(getActions);
     expect(stores[DEFAULT_STORE].getSelectors).toEqual(getSelectors);
@@ -127,14 +134,18 @@ describe("stores factory", () => {
     const {
       withStore,
       useStoreState,
+      usePrevStoreState,
       useSelector,
+      usePrevSelector,
       getState,
       getActions,
       getSelectors,
       getHooks,
       withNonDefaultStore,
       useNonDefaultStoreState,
+      useNonDefaultPrevStoreState,
       useNonDefaultSelector,
+      useNonDefaultPrevSelector,
       getNonDefaultState,
       getNonDefaultActions,
       getNonDefaultSelectors,
@@ -146,7 +157,9 @@ describe("stores factory", () => {
 
     expect(typeof withStore).toEqual("function");
     expect(typeof useStoreState).toEqual("function");
+    expect(typeof usePrevStoreState).toEqual("function");
     expect(typeof useSelector).toEqual("function");
+    expect(typeof usePrevSelector).toEqual("function");
     expect(typeof getState).toEqual("function");
     expect(typeof getActions).toEqual("function");
     expect(typeof getSelectors).toEqual("function");
@@ -154,14 +167,19 @@ describe("stores factory", () => {
 
     expect(withStore).toEqual(withNonDefaultStore);
     expect(useStoreState).toEqual(useNonDefaultStoreState);
+    expect(usePrevStoreState).toEqual(useNonDefaultPrevStoreState);
     expect(useSelector).toEqual(useNonDefaultSelector);
+    expect(usePrevSelector).toEqual(useNonDefaultPrevSelector);
     expect(getState).toEqual(getNonDefaultState);
     expect(getActions).toEqual(getNonDefaultActions);
     expect(getSelectors).toEqual(getNonDefaultSelectors);
     expect(getHooks).toEqual(getNonDefaultHooks);
 
+    expect(stores[storeName].withStore).toEqual(withNonDefaultStore);
     expect(stores[storeName].useStoreState).toEqual(useNonDefaultStoreState);
+    expect(stores[storeName].usePrevStoreState).toEqual(useNonDefaultPrevStoreState);
     expect(stores[storeName].useSelector).toEqual(useNonDefaultSelector);
+    expect(stores[storeName].usePrevSelector).toEqual(useNonDefaultPrevSelector);
     expect(stores[storeName].getState).toEqual(getNonDefaultState);
     expect(stores[storeName].getActions).toEqual(getNonDefaultActions);
     expect(stores[storeName].getSelectors).toEqual(getNonDefaultSelectors);

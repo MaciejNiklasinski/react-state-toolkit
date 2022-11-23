@@ -48,7 +48,8 @@ export const getSubscriptionsFactory = ({
       associatedSubscriptions,
       funcs: [],
       lastArgs: [],
-      lastSelected: null,
+      prevSelected: undefined,
+      lastSelected: undefined,
       lastStateVersion: null,
       onSelectedChange: newSelected =>
         triggers.forEach((trigger) => {
@@ -59,6 +60,7 @@ export const getSubscriptionsFactory = ({
         const currentSelected = subscription.lastSelected;
         const newSelected = subscription.selectFunc(newState, params, subscription, paramsId);
         if (currentSelected === newSelected) return;
+        subscription.prevSelected = currentSelected;
         subscription.onSelectedChange(newSelected);
       }
     };
