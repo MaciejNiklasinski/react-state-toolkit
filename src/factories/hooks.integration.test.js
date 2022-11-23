@@ -795,8 +795,9 @@ describe("useSelector", () => {
       });
 
       let appRenders = 0;
+      let value;
       const App = () => {
-        const value = useSelector(valueSelector);
+        value = useSelector(valueSelector);
         appRenders++;
         return (
           <div>
@@ -811,12 +812,12 @@ describe("useSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(valueSelector(getState())).toEqual(0);
+      expect(value).toEqual(0);
       expect(appRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(valueSelector(getState())).toEqual(1);
+      expect(value).toEqual(1);
       expect(appRenders).toEqual(2);
     });
 
@@ -850,8 +851,9 @@ describe("useSelector", () => {
       });
 
       let appRenders = 0;
+      let isFalsyValue;
       const App = () => {
-        const isFalsyValue = useSelector(isFalsyValueSelector);
+        isFalsyValue = useSelector(isFalsyValueSelector);
         appRenders++;
         return (
           <div>
@@ -866,12 +868,12 @@ describe("useSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(isFalsyValueSelector(getState())).toEqual(true);
+      expect(isFalsyValue).toEqual(true);
       expect(appRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(isFalsyValueSelector(getState())).toEqual(true);
+      expect(isFalsyValue).toEqual(true);
       expect(appRenders).toEqual(1);
     });
 
@@ -911,8 +913,9 @@ describe("useSelector", () => {
       });
 
       let appRenders = 0;
+      let value;
       const App = () => {
-        const value = useSelector(valueSelector);
+        value = useSelector(valueSelector);
         appRenders++;
         return (
           <div>
@@ -928,13 +931,13 @@ describe("useSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(valueSelector(getState())).toEqual(0);
+      expect(value).toEqual(0);
       expect(appRenders).toEqual(1);
       expect(childRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(valueSelector(getState())).toEqual(1);
+      expect(value).toEqual(1);
       expect(appRenders).toEqual(2);
       expect(childRenders).toEqual(1);
     });
@@ -2184,8 +2187,9 @@ describe("usePrevSelector", () => {
       });
 
       let appRenders = 0;
+      let prevValue, value;
       const App = () => {
-        const [prevValue, value] = usePrevSelector(valueSelector);
+        [prevValue, value] = usePrevSelector(valueSelector);
         appRenders++;
         return (
           <div>
@@ -2201,12 +2205,14 @@ describe("usePrevSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(valueSelector(getState())).toEqual(0);
+      expect(prevValue).toEqual(undefined);
+      expect(value).toEqual(0);
       expect(appRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(valueSelector(getState())).toEqual(1);
+      expect(prevValue).toEqual(0);
+      expect(value).toEqual(1);
       expect(appRenders).toEqual(2);
     });
 
@@ -2240,8 +2246,9 @@ describe("usePrevSelector", () => {
       });
 
       let appRenders = 0;
+      let prevIsFalsyValue, isFalsyValue;
       const App = () => {
-        const [prevIsFalsyValue, isFalsyValue] = usePrevSelector(isFalsyValueSelector);
+        [prevIsFalsyValue, isFalsyValue] = usePrevSelector(isFalsyValueSelector);
         appRenders++;
         return (
           <div>
@@ -2257,12 +2264,13 @@ describe("usePrevSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(isFalsyValueSelector(getState())).toEqual(true);
+      expect(prevIsFalsyValue).toEqual(undefined);
+      expect(isFalsyValue).toEqual(true);
       expect(appRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(isFalsyValueSelector(getState())).toEqual(true);
+      expect(isFalsyValue).toEqual(true);
       expect(appRenders).toEqual(1);
     });
 
@@ -2302,8 +2310,9 @@ describe("usePrevSelector", () => {
       });
 
       let appRenders = 0;
+      let prevValue, value;
       const App = () => {
-        const [prevValue, value] = usePrevSelector(valueSelector);
+        [prevValue, value] = usePrevSelector(valueSelector);
         appRenders++;
         return (
           <div>
@@ -2320,13 +2329,15 @@ describe("usePrevSelector", () => {
       expect(stores[DEFAULT_STORE].triggersStack.size).toEqual(1);
       expect(stores[DEFAULT_STORE].subscriptionsMatrix.size).toEqual(1);
 
-      expect(valueSelector(getState())).toEqual(0);
+      expect(prevValue).toEqual(undefined);
+      expect(value).toEqual(0);
       expect(appRenders).toEqual(1);
       expect(childRenders).toEqual(1);
 
       const setValue = screen.getByText("setValue");
       userEvent.click(setValue);
-      expect(valueSelector(getState())).toEqual(1);
+      expect(prevValue).toEqual(0);
+      expect(value).toEqual(1);
       expect(appRenders).toEqual(2);
       expect(childRenders).toEqual(1);
     });
