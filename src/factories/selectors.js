@@ -103,7 +103,8 @@ export const getSelectorsFactory = ({
           const subscription = stores[storeName].subscriptionsMatrix.get(subscriptionId);
           if (!subscription[subscriptionId]) return;
           subscription.lastArgs = [];
-          subscription.lastSelected = null;
+          subscription.prevSelected = undefined;
+          subscription.lastSelected = undefined;
         },
       };
       selectors[selectorId] = selectorHandle;
