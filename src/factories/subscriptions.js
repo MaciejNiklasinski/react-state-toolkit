@@ -60,6 +60,7 @@ export const getSubscriptionsFactory = ({
         const currentSelected = subscription.lastSelected;
         const newSelected = subscription.selectFunc(newState, params, subscription, paramsId);
         if (currentSelected === newSelected) return;
+        subscription.prevSelected = currentSelected;
         subscription.onSelectedChange(newSelected);
       }
     };
@@ -122,10 +123,8 @@ export const getSubscriptionsFactory = ({
               args.push(selectFunc(state));
               return args;
             } else if (!subscription.memoOnArgs) {
-              subscription.prevSelected = subscription.lastSelected;
               subscription.lastSelected = selectFunc(...args);
             } else if (args.some((arg, i) => arg !== subscription.lastArgs[i])) {
-              subscription.prevSelected = subscription.lastSelected;
               subscription.lastSelected = selectFunc(...args);
               subscription.lastArgs = args;
             }
@@ -140,7 +139,6 @@ export const getSubscriptionsFactory = ({
       subscription.funcs.push((state) => selectFunc(state, subscription.arg));
       subscription.selectFunc = (state) => {
         if (subscription.lastStateVersion !== storeHandle.stateVersion) {
-          subscription.prevSelected = subscription.lastSelected;
           subscription.lastSelected = subscription.funcs[0](state);
         }
         subscription.lastStateVersion = storeHandle.stateVersion;
