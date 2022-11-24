@@ -2690,7 +2690,7 @@ describe("async action", () => {
     });
   });
 
-  describe("Can execute appropriately with sync continueWith function", () => {
+  describe("Can execute appropriately with sync precedeWith/continueWith function", () => {
     test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
       const executionOrder = [];
       const sliceName = "testSlice";
@@ -3408,7 +3408,7 @@ describe("async action", () => {
     });
   });
 
-  describe("Can execute appropriately with async continueWith function resolving with error", () => {
+  describe("Can execute appropriately with async precedeWith/continueWith function resolving with error", () => {
     test("Should correctly update when action with PENDING action handler got executed without error.", async () => {
       const executionOrder = [];
       const sliceName = "testSlice";
@@ -3806,6 +3806,159 @@ describe("async action", () => {
         "continueWithOnSettled - settled",
         "settled"
       ]);
+    });
+  });
+
+  describe("Can execute precedeWith/continueWith function with correct parameters", () => {
+    test("When action with RESOLVED action handlers got executed without error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      let pendingActionObject, pendingActionSnapshot, pendingStoreArg;
+      let resolvedActionObject, resolvedActionSnapshot, resolvedStoreArg;
+      let rejectedActionObject, rejectedActionSnapshot, rejectedStoreArg;
+      let settledActionObject, settledActionSnapshot, settledStoreArg;
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: (value) => new Promise(
+          (resolve) => setTimeout(() => resolve(value), 0)
+        ),
+        precedeWith: (actionObject, storeArg) => {
+          pendingActionObject = actionObject;
+          pendingActionSnapshot = { ...actionObject };
+          pendingStoreArg = storeArg;
+        },
+        continueWithOnResolved: (actionObject, storeArg) => {
+          resolvedActionObject = actionObject;
+          resolvedActionSnapshot = { ...actionObject };
+          resolvedStoreArg = storeArg;
+        },
+        continueWithOnRejected: (actionObject, storeArg) => {
+          rejectedActionObject = actionObject;
+          rejectedActionSnapshot = { ...actionObject };
+          rejectedStoreArg = storeArg;
+        },
+        continueWithOnSettled: (actionObject, storeArg) => {
+          settledActionObject = actionObject;
+          settledActionSnapshot = { ...actionObject };
+          settledStoreArg = storeArg;
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.RESOLVED]: (state, action) => {
+            state.value = action.payload;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      const action = await validAsyncAction("Resolved");
+
+      expect(pendingActionObject).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.PENDING, onPrecede: { result: undefined } });
+      expect(pendingActionSnapshot).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.PENDING });
+      expect(typeof pendingStoreArg.getState).toEqual("function");
+      expect(typeof pendingStoreArg.getActions).toEqual("function");
+      expect(typeof pendingStoreArg.getSelectors).toEqual("function");
+
+      expect(resolvedActionObject).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.RESOLVED, payload: "Resolved", onPrecede: { result: undefined }, onResolved: { result: undefined }, onSettled: { result: undefined } });
+      expect(resolvedActionSnapshot).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.RESOLVED, payload: "Resolved", onPrecede: { result: undefined } });
+      expect(typeof resolvedStoreArg.getState).toEqual("function");
+      expect(typeof resolvedStoreArg.getActions).toEqual("function");
+      expect(typeof resolvedStoreArg.getSelectors).toEqual("function");
+
+      expect(rejectedActionObject).toEqual(undefined);
+      expect(rejectedActionSnapshot).toEqual(undefined);
+      expect(rejectedStoreArg).toEqual(undefined);
+
+      expect(settledActionObject).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.RESOLVED, payload: "Resolved", onPrecede: { result: undefined }, onResolved: { result: undefined }, onSettled: { result: undefined } });
+      expect(settledActionSnapshot).toEqual({ sliceName, param: "Resolved", type: VALID_ASYNC_ACTION.RESOLVED, payload: "Resolved", onPrecede: { result: undefined }, onResolved: { result: undefined } });
+      expect(typeof settledStoreArg.getState).toEqual("function");
+      expect(typeof settledStoreArg.getActions).toEqual("function");
+      expect(typeof settledStoreArg.getSelectors).toEqual("function");
+    });
+
+    test("When action with REJECTED action handlers got executed with error.", async () => {
+      const sliceName = "testSlice";
+      const name = "validAsync";
+      let pendingActionObject, pendingActionSnapshot, pendingStoreArg;
+      let resolvedActionObject, resolvedActionSnapshot, resolvedStoreArg;
+      let rejectedActionObject, rejectedActionSnapshot, rejectedStoreArg;
+      let settledActionObject, settledActionSnapshot, settledStoreArg;
+      const {
+        validAsyncAction,
+        VALID_ASYNC_ACTION
+      } = createAsyncAction({
+        sliceName,
+        name,
+        func: () => new Promise(
+          (resolve, reject) => setTimeout(() => reject(new Error("Test")), 0)
+        ),
+        precedeWith: (actionObject, storeArg) => {
+          pendingActionObject = actionObject;
+          pendingActionSnapshot = { ...actionObject };
+          pendingStoreArg = storeArg;
+        },
+        continueWithOnResolved: (actionObject, storeArg) => {
+          resolvedActionObject = actionObject;
+          resolvedActionSnapshot = { ...actionObject };
+          resolvedStoreArg = storeArg;
+        },
+        continueWithOnRejected: (actionObject, storeArg) => {
+          rejectedActionObject = actionObject;
+          rejectedActionSnapshot = { ...actionObject };
+          rejectedStoreArg = storeArg;
+        },
+        continueWithOnSettled: (actionObject, storeArg) => {
+          settledActionObject = actionObject;
+          settledActionSnapshot = { ...actionObject };
+          settledStoreArg = storeArg;
+        },
+      });
+      const slice = createSlice({
+        name: sliceName,
+        reducer: {
+          [VALID_ASYNC_ACTION.REJECTED]: (state, action) => {
+            state.value = action.error.message;
+          },
+        },
+        initialState: { value: "Not yet executed" }
+      });
+      const store = createStore({
+        storeSlices: { slice }
+      });
+
+      let action;
+      try { action = await validAsyncAction("Rejected"); } catch {}
+
+      expect(pendingActionObject).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.PENDING, onPrecede: { result: undefined } });
+      expect(pendingActionSnapshot).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.PENDING });
+      expect(typeof pendingStoreArg.getState).toEqual("function");
+      expect(typeof pendingStoreArg.getActions).toEqual("function");
+      expect(typeof pendingStoreArg.getSelectors).toEqual("function");
+
+      expect(resolvedActionObject).toEqual(undefined);
+      expect(resolvedActionSnapshot).toEqual(undefined);
+      expect(resolvedStoreArg).toEqual(undefined);
+
+      expect(rejectedActionObject).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.REJECTED, error: new Error("Test"), rethrow: true, onPrecede: { result: undefined }, onRejected: { result: undefined }, onSettled: { result: undefined } });
+      expect(rejectedActionSnapshot).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.REJECTED, error: new Error("Test"), rethrow: true, onPrecede: { result: undefined } });
+      expect(typeof rejectedStoreArg.getState).toEqual("function");
+      expect(typeof rejectedStoreArg.getActions).toEqual("function");
+      expect(typeof rejectedStoreArg.getSelectors).toEqual("function");
+
+      expect(settledActionObject).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.REJECTED, error: new Error("Test"), rethrow: true, onPrecede: { result: undefined }, onRejected: { result: undefined }, onSettled: { result: undefined } });
+      expect(settledActionSnapshot).toEqual({ sliceName, param: "Rejected", type: VALID_ASYNC_ACTION.REJECTED, error: new Error("Test"), rethrow: true, onPrecede: { result: undefined }, onRejected: { result: undefined } });
+      expect(typeof settledStoreArg.getState).toEqual("function");
+      expect(typeof settledStoreArg.getActions).toEqual("function");
+      expect(typeof settledStoreArg.getSelectors).toEqual("function");
     });
   });
 });
