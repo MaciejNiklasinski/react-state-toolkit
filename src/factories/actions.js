@@ -87,10 +87,10 @@ export const getActionsFactory = ({
       name,
       func,
       rethrow = true,
-      precedeWith = () => null,
-      continueWithOnResolved = () => null,
-      continueWithOnRejected = () => null,
-      continueWithOnSettled = () => null,
+      precedeWith = (pendingAction, storeArg) => null,
+      continueWithOnResolved = (settledAction, storeArg) => null,
+      continueWithOnRejected = (settledAction, storeArg) => null,
+      continueWithOnSettled = (settledAction, storeArg) => null,
     }) => {
       const suffixedName = suffixIfRequired(name, "Action");
       validateAction({
@@ -121,10 +121,11 @@ export const getActionsFactory = ({
         else if (status === STATUS.SELECTING)
           throw new UnableToInvokeSelectingStoreAction({ actionId });
         return new Promise(async (resolve, reject) => {
+          const storeArg = { getState, getActions, getSelectors };
           const pendingAction = { sliceName, param, type: PENDING };
           const settledAction = { sliceName, param };
           try {
-            const onPrecedeResult = precedeWith(param);
+            const onPrecedeResult = precedeWith(pendingAction, storeArg);
             settledAction.onPrecede = pendingAction.onPrecede = {
               result: onPrecedeResult instanceof Promise
                 ? await onPrecedeResult : onPrecedeResult
@@ -135,11 +136,7 @@ export const getActionsFactory = ({
           catch (error) { reject(error); }
 
           try {
-            const payload = await func(param, {
-              getState,
-              getActions,
-              getSelectors,
-            });
+            const payload = await func(param, storeArg);
             settledAction.type = RESOLVED;
             settledAction.payload = payload;
           } catch (error) {
@@ -152,7 +149,7 @@ export const getActionsFactory = ({
           catch (error) { reject(error); }
 
           if (!settledAction.error) try {
-            const onResolvedResult = continueWithOnResolved(param);
+            const onResolvedResult = continueWithOnResolved(settledAction, storeArg);
             settledAction.onResolved = {
               result: onResolvedResult instanceof Promise
                 ? await onResolvedResult
@@ -160,7 +157,7 @@ export const getActionsFactory = ({
             };
           } catch (error) { settledAction.onResolved = { error }; }
           else try {
-            const onRejectedResult = continueWithOnRejected(param);
+            const onRejectedResult = continueWithOnRejected(settledAction, storeArg);
             settledAction.onRejected = {
               result: onRejectedResult instanceof Promise
                 ? await onRejectedResult
@@ -168,7 +165,7 @@ export const getActionsFactory = ({
             };
           } catch (error) { settledAction.onRejected = { error }; }
           try {
-            const onSettledResult = continueWithOnSettled(param);
+            const onSettledResult = continueWithOnSettled(settledAction, storeArg);
             settledAction.onSettled = {
               result: onSettledResult instanceof Promise
                 ? await onSettledResult
