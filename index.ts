@@ -7,6 +7,8 @@ export {
   createImporter,
   useMount,
   useUnmount,
+  useAsyncMount,
+  useAsyncUnmount,
   useSingleUnmountInStrictMode,
   useSingleEffectInStrictMode,
   useObj,
