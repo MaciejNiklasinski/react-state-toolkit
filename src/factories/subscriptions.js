@@ -331,11 +331,8 @@ export const getSubscriptionsFactory = ({
     validateSubscription = () => { },
   }) => {
     const { subscriptionId, paramsId } = getSubscriptionIds({ selectorId, params });
-    // should not really happen unless useEffect was triggered by change of params producing same paramsId, 
-    // I guess throw error for now cause if it would happen on every rerender for multiple useSelector subscriptions
-    // keep serializing params into paramsId would probably have significant performance hit
     if (hookHandle.paramsId === paramsId)
-      throw new Error(`Params have changed but paramsId: haven't. Are all selector params serializable? ${paramsId}.`);
+      return hookHandle;
     else {
       hookHandle.subscriptionId = subscriptionId;
       hookHandle.paramsId = paramsId;
