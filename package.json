@@ -1,6 +1,6 @@
 {
   "name": "react-state-toolkit",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "React global store based exclusively on React build-in hooks useEffect, useMemo, useRef and useState.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
