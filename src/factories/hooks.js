@@ -59,6 +59,27 @@ export const getHooksFactory = ({
       onUnmount();
     });
 
+  const useSingleMountInStrictMode = (onMount = () => { }) => {
+    const ref = useRef({ mount: false, unmount: false });
+    useMount(() => {
+      if (!ref.current.mount)
+        ref.current.mount = true;
+      else {
+        ref.current.mount = false;
+        ref.current.result = onMount();
+      }
+      return () => {
+        if (!ref.current.unmount)
+          ref.current.unmount = true;
+        else {
+          ref.current.unmount = false;
+          if (typeof ref.current.result === "function")
+            ref.current.result();
+        }
+      };
+    });
+  };
+
   const useSingleUnmountInStrictMode = (onUnmount = () => { }) => {
     const ref = useRef(false);
     useMount(() => () => {
@@ -371,6 +392,7 @@ export const getHooksFactory = ({
     useUnmount,
     useAsyncMount,
     useAsyncUnmount,
+    useSingleMountInStrictMode,
     useSingleUnmountInStrictMode,
     useSingleEffectInStrictMode,
     useObj,
