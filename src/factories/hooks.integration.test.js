@@ -222,11 +222,15 @@ test("useSingleUnmountInStrictMode executes only once on component unmount", () 
 
 test("useSingleEffectInStrictMode executes only once on component mount and per dependency change", () => {
   let effectCount = 0;
+  let unmountEffectCount = 0;
   let rendersCount = 0;
-  const App = () => {
+  const Child = () => {
     const [value, setValue] = useState(0);
     const [otherValue, setOtherValue] = useState(0);
-    useSingleEffectInStrictMode(() => { effectCount++; }, [otherValue]);
+    useSingleEffectInStrictMode(() => {
+      effectCount++;
+      return () => { unmountEffectCount++; };
+    }, [otherValue]);
     rendersCount++;
     return (
       <div>
@@ -235,17 +239,34 @@ test("useSingleEffectInStrictMode executes only once on component mount and per 
       </div>
     );
   };
+  const App = () => {
+    const [value, setValue] = useState(true);
+    return (
+      <div>
+        {value && <Child />}
+        <button onClick={() => setValue(false)}>setFalse</button>
+      </div>
+    );
+  };
   render(<React.StrictMode><App /></React.StrictMode>);
 
   expect(effectCount).toEqual(1);
+  expect(unmountEffectCount).toEqual(0);
   expect(rendersCount).toEqual(2);
   const increaseValue = screen.getByText("increaseValue");
   userEvent.click(increaseValue);
   expect(effectCount).toEqual(1);
+  expect(unmountEffectCount).toEqual(0);
   expect(rendersCount).toEqual(4);
   const increaseOtherValue = screen.getByText("increaseOtherValue");
   userEvent.click(increaseOtherValue);
   expect(effectCount).toEqual(2);
+  expect(unmountEffectCount).toEqual(0);
+  expect(rendersCount).toEqual(6);
+  const setFalse = screen.getByText("setFalse");
+  userEvent.click(setFalse);
+  expect(effectCount).toEqual(2);
+  expect(unmountEffectCount).toEqual(1);
   expect(rendersCount).toEqual(6);
 });
 
