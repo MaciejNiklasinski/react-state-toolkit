@@ -90,11 +90,23 @@ export const getHooksFactory = ({
   };
 
   const useSingleEffectInStrictMode = (onEffect = () => { }, dependencies) => {
-    const ref = useRef();
+    const ref = useRef({ dependencies: null, unmount: false });
     useEffect(() => {
-      if (ref.current === dependencies) return;
-      ref.current = dependencies;
-      return onEffect();
+      if (ref.current.dependencies !== dependencies) {
+        ref.current.dependencies = dependencies;
+        ref.current.result = onEffect();
+      } else {
+        ref.current.unmount = false;
+      }
+      return () => {
+        if (!ref.current.unmount)
+          ref.current.unmount = true;
+        else {
+          ref.current.unmount = false;
+          if (typeof ref.current.result === "function")
+            ref.current.result();
+        }
+      };
     }, dependencies);
   };
 
