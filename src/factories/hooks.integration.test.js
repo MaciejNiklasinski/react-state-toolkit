@@ -12,8 +12,8 @@ import { getSelectorId } from "./ids";
 
 let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
 let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
-let useMount, useUnmount, useSingleUnmountInStrictMode, useSingleEffectInStrictMode, useObj, useSymbol,
-  useFirstRender, usePrev, usePrevState;
+let useMount, useUnmount, useSingleMountInStrictMode, useSingleUnmountInStrictMode, useSingleEffectInStrictMode,
+  useObj, useSymbol, useFirstRender, usePrev, usePrevState;
 const reset = () => {
   stores = {};
   slices = {};
@@ -74,6 +74,7 @@ const reset = () => {
   ({
     useMount,
     useUnmount,
+    useSingleMountInStrictMode,
     useSingleUnmountInStrictMode,
     useSingleEffectInStrictMode,
     useObj,
@@ -146,6 +147,45 @@ test("useUnmount executes only on component unmount", () => {
   userEvent.click(setFalse);
   expect(effectCount).toEqual(1);
   expect(rendersCount).toEqual(3);
+});
+
+test("useSingleMountInStrictMode executes only once on component mount", () => {
+  let mountEffectCount = 0;
+  let unmountEffectCount = 0;
+  let rendersCount = 0;
+  const Child = () => {
+    useSingleMountInStrictMode(() => {
+      mountEffectCount++;
+      return () => { unmountEffectCount++; };
+    });
+    return (<div>Child</div>);
+  };
+  const App = () => {
+    const [value, setValue] = useState(false);
+    rendersCount++;
+    return (
+      <div>
+        {value && <Child />}
+        <button onClick={() => setValue(true)}>setTrue</button>
+        <button onClick={() => setValue(false)}>setFalse</button>
+      </div>
+    );
+  };
+  render(<React.StrictMode><App /></React.StrictMode>);
+
+  expect(mountEffectCount).toEqual(0);
+  expect(unmountEffectCount).toEqual(0);
+  expect(rendersCount).toEqual(2);
+  const setTrue = screen.getByText("setTrue");
+  userEvent.click(setTrue);
+  expect(mountEffectCount).toEqual(1);
+  expect(unmountEffectCount).toEqual(0);
+  expect(rendersCount).toEqual(4);
+  const setFalse = screen.getByText("setFalse");
+  userEvent.click(setFalse);
+  expect(mountEffectCount).toEqual(1);
+  expect(unmountEffectCount).toEqual(1);
+  expect(rendersCount).toEqual(6);
 });
 
 test("useSingleUnmountInStrictMode executes only once on component unmount", () => {
