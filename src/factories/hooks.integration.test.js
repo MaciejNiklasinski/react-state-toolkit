@@ -13,7 +13,7 @@ import { getSelectorId } from "./ids";
 let stores, slices, actions, actionsByType, actionsImports, selectors, selectorsImports;
 let createStore, createSlice, createAction, createAsyncAction, createSelector, createImporter;
 let useMount, useUnmount, useSingleMountInStrictMode, useSingleUnmountInStrictMode, useSingleEffectInStrictMode,
-  useObj, useSymbol, useFirstRender, usePrev, usePrevState;
+  useObj, useSymbol, useSubscription, usePrev, usePrevState;
 const reset = () => {
   stores = {};
   slices = {};
@@ -79,7 +79,7 @@ const reset = () => {
     useSingleEffectInStrictMode,
     useObj,
     useSymbol,
-    useFirstRender,
+    useSubscription,
     usePrev,
     usePrevState,
   } = getHooksFactory({
@@ -328,21 +328,25 @@ test("useSymbol return the same unique symbol per call", () => {
   expect(rendersCount).toEqual(2);
 });
 
-test("useFirstRender executes factory function only once and returns correct value of isFirstRender flag", () => {
+test("useSubscription subscribes and unsubscribes correctly", () => {
   let factoryCount = 0;
   let rendersCount = 0;
-  let manufacturedObj;
-  let lastObj;
-  const isFirstRenderValues = [];
-  const App = () => {
+  let lastHandle;
+  const subscriptions = new Map();
+  const Child = () => {
     const [value, setValue] = useState(0);
-    const [obj, isFirstRender] = useFirstRender(() => {
+    const handle = useSubscription(() => {
       factoryCount++;
-      manufacturedObj = {};
-      return manufacturedObj;
+      const id = Symbol();
+      const handle = {
+        id,
+        unsubscribe: () => subscriptions.delete(id),
+      };
+      subscriptions.set(id, handle);
+      lastHandle = handle;
+      return handle;
     });
-    expect(obj).toBe(manufacturedObj);
-    expect(isFirstRender).toEqual(!rendersCount);
+    expect(handle).toBe(lastHandle);
     rendersCount++;
     return (
       <div>
@@ -351,13 +355,97 @@ test("useFirstRender executes factory function only once and returns correct val
       </div>
     );
   };
+
+  const App = () => {
+    const [showChild, setShowChild] = useState(false);
+    return (
+      <div>
+        <button onClick={() => setShowChild(true)}>setShowChild</button>
+        <button onClick={() => setShowChild(false)}>setHideChild</button>
+        {showChild && <Child />}
+      </div>
+    );
+  };
+
   render(<App />);
+  expect(factoryCount).toEqual(0);
+  expect(rendersCount).toEqual(0);
+  expect(subscriptions.size).toEqual(0);
+  const setShowChild = screen.getByText("setShowChild");
+  userEvent.click(setShowChild);
   expect(factoryCount).toEqual(1);
   expect(rendersCount).toEqual(1);
+  expect(subscriptions.size).toEqual(1);
   const increaseValue = screen.getByText("increaseValue");
   userEvent.click(increaseValue);
   expect(factoryCount).toEqual(1);
   expect(rendersCount).toEqual(2);
+  expect(subscriptions.size).toEqual(1);
+  const setHideChild = screen.getByText("setHideChild");
+  userEvent.click(setHideChild);
+  expect(factoryCount).toEqual(1);
+  expect(rendersCount).toEqual(2);
+  expect(subscriptions.size).toEqual(0);
+});
+
+test("useSubscription subscribes and unsubscribes correctly in strict mode", () => {
+  let factoryCount = 0;
+  let rendersCount = 0;
+  let lastHandle;
+  const subscriptions = new Map();
+  const Child = () => {
+    const [value, setValue] = useState(0);
+    const handle = useSubscription(() => {
+      factoryCount++;
+      const id = Symbol();
+      const handle = {
+        id,
+        unsubscribe: () => subscriptions.delete(id),
+      };
+      subscriptions.set(id, handle);
+      lastHandle = handle;
+      return handle;
+    });
+    expect(handle).toBe(lastHandle);
+    rendersCount++;
+    return (
+      <div>
+        <div>{`${value}`}</div>
+        <button onClick={() => setValue(value + 1)}>increaseValue</button>
+      </div>
+    );
+  };
+
+  const App = () => {
+    const [showChild, setShowChild] = useState(false);
+    return (
+      <div>
+        <button onClick={() => setShowChild(true)}>setShowChild</button>
+        <button onClick={() => setShowChild(false)}>setHideChild</button>
+        {showChild && <Child />}
+      </div>
+    );
+  };
+
+  render(<React.StrictMode><App /></React.StrictMode>);
+  expect(factoryCount).toEqual(0);
+  expect(rendersCount).toEqual(0);
+  expect(subscriptions.size).toEqual(0);
+  const setShowChild = screen.getByText("setShowChild");
+  userEvent.click(setShowChild);
+  expect(factoryCount).toEqual(2);
+  expect(rendersCount).toEqual(2);
+  expect(subscriptions.size).toEqual(1);
+  const increaseValue = screen.getByText("increaseValue");
+  userEvent.click(increaseValue);
+  expect(factoryCount).toEqual(2);
+  expect(rendersCount).toEqual(4);
+  expect(subscriptions.size).toEqual(1);
+  const setHideChild = screen.getByText("setHideChild");
+  userEvent.click(setHideChild);
+  expect(factoryCount).toEqual(2);
+  expect(rendersCount).toEqual(4);
+  expect(subscriptions.size).toEqual(0);
 });
 
 test("usePrev returns correct value", () => {
