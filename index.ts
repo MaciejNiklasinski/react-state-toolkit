@@ -9,11 +9,12 @@ export {
   useUnmount,
   useAsyncMount,
   useAsyncUnmount,
+  useSingleMountInStrictMode,
   useSingleUnmountInStrictMode,
   useSingleEffectInStrictMode,
   useObj,
   useSymbol,
-  useFirstRender,
+  useSubscription,
   usePrev,
   usePrevState,
 } from "./src/";

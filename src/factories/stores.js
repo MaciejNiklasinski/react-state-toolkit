@@ -18,7 +18,6 @@ export const getStoresFactory = ({
       name = DEFAULT_STORE,
       storeSlices = {},
       storeSelectors = {},
-      isStrictDevMode = false,
     }) => {
       // Normalize store creations arguments
       if (storeSlices && typeof storeSlices === "object")
@@ -92,11 +91,11 @@ export const getStoresFactory = ({
         stores[name].status = STATUS.READY;
       };
 
-      const useStoreState = getUseStoreState({ storeName: name, isStrictDevMode });
-      const usePrevStoreState = getUsePrevStoreState({ storeName: name, isStrictDevMode });
-      const useSelector = getUseSelector({ storeName: name, isStrictDevMode });
-      const usePrevSelector = getUsePrevSelector({ storeName: name, isStrictDevMode });
-      const useSelectorMemo = getUseSelectorMemo({ storeName: name, isStrictDevMode });
+      const useStoreState = getUseStoreState({ storeName: name });
+      const usePrevStoreState = getUsePrevStoreState({ storeName: name });
+      const useSelector = getUseSelector({ storeName: name });
+      const usePrevSelector = getUsePrevSelector({ storeName: name });
+      const useSelectorMemo = getUseSelectorMemo({ storeName: name });
 
       const getState = (sliceName = null) =>
         sliceName ? stores[name].state[sliceName] : stores[name].state;
