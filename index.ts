@@ -9,6 +9,7 @@ export {
   useUnmount,
   useAsyncMount,
   useAsyncUnmount,
+  useSingleMountInStrictMode,
   useSingleUnmountInStrictMode,
   useSingleEffectInStrictMode,
   useObj,

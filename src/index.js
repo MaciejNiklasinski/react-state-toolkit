@@ -161,6 +161,7 @@ export const useMount = hooksFactory.useMount;
 export const useUnmount = hooksFactory.useUnmount;
 export const useAsyncMount = hooksFactory.useAsyncMount;
 export const useAsyncUnmount = hooksFactory.useAsyncUnmount;
+export const useSingleMountInStrictMode = hooksFactory.useSingleMountInStrictMode;
 export const useSingleUnmountInStrictMode = hooksFactory.useSingleUnmountInStrictMode;
 export const useSingleEffectInStrictMode = hooksFactory.useSingleEffectInStrictMode;
 export const useObj = hooksFactory.useObj;
