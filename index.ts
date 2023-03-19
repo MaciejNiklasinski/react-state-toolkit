@@ -14,7 +14,7 @@ export {
   useSingleEffectInStrictMode,
   useObj,
   useSymbol,
-  useFirstRender,
+  useSubscription,
   usePrev,
   usePrevState,
 } from "./src/";

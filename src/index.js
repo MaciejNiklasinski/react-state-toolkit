@@ -73,12 +73,10 @@ export const createStore = ({
   name = DEFAULT_STORE,
   storeSlices = {},
   storeSelectors = {},
-  isStrictDevMode = false,
 } = {}) => storesFactory.createStore({
   name,
   storeSlices,
-  storeSelectors,
-  isStrictDevMode
+  storeSelectors
 });
 
 export const createSlice = ({
@@ -166,6 +164,6 @@ export const useSingleUnmountInStrictMode = hooksFactory.useSingleUnmountInStric
 export const useSingleEffectInStrictMode = hooksFactory.useSingleEffectInStrictMode;
 export const useObj = hooksFactory.useObj;
 export const useSymbol = hooksFactory.useSymbol;
-export const useFirstRender = hooksFactory.useFirstRender;
+export const useSubscription = hooksFactory.useSubscription;
 export const usePrev = hooksFactory.usePrev;
 export const usePrevState = hooksFactory.usePrevState;
